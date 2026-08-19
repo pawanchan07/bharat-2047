@@ -11,6 +11,7 @@ import {
   verifyChain, tally, DIFFICULTY_PREFIX, sha256,
 } from './blockchain';
 import { IntentCard } from './Intent';
+import { ArrivalScene, CitizenPortrait, useWalkToBooth } from './ArrivalScene';
 
 const CANDIDATES = [
   { id: 'pragati', name: 'Pragati Party', icon: '🌾', color: '#f59e0b' },
@@ -54,14 +55,33 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
   const [chainCheck, setChainCheck] = useState<{ valid: boolean; brokenAt: number[] }>({ valid: true, brokenAt: [] });
   const [tamperTarget, setTamperTarget] = useState<number | null>(null);
   const [votesAlreadyCast, setVotesAlreadyCast] = useState<Set<string>>(new Set());
-  const [dupAttempt, setDupAttempt] = useState(false);
+  const [rollTokens, setRollTokens] = useState<Record<string, string>>({});
   const chainRef = useRef<HTMLDivElement>(null);
+  /**
+   * The vote each block honestly recorded, kept so "restore the honest chain" puts the real
+   * result back. Re-mining an attacker's edit would produce a valid-looking chain carrying
+   * the forged vote, which is the opposite of the lesson this screen exists to teach.
+   */
+  const honestVotesRef = useRef<Map<number, string>>(new Map());
 
   const citizen = CITIZENS[citizenIdx % CITIZENS.length];
 
   // Boot the chain with a genesis block
   useEffect(() => {
     createGenesisBlock().then((g) => setChain([g]));
+  }, []);
+
+  // Derive every voter's anonymous token up front, so the electoral roll can be checked
+  // against the public ledger before anyone is let anywhere near a ballot.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        CITIZENS.map(async (c) => [c.name, await makeVoterToken(`${c.name}-${c.village}`)] as const),
+      );
+      if (!cancelled) setRollTokens(Object.fromEntries(entries));
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   // scroll chain view to the end when it grows
@@ -72,7 +92,6 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
   const startIdentity = useCallback(async () => {
     setStep('identity');
     setScanPct(0);
-    setDupAttempt(false);
     const token = await makeVoterToken(`${citizen.name}-${citizen.village}`);
     // animate the scan
     let p = 0;
@@ -81,15 +100,11 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
       setScanPct(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(iv);
-        if (votesAlreadyCast.has(token)) {
-          setDupAttempt(true);
-        } else {
-          setVoterToken(token);
-          setTimeout(() => setStep('ballot'), 900);
-        }
+        setVoterToken(token);
+        setTimeout(() => setStep('ballot'), 900);
       }
     }, 60);
-  }, [citizen, votesAlreadyCast]);
+  }, [citizen]);
 
   const castVote = useCallback(async (cand: typeof CANDIDATES[0]) => {
     setChoice(cand);
@@ -128,17 +143,32 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
     }, 1200);
   }, [chain, voterToken]);
 
-  const nextVoter = useCallback(() => {
-    setCitizenIdx((i) => i + 1);
+  // The walk to the booth. Its arrival is what advances the journey, so the step change is
+  // the end of a movement rather than an unrelated jump.
+  const walk = useWalkToBooth(startIdentity);
+
+  const goToCitizen = useCallback((index: number) => {
+    walk.reset();
+    setCitizenIdx(((index % CITIZENS.length) + CITIZENS.length) % CITIZENS.length);
     setChoice(null);
     setSealHash('');
     setMiningNonce(0);
     setMiningHash('');
+    setVoterToken('');
+    setScanPct(0);
     setStep('arrive');
-  }, []);
+  }, [walk]);
+
+  const nextVoter = useCallback(() => {
+    goToCitizen(citizenIdx + 1);
+  }, [goToCitizen, citizenIdx]);
 
   const tamperBlock = useCallback(async (idx: number, newCandidate: string) => {
     const copy = chain.map((b) => ({ ...b }));
+    // Remember the real vote the first time this block is attacked.
+    if (!honestVotesRef.current.has(copy[idx].index)) {
+      honestVotesRef.current.set(copy[idx].index, copy[idx].candidate);
+    }
     copy[idx].candidate = newCandidate;
     setChain(copy);
     setTamperTarget(null);
@@ -147,9 +177,15 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
   }, [chain]);
 
   const repairChain = useCallback(async () => {
-    // simulate the honest network restoring the majority chain: re-mine from the break
-    let fixed = [...chain];
     const firstBroken = chainCheck.brokenAt[0];
+    if (firstBroken === undefined || firstBroken < 1) return;
+
+    // The honest network does not re-seal the attacker's edit — it discards it and rebuilds
+    // from the last good block, so the votes that come back are the ones really cast.
+    let fixed = chain.map((b) => {
+      const honest = honestVotesRef.current.get(b.index);
+      return honest !== undefined ? { ...b, candidate: honest } : { ...b };
+    });
     for (let i = firstBroken; i < fixed.length; i++) {
       const prev = fixed[i - 1];
       const b = fixed[i];
@@ -160,6 +196,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
       fixed = fixed.map((x, j) => (j === i ? remined : x));
       setChain([...fixed]);
     }
+    honestVotesRef.current.clear();
     const check = await verifyChain(fixed);
     setChainCheck(check);
   }, [chain, chainCheck]);
@@ -168,14 +205,28 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
   const totalVotes = Object.values(counts).reduce((a, b) => a + b, 0);
   const stepIdx = STEP_LABELS.findIndex((s) => s.key === step);
 
+  // The electoral roll, checked against the public ledger. A token that appears in a block
+  // has voted; there is no path in this UI that offers that citizen a second ballot.
+  const citizenToken = rollTokens[citizen.name] ?? '';
+  const priorBlock = citizenToken ? chain.find((b) => b.index > 0 && b.voterToken === citizenToken) : undefined;
+  const alreadyVoted = !!priorBlock || (!!citizenToken && votesAlreadyCast.has(citizenToken));
+  const rollStatus = CITIZENS.map((c) => {
+    const t = rollTokens[c.name];
+    return { ...c, token: t, voted: !!t && votesAlreadyCast.has(t) };
+  });
+  const everyoneVoted = rollStatus.length > 0 && rollStatus.every((r) => r.voted);
+
   return (
     <div className="fixed inset-0 z-50 bg-[#0b1020] text-white overflow-y-auto">
       <style>{`
         @keyframes vc-walk { 0% { transform: translateX(-140px); } 100% { transform: translateX(0); } }
         @keyframes vc-scan { 0% { top: 0; } 50% { top: calc(100% - 4px); } 100% { top: 0; } }
         @keyframes vc-pulse { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
-        @keyframes vc-pop { 0% { transform: scale(.6); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
-        .vc-pop { animation: vc-pop .5s ease-out both; }
+        @keyframes vc-pop { 0% { transform: scale(.97); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+        /* No fill-mode: a throttled or background tab can leave an animation unstarted, and
+           with 'both' the panel would sit on the 0% keyframe (opacity 0) — invisible content
+           rather than an un-animated one. The resting style must be the visible one. */
+        .vc-pop { animation: vc-pop .4s ease-out; }
       `}</style>
 
       {/* Header */}
@@ -206,22 +257,71 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           {step === 'arrive' && (
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">A citizen arrives to vote</h2>
-              <p className="text-white/60 mb-8 max-w-xl">In Bharat 2047, a vote is cast in a booth — but recorded on a public, tamper-evident blockchain that anyone can audit, while the voter stays anonymous.</p>
-              <div className="relative h-44 rounded-2xl bg-gradient-to-b from-[#131a33] to-[#0e1428] border border-white/10 overflow-hidden flex items-end">
-                <div className="absolute inset-x-0 bottom-0 h-10 bg-[#1a2342]" />
-                <div className="absolute right-10 bottom-8 text-6xl">🏛️</div>
-                <div className="absolute right-24 bottom-8 text-[10px] text-white/40 -rotate-6">POLLING BOOTH</div>
-                <div className="relative bottom-8 left-16 text-5xl" style={{ animation: 'vc-walk 2.2s ease-out both' }}>🚶‍♀️</div>
-              </div>
-              <div className="mt-6 flex items-center gap-4">
+              <p className="text-white/60 mb-6 max-w-xl">In Bharat 2047, a vote is cast in a booth — but recorded on a public, tamper-evident blockchain that anyone can audit, while the voter stays anonymous.</p>
+
+              <ArrivalScene phase={walk.phase} citizenName={citizen.name} paletteIndex={citizenIdx} />
+
+              <div className="mt-6 flex flex-wrap items-center gap-4">
                 <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                   <div className="text-xs text-white/40 mb-0.5">Voter</div>
                   <div className="font-semibold">{citizen.name}</div>
                   <div className="text-xs text-white/50">{citizen.age} yrs · {citizen.village} village</div>
+                  <div className="font-mono text-[10px] text-cyan-300/70 mt-1">{citizenToken || '…'}</div>
                 </div>
-                <button onClick={startIdentity} className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-lg shadow-lg shadow-amber-500/20">
-                  Enter the booth →
-                </button>
+
+                {alreadyVoted ? (
+                  <div className="flex-1 min-w-[280px] p-4 rounded-xl bg-red-500/10 border border-red-500/40">
+                    <div className="font-semibold text-red-300 mb-1">⛔ {citizen.name} has already voted.</div>
+                    <p className="text-sm text-white/60">
+                      Her token is already sealed into{' '}
+                      <b className="text-white/80">block #{priorBlock?.index ?? '—'}</b> of the public chain, so the roll
+                      check refuses her at the door. There is no second ballot to offer her — not here, and not
+                      anywhere else in this booth.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button onClick={nextVoter} disabled={everyoneVoted}
+                        className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:hover:bg-amber-500 text-black text-sm font-semibold">
+                        🚶 Next citizen →
+                      </button>
+                      <button onClick={() => setStep('chain')}
+                        className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm">
+                        🔗 View the chain
+                      </button>
+                    </div>
+                    {everyoneVoted && (
+                      <p className="text-[11px] text-white/40 mt-2">Every citizen on this roll has now voted.</p>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={walk.start}
+                    disabled={walk.phase !== 'waiting'}
+                    className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/40 disabled:cursor-default text-black font-semibold text-lg shadow-lg shadow-amber-500/20 transition-colors">
+                    {walk.phase === 'waiting' ? 'Enter the booth →' : 'Walking to the booth…'}
+                  </button>
+                )}
+              </div>
+
+              {/* The roll itself. Choosing a citizen decides who walks in next — it never
+                  offers anyone a second vote; the ones already on the chain are refused. */}
+              <div className="mt-8">
+                <div className="text-xs uppercase tracking-widest text-white/35 mb-2">Electoral roll · Ward 04</div>
+                <div className="flex flex-wrap gap-2">
+                  {rollStatus.map((r, i) => (
+                    <button key={r.name} onClick={() => goToCitizen(i)}
+                      className={`px-3 py-2 rounded-xl border text-left text-xs transition-colors
+                        ${i === citizenIdx
+                          ? 'bg-amber-500 border-amber-400 text-black font-semibold'
+                          : r.voted
+                            ? 'bg-white/[0.03] border-white/10 text-white/40 hover:border-white/25'
+                            : 'bg-white/5 border-white/15 text-white/80 hover:border-amber-400/50'}`}>
+                      <div className="font-semibold">{r.name}</div>
+                      <div className={i === citizenIdx ? 'text-black/60' : 'text-white/40'}>
+                        {r.voted ? '✓ voted — cannot vote again' : 'not yet voted'}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -229,10 +329,10 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           {step === 'identity' && (
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">Step 1 · Identity, without exposure</h2>
-              <p className="text-white/60 mb-6 max-w-xl">Biometric check confirms <b>{citizen.name}</b> is a registered voter. Her identity is then converted into a one-way anonymous token — the chain never learns <i>who</i> she is.</p>
+              <p className="text-white/60 mb-6 max-w-xl">Biometric check confirms <b>{citizen.name}</b> is a registered voter. The identity is then converted into a one-way anonymous token — the chain never learns <i>who</i> the voter is.</p>
               <div className="flex gap-8 items-center">
-                <div className="relative w-40 h-48 rounded-2xl border-2 border-cyan-400/40 bg-cyan-400/5 flex items-center justify-center text-7xl overflow-hidden">
-                  👩🏽
+                <div className="relative w-40 h-48 rounded-2xl border-2 border-cyan-400/40 bg-cyan-400/5 flex items-center justify-center overflow-hidden">
+                  <CitizenPortrait paletteIndex={citizenIdx} className="h-full w-auto" />
                   <div className="absolute left-0 right-0 h-1 bg-cyan-300 shadow-[0_0_18px_4px_rgba(103,232,249,.8)]" style={{ animation: 'vc-scan 1.6s linear infinite' }} />
                 </div>
                 <div className="flex-1 max-w-sm">
@@ -240,12 +340,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                   <div className="h-2 rounded bg-white/10 overflow-hidden mb-4">
                     <div className="h-full bg-cyan-400 transition-all" style={{ width: `${scanPct}%` }} />
                   </div>
-                  {dupAttempt ? (
-                    <div className="p-3 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-sm">
-                      ⛔ This voter token has already cast a vote. Double-voting is cryptographically impossible — the chain already contains this token.
-                      <button onClick={nextVoter} className="block mt-3 px-4 py-2 rounded bg-white/10 hover:bg-white/20 text-white">Next voter →</button>
-                    </div>
-                  ) : scanPct >= 100 ? (
+                  {scanPct >= 100 ? (
                     <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-sm vc-pop">
                       <div className="text-emerald-300 font-semibold mb-1">✓ Eligible voter confirmed</div>
                       <div className="text-white/60 text-xs">Anonymous token issued:</div>

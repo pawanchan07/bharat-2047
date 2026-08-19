@@ -3,14 +3,18 @@
 > **Read [VISION.md](VISION.md) first — it defines this project.**
 
 An explorable, living isometric town showing how future India's civic systems
-could work. Two of them are fully built and running for real in the browser:
+could work. Three of them are fully built and running for real in the browser:
 
 - a **blockchain voting centre** — real SHA-256 hashing, real proof-of-work
   mining, live tamper detection;
 - an **AI Panchayat Kendra** — a grievance desk whose classifier is *trained in
   your browser when the screen opens*, with a rules engine that really checks the
   citizen's record and five gates that decide when software must hand over to a
-  human.
+  human;
+- a **Bank of Bharat** — a confidential ledger a regulator can audit *without
+  being allowed to read it*: real 2048-bit Pedersen commitments, a solvency proof
+  that is pure homomorphic arithmetic and catches a one-rupee lie, and fraud
+  detectors that find structuring and layering while every amount stays sealed.
 
 No API keys, no network calls, nothing pre-recorded.
 
@@ -91,6 +95,42 @@ Current measured numbers, reproducible from the button in the UI: **92.5%
 leave-one-out accuracy** across 10 classes on 120 examples, with **9 of 9
 misclassifications falling below the auto-route confidence gate**.
 
+Then open the **Bank of Bharat**:
+
+12. Press **Step inside — audit the bank**. Every balance is already sealed; the
+    balance column shows dots because nobody, including you, can read it.
+13. On **Prove solvency**, watch the audit multiply all 26 account commitments
+    together and match the declared total. Then press **Hide ₹1**. A one-rupee lie
+    fails exactly as loudly as a fifty-lakh one, and no account was opened to catch it.
+14. **My account** — a named depositor proves her balance is inside the audited
+    root with a Merkle proof, learning nothing about the other 25.
+15. **Exposure** — sector concentration computed from homomorphic sums. The
+    regulator opens the aggregate, never a member.
+16. **Patterns** — structuring, layering and a pass-through mule, all found from
+    the shape of the graph and the clock while every amount is still sealed.
+17. **Disclosure** — compel openings for one flag. Every opened amount lands just
+    under the ₹10 lakh reporting threshold, and each verifies against the
+    commitment published before anyone was looking. 152 of 163 transfers were
+    never opened; that ratio is the whole argument.
+
+### What is real in the Bank of Bharat, and what is not
+
+**Real:** Pedersen commitments over RFC 3526 MODP Group 14 (a published 2048-bit
+safe prime); the homomorphic identity C(a)·C(b) = C(a+b) that the entire solvency
+proof rests on; Schnorr proofs of knowledge (Fiat–Shamir over SHA-256); the Merkle
+tree and inclusion proofs; the graph and timing detectors; the Benford χ² test; and
+the verification that each compelled opening matches its original commitment.
+
+**Not real:** the customers and their transactions are synthetic, generated from a
+fixed seed so every visitor audits the same bank. Three fraud patterns are planted
+in it deliberately so the detectors have something true to find.
+
+**Worth knowing:** Benford's law needs magnitudes, so it *cannot* run over sealed
+commitments — it runs on figures the bank publishes itself, and the UI says so
+rather than letting you assume otherwise. The design also hides amounts but not the
+transaction graph; hide the graph too and every detector goes blind. That tradeoff
+is real, unsolved, and stated on screen.
+
 ## Putting it on your website
 
 Two good options:
@@ -119,12 +159,30 @@ Deploy it anywhere as above, then embed on any page of your site:
 - `src/components/india/panchayat.ts` — the real engine behind it: training
   corpus, tokenizer, Naive Bayes classifier, entity extraction, scheme rules,
   root-cause diagnosis, the routing gates, leave-one-out evaluation, case ledger
+- `src/components/india/BankOfBharat.tsx` — the confidential-ledger audit experience
+- `src/components/india/bank.ts` — the real engine behind it: Pedersen commitments
+  over RFC 3526 Group 14, homomorphic sums, Schnorr proofs, the Merkle tree, the
+  synthetic bank, and the structuring / layering / pass-through / Benford detectors
+- `src/components/india/ArrivalScene.tsx` — the drawn walk-up scene both journeys open on
+- `src/components/india/WorldLabels.tsx` — the name plates floating over the buildings
+- `src/components/india/BootScreen.tsx` — the loading screen, driven by real asset progress
+- `src/components/india/Tricolour.tsx` — the flag, drawn (the emoji renders as “IN” on Windows)
 - `scripts/generate_future_india.py` — regenerates the town layout
+- `scripts/optimize-static-images.mjs` — shrinks the social cards and the touch icon
 - `public/example-states/future_india.json` — the town itself
+
+## Notes on speed
+
+The town is fixed, so `/india` only waits on the sprite sheets it actually uses —
+the main sheet, water, parks, shops, stations and the two services sheets. That is
+**2.4 MB instead of 7.2 MB** before the world can be drawn; construction, abandoned,
+high-density, farm, mansion and aircraft sheets are fetched later, at idle. The
+loading bar counts those real downloads rather than animating on a timer, and
+`public/assets` is served with a month-long cache so a second visit costs nothing.
 
 ## Roadmap (as designed)
 
 - ✅ Digital Voting Centre — LIVE
 - ✅ AI Panchayat Kendra — LIVE
-- 🔜 Bank of Bharat — every transaction on an auditable ledger
+- ✅ Bank of Bharat — LIVE
 - 🗓️ Digital school records, smart waste, AI safety, mobility hub

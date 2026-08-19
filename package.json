@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint .",
     "crop-screenshots": "bash scripts/crop-screenshots.sh",
-    "compress-images": "node scripts/compress-images.mjs"
+    "compress-images": "node scripts/compress-images.mjs",
+    "optimize-static-images": "node scripts/optimize-static-images.mjs",
+    "verify-voting": "node --no-warnings scripts/verify-voting-chain.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",

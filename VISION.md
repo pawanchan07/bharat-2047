@@ -1,7 +1,7 @@
 # THE VISION — Bharat 2047
 
 > **This file defines the project. Read it before writing any code here.**
-> Status: systems 1 and 2 are built and live. Next system is chosen by Pawan,
+> Status: systems 1, 2 and 3 are built and live. Next system is chosen by Pawan,
 > one at a time, in roughly the order below.
 
 This project is NOT a demo with two or three screens. It is a complete,
@@ -19,7 +19,7 @@ system we add must meet that same bar of realness in the browser.
    matches government schemes, files and routes the request, human panchayat
    member approves, citizen tracks resolution. This is also the town's
    COMPLAINT SYSTEM — any grievance about any department enters here.
-3. Bank of Bharat — new-age banking: every transaction on an auditable
+3. ✅ Bank of Bharat — DONE. New-age banking: every transaction on an auditable
    blockchain ledger, stricter rules enforced by mathematics, regulators see
    the books in real time, no hidden loans, instant fraud visibility.
 4. Education — school grades, marksheets and degrees on decentralized
@@ -110,10 +110,13 @@ The voting centre implements this pattern — study it before building anything.
 | --- | --- | --- |
 | Digital Voting Centre | `src/components/india/VotingCentre.tsx` | `src/components/india/blockchain.ts` |
 | AI Panchayat Kendra | `src/components/india/PanchayatKendra.tsx` | `src/components/india/panchayat.ts` |
+| Bank of Bharat | `src/components/india/BankOfBharat.tsx` | `src/components/india/bank.ts` |
 
 Landmarks, the dock and the explore mode are in
 `src/components/india/FutureIndia.tsx`. A system goes live by flipping its
 landmark's `status` to `'live'`, giving it a `cta`, and rendering its component.
+Every journey opens on the shared drawn walk-up scene in
+`src/components/india/ArrivalScene.tsx` — a citizen is always *seen* arriving.
 
 ## Outstanding against this vision
 
@@ -121,5 +124,5 @@ Nothing structural. The palette question is closed — see the amended design ru
 above: Bharat 2047 keeps its own identity, and the bar it is held to is
 exceptional craft rather than a colour match.
 
-The standing work is the roadmap itself: systems 3 through 10, one at a time, each
+The standing work is the roadmap itself: systems 4 through 10, one at a time, each
 built to the same bar the voting centre and the panchayat set.

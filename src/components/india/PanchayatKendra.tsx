@@ -22,6 +22,7 @@ import {
   evaluateSchemes, extractEntities, leaveOneOut, routeCase, sealCase, trainClassifier,
 } from './panchayat';
 import { IntentCard } from './Intent';
+import { ArrivalScene } from './ArrivalScene';
 
 type Step = 'arrive' | 'listen' | 'understand' | 'checks' | 'draft' | 'review' | 'route' | 'register';
 
@@ -196,7 +197,6 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
         @keyframes pk-pop { 0% { transform: scale(.96); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
         @keyframes pk-pulse { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
         @keyframes pk-wave { 0%,100% { height: 6px } 50% { height: 26px } }
-        @keyframes pk-walk { 0% { transform: translateX(-120px); opacity: 0 } 100% { transform: translateX(0); opacity: 1 } }
         /* No fill-mode: a background tab throttles animations, and with 'both' the
            panel would sit at the 0% keyframe (opacity 0) until the tab is looked at. */
         .pk-pop { animation: pk-pop .4s ease-out; }
@@ -247,11 +247,15 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 the point where a human must decide.
               </p>
 
-              <div className="relative h-40 rounded-2xl bg-gradient-to-b from-[#131a33] to-[#0e1428] border border-white/10 overflow-hidden flex items-end mb-6">
-                <div className="absolute inset-x-0 bottom-0 h-10 bg-[#1a2342]" />
-                <div className="absolute right-10 bottom-8 text-6xl">🏛️</div>
-                <div className="absolute right-[92px] bottom-9 text-[10px] text-white/40 -rotate-6">PANCHAYAT BHAWAN</div>
-                <div className="relative bottom-8 left-14 text-5xl" style={{ animation: 'pk-walk 1.8s ease-out both' }}>{citizen.avatar}</div>
+              <div className="mb-6">
+                <ArrivalScene
+                  key={citizenIdx}
+                  autoPlay
+                  variant="panchayat"
+                  citizenName={citizen.name}
+                  paletteIndex={citizenIdx}
+                  arrivedLabel="At the panchayat desk"
+                />
               </div>
 
               <div className="grid md:grid-cols-[220px_1fr] gap-4 items-start">

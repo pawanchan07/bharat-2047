@@ -69,7 +69,8 @@ export default async function RootLayout({ children }: {children: React.ReactNod
   <html className={`dark ${playfair.variable} ${dmSans.variable}`} lang={await getLocale()}>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href="/assets/buildings/residential.png" />
+        {/* A purpose-made 180px icon. This used to point at a 1.7 MB sprite sheet. */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Preload critical game assets - WebP for browsers that support it */}
         <link
         rel="preload"

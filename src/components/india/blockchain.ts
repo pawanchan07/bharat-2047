@@ -57,10 +57,13 @@ export async function createGenesisBlock(): Promise<VoteBlock> {
 export async function mineBlock(
   partial: Omit<VoteBlock, 'hash' | 'nonce'>,
   onProgress?: (nonce: number, hash: string) => void,
-  reportEvery = 25
+  // Each report is also a yield back to the browser, and a yield costs far more than the
+  // hashes between them — a hidden tab clamps timers to hundreds of milliseconds, which
+  // turned a block into minutes. At this cadence the nonce counter still updates roughly
+  // twenty times per block, so the race is still visible.
+  reportEvery = 200
 ): Promise<VoteBlock> {
   let nonce = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const candidateBlock = { ...partial, nonce };
     const hash = await hashBlock(candidateBlock);
@@ -82,9 +85,21 @@ export interface ChainCheck {
   brokenAt: number[]; // indexes of invalid blocks
 }
 
-/** Re-verify the whole chain: recompute hashes + check links + difficulty. */
+/**
+ * Re-verify the whole chain: recompute hashes + check links + difficulty.
+ *
+ * Two details matter for this to mean what the screen says it means. Each link is checked
+ * against what the previous block *actually hashes to*, not against the hash it claims to
+ * have — otherwise editing a vote would only ever flag the block you edited, because its
+ * stale hash field still satisfies its successor. And once a block is invalid, every block
+ * built on top of it is invalid too: they descend from something no honest node would
+ * accept. That is why one changed vote shatters the rest of the chain.
+ */
 export async function verifyChain(chain: VoteBlock[]): Promise<ChainCheck> {
   const brokenAt: number[] = [];
+  let prevRecomputed: string | null = null;
+  let broken = false;
+
   for (let i = 0; i < chain.length; i++) {
     const b = chain[i];
     const recomputed = await hashBlock({
@@ -93,9 +108,14 @@ export async function verifyChain(chain: VoteBlock[]): Promise<ChainCheck> {
     });
     const hashOk = recomputed === b.hash;
     const powOk = i === 0 || b.hash.startsWith(DIFFICULTY_PREFIX);
-    const linkOk = i === 0 || b.prevHash === chain[i - 1].hash;
-    if (!(hashOk && powOk && linkOk)) brokenAt.push(i);
+    const linkOk = i === 0 || b.prevHash === prevRecomputed;
+
+    if (!(hashOk && powOk && linkOk)) broken = true;
+    if (broken) brokenAt.push(i);
+
+    prevRecomputed = recomputed;
   }
+
   return { valid: brokenAt.length === 0, brokenAt };
 }
 
