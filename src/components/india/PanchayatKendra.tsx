@@ -24,6 +24,7 @@ import {
 import { IntentCard } from './Intent';
 import { ArrivalScene } from './ArrivalScene';
 import { useTownAI } from './ai/TownAI';
+import { useTownState } from './TownState';
 import { AwakenBrain, BrainBadge, LanguagePicker } from './ai/AiControls';
 import { VoiceInput, SpeakButton } from './ai/VoiceInput';
 import { languageFor } from './ai/languages';
@@ -76,6 +77,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
 
   // Voice, and the optional in-browser model. The desk works identically without either.
   const townAI = useTownAI();
+  const town = useTownState();
   const [opinion, setOpinion] = useState<SecondOpinion | null>(null);
   const [opinionRunning, setOpinionRunning] = useState(false);
   const [verdictSpeech, setVerdictSpeech] = useState<{ text: string; fromModel: boolean } | null>(null);
@@ -218,7 +220,24 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
     setCases((c) => [...c, sealed]);
     setLastCase(sealed);
     setSealing(false);
-  }, [cls, activeIntent, routing, cases, citizen]);
+
+    // Tell the town. The world outside marks the place the case is about, and the citizen
+    // carries this with her into the other buildings.
+    town.record({
+      kind: 'case', system: 'panchayat', personId: citizen.id,
+      label: `${citizen.name} filed ${INTENTS[sealed.intent].label.toLowerCase()}`,
+      detail: `Case ${sealed.id}, decided by ${sealed.decision === 'auto-routed' ? 'the engine' : 'a panchayat member'} and routed to the ${sealed.department}. Due in ${sealed.slaDays} days.`,
+      at: { x: 16, y: 6 },
+    });
+    if (sealed.intent === 'WATER_SUPPLY') {
+      town.record({
+        kind: 'resolved', system: 'panchayat', personId: citizen.id,
+        label: 'The handpump repair was dispatched',
+        detail: 'A crew is on its way to the ward. This is the point of the desk: a complaint that becomes work, not a receipt that becomes a file.',
+        at: { x: 16, y: 6 },
+      });
+    }
+  }, [cls, activeIntent, routing, cases, citizen, town]);
 
   const nextCitizen = useCallback(() => {
     const next = (citizenIdx + 1) % CITIZENS.length;

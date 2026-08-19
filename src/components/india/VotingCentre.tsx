@@ -12,6 +12,7 @@ import {
 } from './blockchain';
 import { IntentCard } from './Intent';
 import { ArrivalScene, CitizenPortrait, useWalkToBooth } from './ArrivalScene';
+import { PEOPLE, useTownState } from './TownState';
 
 const CANDIDATES = [
   { id: 'pragati', name: 'Pragati Party', icon: '🌾', color: '#f59e0b' },
@@ -20,14 +21,12 @@ const CANDIDATES = [
   { id: 'haritdal', name: 'Harit Dal', icon: '🌳', color: '#22c55e' },
 ];
 
-const CITIZENS = [
-  { name: 'Asha Devi', age: 34, village: 'Rampur' },
-  { name: 'Ravi Kumar', age: 52, village: 'Rampur' },
-  { name: 'Meena Kumari', age: 27, village: 'Basantpur' },
-  { name: 'Arjun Singh', age: 41, village: 'Rampur' },
-  { name: 'Lakshmi Bai', age: 63, village: 'Basantpur' },
-  { name: 'Kiran Patel', age: 29, village: 'Rampur' },
-];
+/**
+ * The same six people who walk into the panchayat and hold accounts at the bank. The town
+ * used to keep a separate cast per building, which quietly made it three demos rather than
+ * one place.
+ */
+const CITIZENS = PEOPLE;
 
 type Step = 'arrive' | 'identity' | 'ballot' | 'seal' | 'mine' | 'chain' | 'results';
 
@@ -63,6 +62,10 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
    * the forged vote, which is the opposite of the lesson this screen exists to teach.
    */
   const honestVotesRef = useRef<Map<number, string>>(new Map());
+
+  // What happens in here is remembered by the town, so the world outside can show it and
+  // the same person's history follows her into the other buildings.
+  const town = useTownState();
 
   const citizen = CITIZENS[citizenIdx % CITIZENS.length];
 
@@ -140,8 +143,14 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
       setChain((c) => [...c, block]);
       setVotesAlreadyCast((s) => new Set(s).add(voterToken));
       setStep('chain');
+      town.record({
+        kind: 'vote', system: 'voting', personId: citizen.id,
+        label: `${citizen.name} voted`,
+        detail: `Sealed into block #${block.index} as ${block.hash.slice(0, 12)}…. The chain knows a valid citizen voted; it does not know it was her.`,
+        at: { x: 13, y: 6 },
+      });
     }, 1200);
-  }, [chain, voterToken]);
+  }, [chain, voterToken, citizen, town]);
 
   // The walk to the booth. Its arrival is what advances the journey, so the step change is
   // the end of a movement rather than an unrelated jump.
@@ -174,7 +183,16 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
     setTamperTarget(null);
     const check = await verifyChain(copy);
     setChainCheck(check);
-  }, [chain]);
+    if (!check.valid) {
+      town.recordAttack('rewrite-vote');
+      town.record({
+        kind: 'attack', system: 'voting',
+        label: 'A sealed vote was rewritten — and it held',
+        detail: `Block #${copy[idx].index} was edited, and ${check.brokenAt.length} block${check.brokenAt.length === 1 ? '' : 's'} went invalid at once. Nobody had to be told; the chain says so on its face.`,
+        at: { x: 13, y: 6 },
+      });
+    }
+  }, [chain, town]);
 
   const repairChain = useCallback(async () => {
     const firstBroken = chainCheck.brokenAt[0];
@@ -215,6 +233,25 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
     return { ...c, token: t, voted: !!t && votesAlreadyCast.has(t) };
   });
   const everyoneVoted = rollStatus.length > 0 && rollStatus.every((r) => r.voted);
+
+  // Selecting someone the chain already holds is the double-vote attempt, and watching it
+  // be refused at the door is the demonstration. Count it once, the first time it happens.
+  const refusedRef = useRef(false);
+  useEffect(() => {
+    if (step === 'arrive' && alreadyVoted && !refusedRef.current) {
+      refusedRef.current = true;
+      town.recordAttack('double-vote');
+      town.record({
+        kind: 'attack', system: 'voting',
+        label: `${citizen.name} was refused a second ballot`,
+        detail: `Her token was already in block #${priorBlock?.index ?? '—'}, so the roll check stopped her at the door rather than at the count.`,
+        at: { x: 13, y: 6 },
+      });
+    }
+  }, [step, alreadyVoted, citizen.name, priorBlock, town]);
+
+  /** What else this person has done elsewhere in the town. */
+  const history = town.forPerson(citizen.id).filter((e) => e.system !== 'voting');
 
   return (
     <div className="fixed inset-0 z-50 bg-[#0b1020] text-white overflow-y-auto">
@@ -265,7 +302,17 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                 <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                   <div className="text-xs text-white/40 mb-0.5">Voter</div>
                   <div className="font-semibold">{citizen.name}</div>
-                  <div className="text-xs text-white/50">{citizen.age} yrs · {citizen.village} village</div>
+                  <div className="text-xs text-white/50">{citizen.hindi} · {citizen.age} yrs · {citizen.village} village</div>
+                  {history.length > 0 && (
+                    <div className="mt-2 border-t border-white/10 pt-2">
+                      <div className="mb-1 text-[10px] uppercase tracking-widest text-white/30">
+                        Elsewhere in the town
+                      </div>
+                      {history.slice(0, 2).map((e) => (
+                        <div key={e.id} className="text-[11px] text-emerald-300/80">✓ {e.label}</div>
+                      ))}
+                    </div>
+                  )}
                   <div className="font-mono text-[10px] text-cyan-300/70 mt-1">{citizenToken || '…'}</div>
                 </div>
 

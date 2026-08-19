@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 import { CanvasIsometricGrid, SpriteSheetKey } from '@/components/game/CanvasIsometricGrid';
 import { Tricolour } from './Tricolour';
 import { WorldLabels, Viewport, WorldLabel } from './WorldLabels';
+import { TownPulse } from './TownPulse';
+import { useTownState } from './TownState';
 
 /**
  * The civic systems are heavy — a trained classifier, 2048-bit commitment arithmetic, a
@@ -43,6 +45,8 @@ const Intent = dynamic(() => import('./Intent').then((m) => m.Intent), {
 /* The guide and the tour carry the voice and model code, so they load on demand too. */
 const AskTheTown = dynamic(() => import('./ai/AskTheTown').then((m) => m.AskTheTown), { ssr: false });
 const GuidedTour = dynamic(() => import('./ai/GuidedTour').then((m) => m.GuidedTour), { ssr: false });
+const TownLedger = dynamic(() => import('./TownLedger').then((m) => m.TownLedger), { ssr: false });
+const CitizensDay = dynamic(() => import('./CitizensDay').then((m) => m.CitizensDay), { ssr: false });
 
 /**
  * The town is fixed and pristine on every visit, so we know exactly which sprite sheets it
@@ -142,6 +146,9 @@ export function FutureIndia({
   const [showIntent, setShowIntent] = useState(false);
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const [showTour, setShowTour] = useState(false);
+  const [showLedger, setShowLedger] = useState(false);
+  const [showDay, setShowDay] = useState(false);
+  const town = useTownState();
 
   const hitTest = useMemo(() => {
     return (x: number, y: number): Landmark | null => {
@@ -231,6 +238,9 @@ export function FutureIndia({
         hideEngineUI
       />
 
+      {/* The town reacting to what you did, over the place it happened */}
+      {booted && !systemOpen && !showWelcome && <TownPulse viewport={viewport} />}
+
       {/* Name plates floating over the buildings themselves */}
       {booted && !systemOpen && !showWelcome && (
         <WorldLabels
@@ -252,7 +262,21 @@ export function FutureIndia({
           </div>
           <div className="flex items-center gap-4 pointer-events-auto">
             <button
-              onClick={() => { setShowWelcome(false); setShowTour(true); }}
+              onClick={() => setShowLedger((v) => !v)}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+                town.events.length > 0
+                  ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-200 hover:bg-emerald-500 hover:text-black'
+                  : 'bg-white/10 border-white/15 text-white/80 hover:bg-amber-500 hover:text-black'
+              }`}>
+              📜 The town remembers{town.events.length > 0 ? ` · ${town.events.length}` : ''}
+            </button>
+            <button
+              onClick={() => { setShowWelcome(false); setShowTour(false); setShowDay(true); }}
+              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white/80 text-xs font-medium transition-colors">
+              🌅 A citizen&apos;s day
+            </button>
+            <button
+              onClick={() => { setShowWelcome(false); setShowDay(false); setShowTour(true); }}
               className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white/80 text-xs font-medium transition-colors">
               ▶ Take the tour
             </button>
@@ -342,9 +366,25 @@ export function FutureIndia({
       {/* The confidential ledger a regulator can audit without reading */}
       {showBank && <BankOfBharat onClose={() => setShowBank(false)} onShowIntent={() => setShowIntent(true)} />}
 
+      {booted && showDay && !systemOpen && !showWelcome && (
+        <CitizensDay
+          onFocus={focusForTour}
+          onEnter={(system) => {
+            if (system === 'panchayat') setShowPanchayat(true);
+            else if (system === 'bank') setShowBank(true);
+            else setShowVoting(true);
+          }}
+          onClose={() => setShowDay(false)}
+        />
+      )}
+
+      {booted && showLedger && !systemOpen && !showWelcome && (
+        <TownLedger onClose={() => setShowLedger(false)} />
+      )}
+
       {/* The guide, and the tour. Both are hidden while a system has the screen. */}
       {booted && !systemOpen && !showWelcome && !showIntent && !showTour && <AskTheTown />}
-      {booted && showTour && !systemOpen && (
+      {booted && showTour && !showDay && !systemOpen && (
         <GuidedTour onFocus={focusForTour} onClose={() => setShowTour(false)} />
       )}
 

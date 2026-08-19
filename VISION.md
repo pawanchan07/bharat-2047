@@ -237,12 +237,15 @@ The palette question is closed — see the amended design rule above: Bharat 204
 keeps its own identity, and the bar it is held to is exceptional craft rather than
 a colour match.
 
+The 2026-08-20 upgrade is built: the talking panchayat, the "ask the town anything"
+guide, the narrated tour, and all five of the extra ideas — one shared cast of citizens
+across the three systems, a town that visibly reacts to what you do, a saveable proof
+card, the five named attacks as a scoreboard, and a citizen's day from dawn to dusk.
+
 Open work, in order:
 
-1. The three items of the 2026-08-20 upgrade: the talking panchayat, the "ask the
-   town anything" guide, and the narrated tour.
-2. Featuring Bharat 2047 first on pawanchander.com, with the strongest card and
+1. Featuring Bharat 2047 first on pawanchander.com, with the strongest card and
    preview on the site. That lives in the portfolio repo, not this one, but it is
    part of this project's definition of done.
-3. The roadmap itself: systems 4 through 10, one at a time, each built to the bar
+2. The roadmap itself: systems 4 through 10, one at a time, each built to the bar
    the voting centre, the panchayat and the bank set.

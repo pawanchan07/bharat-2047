@@ -171,7 +171,73 @@ Deploy it anywhere as above, then embed on any page of your site:
 - `scripts/optimize-static-images.mjs` — shrinks the social cards and the touch icon
 - `public/example-states/future_india.json` — the town itself
 
+## Speaking to the town
+
+You do not have to be able to read or type to be heard here.
+
+Press the microphone in the **AI Panchayat Kendra** and say your problem out loud, in
+English, Hindi, Punjabi, Telugu, Tamil, Bengali or Marathi. The transcript builds as you
+speak, the same classifier reads it, and at the end the verdict is **said back to you** in
+the same language. That is the gap the system exists to close: a receipt a villager cannot
+read is not a receipt.
+
+Two things the interface tells you rather than hiding:
+
+- The badge beside the microphone says whether your device recognised the audio **locally**
+  (a language pack is installed, and nothing left the machine) or handed it to **your
+  browser's own speech service**. A project claiming "no keys" cannot let you assume the
+  microphone is private.
+- Where your device has no voice installed for a language, it says so, and the text carries
+  the answer rather than a wrong-accented approximation of it.
+
+### The optional brain
+
+**Awaken the town's AI 🧠** downloads an open-weights model that runs entirely on your own
+graphics card through [WebLLM](https://github.com/mlc-ai/web-llm) — no key, no account,
+nothing sent anywhere. Two sizes, both **Qwen2.5, Apache-2.0**, measured from the MLC
+repository rather than estimated:
+
+| | download | good for |
+| --- | --- | --- |
+| Light — Qwen2.5-0.5B | **275 MB** | rephrasing the desk's verdict in your language |
+| Full — Qwen2.5-1.5B | **838 MB** | noticeably better reasoning and Indian languages |
+
+Llama 3.2 and Gemma 3 are better-known and were rejected anyway: their bespoke community
+licences would break the promise that a fork of this repo runs completely.
+
+**What the model is allowed to do is deliberately narrow.** The classifier, the eligibility
+rules and the five routing gates still decide every case — they are auditable, their corpus
+is in this repo, and their accuracy is measured. The model gives a *second reading shown
+beside* the classifier, and puts the finished verdict into your language. When the two
+disagree, you see the disagreement, the engine's call stands, and the human reviewer can
+overrule either. It phrases the answer; it never reaches it.
+
+It is opt-in, states its size up front, streams with a progress bar, can be cancelled
+(keeping whatever already arrived), and is cached so it never downloads twice. Without
+WebGPU you get a designed explanation and a page that still works completely.
+
+### Three more ways in
+
+- **Ask the town anything** — a guide in the corner. Thirteen questions have answers written
+  by hand and those are used first, because on Pedersen commitments or proof-of-work a
+  curated paragraph beats a 0.5B model. Anything else goes to the model, grounded in a brief
+  compiled from `VISION.md`. Every answer says which one wrote it.
+- **Take the tour** — six stops, the camera flying between landmarks while the town explains
+  itself. Subtitles are the fallback rung, so they are always on screen.
+- **A citizen's day** — follow one person from 06:10 to 21:00 through all three systems, with
+  the light moving with her. The same six people appear in every building, and what they did
+  in one is visible in the others.
+
+**The town remembers.** Cast a vote, file a grievance or catch the bank in a lie and it is
+recorded, marked over the place it happened, and collected in a panel with the five attacks
+this town invites you to try — and a proof card you can save.
+
 ## Notes on speed
+
+Every one of the features above is loaded only when you use it. Measured first-load
+JavaScript for `/india`: **2,515 KB before this work, 2,402 KB after** — it got *smaller*,
+because the three civic systems became dynamic imports at the same time. The WebLLM runtime
+(5.9 MB) and the model weights are fetched only when you press the button.
 
 The town is fixed, so `/india` only waits on the sprite sheets it actually uses — the
 main sheet, water, parks, shops, stations and the two services sheets. Measured on the

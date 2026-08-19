@@ -17,6 +17,7 @@ import {
   runAllDetectors, sectorExposure, shortHex, verifyKnowledge, verifyMerkleProof, makeRng,
 } from './bank';
 import { IntentCard } from './Intent';
+import { useTownState } from './TownState';
 
 type Step = 'vault' | 'audit' | 'depositor' | 'exposure' | 'patterns' | 'disclose' | 'benford';
 
@@ -48,7 +49,16 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
   const [selectedFlag, setSelectedFlag] = useState<Flag | null>(null);
   const [disclosures, setDisclosures] = useState<Disclosure[] | null>(null);
 
+  const town = useTownState();
+
   useEffect(() => { buildLedger().then(setLedger); }, []);
+
+  /** Cook the books, and let the town record that the arithmetic caught it. */
+  const cookTheBooks = useCallback((delta: bigint, attackId: string, label: string, detail: string) => {
+    setDeclaredDelta(delta);
+    town.recordAttack(attackId);
+    town.record({ kind: 'attack', system: 'bank', label, detail, at: { x: 13, y: 13 } });
+  }, [town]);
 
   const solvency: SolvencyResult | null = useMemo(
     () => (ledger ? proveSolvency(ledger, ledger.declaredTotal + declaredDelta) : null),
@@ -250,8 +260,8 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                   a one-rupee lie fails exactly as loudly as a fifty-lakh one.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setDeclaredDelta(5_000_000n)} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Overstate by ₹50 L</button>
-                  <button onClick={() => setDeclaredDelta(-1n)} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Hide ₹1</button>
+                  <button onClick={() => cookTheBooks(5_000_000n, 'overstate', 'The books were overstated by ₹50 lakh — and it held', 'The product of the sealed account commitments stopped matching the declared total. Not one account had to be opened to find it.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Overstate by ₹50 L</button>
+                  <button onClick={() => cookTheBooks(-1n, 'hide-rupee', 'One rupee was hidden — and it held', 'A one-rupee lie failed exactly as loudly as a fifty-lakh one. There is no tolerance in the arithmetic to hide inside.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Hide ₹1</button>
                   <button onClick={() => setDeclaredDelta(0n)} className="px-3 py-2 rounded-lg bg-emerald-600/40 hover:bg-emerald-600/60 text-xs">Restore honest total</button>
                 </div>
               </div>

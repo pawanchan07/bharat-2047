@@ -6,6 +6,7 @@ import { GameProvider } from '@/context/GameContext';
 import { FutureIndia } from '@/components/india/FutureIndia';
 import { BootScreen } from '@/components/india/BootScreen';
 import { TownAIProvider } from '@/components/india/ai/TownAI';
+import { TownStateProvider } from '@/components/india/TownState';
 
 const STORAGE_KEY = 'isocity-game-state';
 
@@ -75,6 +76,7 @@ export default function IndiaPage() {
       {/* The world mounts underneath the boot screen so its assets load while you read it. */}
       {townReady && (
         <TownAIProvider>
+          <TownStateProvider>
           <GameProvider>
             <FutureIndia
               booted={booted}
@@ -82,6 +84,7 @@ export default function IndiaPage() {
               onReady={handleReady}
             />
           </GameProvider>
+          </TownStateProvider>
         </TownAIProvider>
       )}
       {!booted && <BootScreen progress={progress} />}

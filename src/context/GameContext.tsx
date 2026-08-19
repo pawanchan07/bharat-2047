@@ -92,6 +92,11 @@ type GameContextValue = {
   dayNightMode: DayNightMode;
   setDayNightMode: (mode: DayNightMode) => void;
   visualHour: number; // The hour to use for rendering (respects day/night mode override)
+  /**
+   * Pin the light to one hour, outranking dayNightMode; null restores normal behaviour.
+   * A narrated sequence needs dawn and dusk, not the two settings a player would pick.
+   */
+  setHourOverride: (hour: number | null) => void;
   // Save/restore city for shared links
   saveCurrentCityForRestore: () => void;
   restoreSavedCity: () => boolean;
@@ -665,6 +670,8 @@ export function GameProvider({ children, startFresh = false }: { children: React
   
   // Day/night mode state
   const [dayNightMode, setDayNightModeState] = useState<DayNightMode>('auto');
+  // Set by narrated sequences that need a particular time of day; null the rest of the time.
+  const [hourOverride, setHourOverride] = useState<number | null>(null);
   
   // Saved cities state for multi-city save system
   const [savedCities, setSavedCities] = useState<SavedCityMeta[]>([]);
@@ -1119,11 +1126,13 @@ export function GameProvider({ children, startFresh = false }: { children: React
 
   // Compute the visual hour based on the day/night mode override
   // This doesn't affect time progression, just the rendering
-  const visualHour = dayNightMode === 'auto' 
-    ? state.hour 
-    : dayNightMode === 'day' 
-      ? 12  // Noon - full daylight
-      : 22; // Night time
+  const visualHour = hourOverride !== null
+    ? hourOverride
+    : dayNightMode === 'auto'
+      ? state.hour
+      : dayNightMode === 'day'
+        ? 12  // Noon - full daylight
+        : 22; // Night time
 
   const newGame = useCallback((name?: string, size?: number) => {
     clearGameState(); // Clear saved state when starting fresh
@@ -1662,6 +1671,7 @@ export function GameProvider({ children, startFresh = false }: { children: React
     setSpritePack,
     // Day/night mode override
     dayNightMode,
+    setHourOverride,
     setDayNightMode,
     visualHour,
     // Save/restore city for shared links
