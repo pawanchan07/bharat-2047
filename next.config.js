@@ -45,15 +45,14 @@ const nextConfig = {
         headers: [{ key: 'Cache-Control', value: 'public, max-age=604800' }],
       },
       /*
-       * /india renders on demand because the root layout resolves a locale from the request
-       * headers. The document itself is the same for everyone in a locale, so let the CDN
-       * hold it briefly and serve it stale while it refreshes — the visitor stops paying for
-       * a cold render before the town can even start loading.
+       * There is deliberately no rule for the /india document itself. It renders on demand
+       * because the root layout resolves a locale from the request headers, and Next sets
+       * `private, no-cache, no-store` on dynamically rendered routes — a Cache-Control set
+       * here is overridden and does nothing, which was measured on the deployment rather
+       * than assumed. Caching the shell would need the locale lookup gone; the document is
+       * a few kilobytes and served in tens of milliseconds, so the sprite sheets above are
+       * where the win actually is.
        */
-      {
-        source: '/india',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400' }],
-      },
     ];
   },
 };

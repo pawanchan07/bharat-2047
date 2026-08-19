@@ -173,12 +173,17 @@ Deploy it anywhere as above, then embed on any page of your site:
 
 ## Notes on speed
 
-The town is fixed, so `/india` only waits on the sprite sheets it actually uses —
-the main sheet, water, parks, shops, stations and the two services sheets. That is
-**2.4 MB instead of 7.2 MB** before the world can be drawn; construction, abandoned,
-high-density, farm, mansion and aircraft sheets are fetched later, at idle. The
-loading bar counts those real downloads rather than animating on a timer, and
-`public/assets` is served with a month-long cache so a second visit costs nothing.
+The town is fixed, so `/india` only waits on the sprite sheets it actually uses — the
+main sheet, water, parks, shops, stations and the two services sheets. Measured on the
+deployment, fetching that set with the cache bypassed: **2,510 KB in 1.1 s**, against
+**7,196 KB in 5.6 s** for the fifteen sheets it used to pull before anything could be
+drawn. Construction, abandoned, high-density, farm, mansion and aircraft sheets are
+fetched afterwards, at idle.
+
+The loading bar counts those real downloads rather than animating on a timer, and the
+world stops rendering entirely while the loader or a full-screen system is covering it.
+`public/assets` is served with a month-long cache, so a second visit costs almost nothing.
+Time to a fully painted town on the live site: **~3.2 s**, TTFB 40 ms.
 
 ## Roadmap (as designed)
 

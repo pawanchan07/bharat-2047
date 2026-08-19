@@ -273,9 +273,9 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                   <div className="flex-1 min-w-[280px] p-4 rounded-xl bg-red-500/10 border border-red-500/40">
                     <div className="font-semibold text-red-300 mb-1">⛔ {citizen.name} has already voted.</div>
                     <p className="text-sm text-white/60">
-                      Her token is already sealed into{' '}
+                      That token is already sealed into{' '}
                       <b className="text-white/80">block #{priorBlock?.index ?? '—'}</b> of the public chain, so the roll
-                      check refuses her at the door. There is no second ballot to offer her — not here, and not
+                      check refuses entry at the door. There is no second ballot to offer — not here, and not
                       anywhere else in this booth.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
