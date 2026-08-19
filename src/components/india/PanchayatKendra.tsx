@@ -21,6 +21,7 @@ import {
   Routing, SchemeVerdict, TrainedModel, caseId, classify, diagnose, draftApplication,
   evaluateSchemes, extractEntities, leaveOneOut, routeCase, sealCase, trainClassifier,
 } from './panchayat';
+import { IntentCard } from './Intent';
 
 type Step = 'arrive' | 'listen' | 'understand' | 'checks' | 'draft' | 'review' | 'route' | 'register';
 
@@ -47,7 +48,7 @@ const STATUS_GLYPH: Record<'pass' | 'fail' | 'unknown', string> = {
   pass: '✓', fail: '✕', unknown: '?',
 };
 
-export function PanchayatKendra({ onClose }: { onClose: () => void }) {
+export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void; onShowIntent?: () => void }) {
   const [model, setModel] = useState<TrainedModel | null>(null);
   const [step, setStep] = useState<Step>('arrive');
   const [citizenIdx, setCitizenIdx] = useState(0);
@@ -743,6 +744,8 @@ export function PanchayatKendra({ onClose }: { onClose: () => void }) {
 
         {/* ---------------------------------------------------------- side rail */}
         <aside className="space-y-4">
+          <IntentCard onOpen={onShowIntent} />
+
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The problem being solved</div>
             <p className="text-sm text-white/60">

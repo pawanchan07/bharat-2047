@@ -64,14 +64,27 @@ The voting centre implements this pattern — study it before building anything.
 
 - Keep the game-like isometric world aesthetic — playful, warm, alive.
   It should feel a bit like Minecraft/SimCity, never like a corporate site.
-- BUT harmonize the UI layer (panels, overlays, buttons, typography,
-  background tones) with the design language of my personal website, which
-  you already know — borrow its colors, background shades and small details
-  so Bharat 2047 feels like it belongs to my site when embedded.
+- **Design quality is non-negotiable. Palette match with my website is not.**
+  *(Amended 2026-08-19 by Pawan, superseding the original rule below.)*
+  This prototype may carry its own colours and its own identity — it does not
+  have to borrow pawanchander.com's palette to be correct. What it may never do
+  is look or read as anything less than exceptional. Visual craft and the
+  quality of the information on screen are both held to the highest bar,
+  everywhere, with no exceptions. I am an aspiring AI product manager with a
+  love for exceptional design; this prototype is the proof of both, so nothing
+  in it ships half-finished, ugly, or vague.
+  <sub>Original rule, kept for the record: "harmonize the UI layer (panels,
+  overlays, buttons, typography, background tones) with the design language of
+  my personal website — borrow its colors, background shades and small details
+  so Bharat 2047 feels like it belongs to my site when embedded."</sub>
 - Different citizens (names, ages, villages) walk each journey — it's about
   people, not features.
 - Every system gets an "honest caveat" box: what this prototype proves and
   what a real deployment would still need. Honesty is part of the design.
+- **State the intent, everywhere.** This is not a neutral tech demo. It is my
+  answer to "how should India work in 2047" — argued both aesthetically and
+  technically. Every system must make that point of view visible and legible,
+  not bury it. A visitor should never have to guess why this exists.
 
 ## Working rules
 
@@ -79,6 +92,12 @@ The voting centre implements this pattern — study it before building anything.
   three systems when one deep system is possible.
 - "Actually working" means the core mechanism runs client-side in the
   browser with no API keys (like the voting centre and the panchayat engine).
+- Any open-source library, dataset or technique may be pulled in to make a
+  system genuinely work. Using someone else's good open-source work is
+  encouraged; faking a mechanism is not. Credit whatever we use.
+- This repo is public. It is read as much as it is used, so the explanation is
+  part of the deliverable: the README, the code comments and the on-screen copy
+  all have to be accurate enough that a stranger can check our claims.
 - After each system is finished and I approve it, we pick the next one.
 - Never break previously finished systems; test the whole /india flow after
   every change.
@@ -98,8 +117,9 @@ landmark's `status` to `'live'`, giving it a `cta`, and rendering its component.
 
 ## Outstanding against this vision
 
-The **design rule about harmonizing with pawanchander.com is not yet met.** Both
-built systems use the original dark navy and amber palette (`#0b1020` / amber-500),
-not the site's light orange on espresso (`#fff2e6` paper, `#4a2110` ink, `#ffd54a`
-highlight, Sora + Manrope). Repainting the UI layer to the site's language, without
-losing the game-like feel of the town itself, is a known open task.
+Nothing structural. The palette question is closed — see the amended design rule
+above: Bharat 2047 keeps its own identity, and the bar it is held to is
+exceptional craft rather than a colour match.
+
+The standing work is the roadmap itself: systems 3 through 10, one at a time, each
+built to the same bar the voting centre and the panchayat set.

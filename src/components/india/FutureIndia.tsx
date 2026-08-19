@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CanvasIsometricGrid } from '@/components/game/CanvasIsometricGrid';
 import { VotingCentre } from './VotingCentre';
 import { PanchayatKendra } from './PanchayatKendra';
+import { Intent } from './Intent';
 
 interface Landmark {
   id: string;
@@ -89,6 +90,7 @@ export function FutureIndia() {
   const [showPanchayat, setShowPanchayat] = useState(false);
   const [navigationTarget, setNavigationTarget] = useState<{ x: number; y: number } | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showIntent, setShowIntent] = useState(false);
 
   const hitTest = useMemo(() => {
     return (x: number, y: number): Landmark | null => {
@@ -134,10 +136,15 @@ export function FutureIndia() {
             <h1 className="text-white text-2xl font-bold tracking-wide drop-shadow">
               <span className="text-amber-400">भारत</span> BHARAT <span className="text-emerald-400">2047</span>
             </h1>
-            <p className="text-white/60 text-xs">An interactive prototype of how India&apos;s civic systems could work · click any glowing building</p>
+            <p className="text-white/60 text-xs">How I want to see India&apos;s civic systems work in 2047 — argued technically, not just drawn · click any glowing building</p>
           </div>
-          <div className="text-right text-white/40 text-xs pointer-events-auto">
-            drag to pan · scroll to zoom
+          <div className="flex items-center gap-4 pointer-events-auto">
+            <button
+              onClick={() => setShowIntent(true)}
+              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white/80 text-xs font-medium transition-colors">
+              Why this exists
+            </button>
+            <div className="text-right text-white/40 text-xs">drag to pan · scroll to zoom</div>
           </div>
         </div>
       </div>
@@ -186,22 +193,34 @@ export function FutureIndia() {
           <div className="max-w-lg text-center text-white">
             <div className="text-6xl mb-4">🇮🇳</div>
             <h1 className="text-4xl font-bold mb-3"><span className="text-amber-400">Bharat</span> 2047</h1>
-            <p className="text-white/70 mb-2">A living, explorable prototype of future India&apos;s civic systems — voting, panchayats, banking, schools — rebuilt on AI and blockchain.</p>
-            <p className="text-white/50 text-sm mb-6">This is a real simulation: the town lives, traffic flows, and the voting centre runs genuine cryptography in your browser.</p>
+            <div className="flex h-1 w-28 mx-auto rounded-full overflow-hidden mb-5">
+              <div className="flex-1 bg-[#FF9933]" />
+              <div className="flex-1 bg-white" />
+              <div className="flex-1 bg-[#138808]" />
+            </div>
+            <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047 — voting, panchayats, banking, schools — and I would rather show you than tell you.</p>
+            <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, and the panchayat trains a real classifier in your browser while you watch.</p>
             <button onClick={() => setShowWelcome(false)}
               className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">
               Explore the town →
             </button>
-            <div className="mt-4 text-white/30 text-xs">Built on the open-source IsoCity engine (MIT)</div>
+            <button onClick={() => { setShowWelcome(false); setShowIntent(true); }}
+              className="block mx-auto mt-4 text-white/60 hover:text-amber-300 text-sm underline underline-offset-4">
+              Or read why I built this first
+            </button>
+            <div className="mt-4 text-white/30 text-xs">Open source · built on the open-source IsoCity engine (MIT)</div>
           </div>
         </div>
       )}
 
       {/* The working blockchain voting experience */}
-      {showVoting && <VotingCentre onClose={() => setShowVoting(false)} />}
+      {showVoting && <VotingCentre onClose={() => setShowVoting(false)} onShowIntent={() => setShowIntent(true)} />}
 
       {/* The working AI grievance desk */}
-      {showPanchayat && <PanchayatKendra onClose={() => setShowPanchayat(false)} />}
+      {showPanchayat && <PanchayatKendra onClose={() => setShowPanchayat(false)} onShowIntent={() => setShowIntent(true)} />}
+
+      {/* Why any of this exists. Sits above the systems so it can be opened from inside one. */}
+      {showIntent && <Intent onClose={() => setShowIntent(false)} />}
     </div>
   );
 }

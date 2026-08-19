@@ -10,6 +10,7 @@ import {
   VoteBlock, createGenesisBlock, mineBlock, makeVoterToken,
   verifyChain, tally, DIFFICULTY_PREFIX, sha256,
 } from './blockchain';
+import { IntentCard } from './Intent';
 
 const CANDIDATES = [
   { id: 'pragati', name: 'Pragati Party', icon: '🌾', color: '#f59e0b' },
@@ -39,7 +40,7 @@ const STEP_LABELS: { key: Step; label: string }[] = [
   { key: 'results', label: 'Results' },
 ];
 
-export function VotingCentre({ onClose }: { onClose: () => void }) {
+export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; onShowIntent?: () => void }) {
   const [step, setStep] = useState<Step>('arrive');
   const [chain, setChain] = useState<VoteBlock[]>([]);
   const [citizenIdx, setCitizenIdx] = useState(0);
@@ -417,6 +418,8 @@ export function VotingCentre({ onClose }: { onClose: () => void }) {
 
         {/* ------- Side rail: why it matters ------- */}
         <aside className="space-y-4">
+          <IntentCard onOpen={onShowIntent} />
+
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">Why blockchain voting?</div>
             <ul className="text-sm text-white/60 space-y-2">

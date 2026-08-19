@@ -36,8 +36,10 @@ npm run dev
 
 That's it. First `npm install` takes a few minutes.
 
-> The original IsoCity city-builder game is still at http://localhost:3000/
-> (the roller-coaster mini-game was removed to keep this package small).
+> `/` redirects to `/india`, because a visitor arriving at the bare domain should
+> see the town, not the engine we built on. The original IsoCity city-builder game
+> is still there, at http://localhost:3000/game (the roller-coaster mini-game was
+> removed to keep this package small).
 
 ## What to try
 
