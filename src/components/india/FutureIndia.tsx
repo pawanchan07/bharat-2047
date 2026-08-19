@@ -7,13 +7,42 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { CanvasIsometricGrid, SpriteSheetKey } from '@/components/game/CanvasIsometricGrid';
-import { VotingCentre } from './VotingCentre';
-import { PanchayatKendra } from './PanchayatKendra';
-import { BankOfBharat } from './BankOfBharat';
-import { Intent } from './Intent';
 import { Tricolour } from './Tricolour';
 import { WorldLabels, Viewport, WorldLabel } from './WorldLabels';
+
+/**
+ * The civic systems are heavy — a trained classifier, 2048-bit commitment arithmetic, a
+ * blockchain — and none of them is on screen until you walk into a building. They are
+ * fetched at that moment instead of riding along in the first load, which is also what
+ * keeps the voice and model code off the critical path: it lives inside these chunks.
+ */
+const SystemLoading = () => (
+  <div className="fixed inset-0 z-50 grid place-items-center bg-[#0b1020] text-white">
+    <div className="text-center">
+      <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-amber-400" />
+      <div className="text-sm tracking-widest text-white/40">OPENING THE DOORS…</div>
+    </div>
+  </div>
+);
+
+const VotingCentre = dynamic(() => import('./VotingCentre').then((m) => m.VotingCentre), {
+  ssr: false, loading: SystemLoading,
+});
+const PanchayatKendra = dynamic(() => import('./PanchayatKendra').then((m) => m.PanchayatKendra), {
+  ssr: false, loading: SystemLoading,
+});
+const BankOfBharat = dynamic(() => import('./BankOfBharat').then((m) => m.BankOfBharat), {
+  ssr: false, loading: SystemLoading,
+});
+const Intent = dynamic(() => import('./Intent').then((m) => m.Intent), {
+  ssr: false, loading: SystemLoading,
+});
+
+/* The guide and the tour carry the voice and model code, so they load on demand too. */
+const AskTheTown = dynamic(() => import('./ai/AskTheTown').then((m) => m.AskTheTown), { ssr: false });
+const GuidedTour = dynamic(() => import('./ai/GuidedTour').then((m) => m.GuidedTour), { ssr: false });
 
 /**
  * The town is fixed and pristine on every visit, so we know exactly which sprite sheets it
@@ -112,6 +141,7 @@ export function FutureIndia({
   const [showWelcome, setShowWelcome] = useState(true);
   const [showIntent, setShowIntent] = useState(false);
   const [viewport, setViewport] = useState<Viewport | null>(null);
+  const [showTour, setShowTour] = useState(false);
 
   const hitTest = useMemo(() => {
     return (x: number, y: number): Landmark | null => {
@@ -164,6 +194,25 @@ export function FutureIndia({
     [],
   );
 
+  /**
+   * The tour drives the camera without opening panels — it is a flight over the town, so a
+   * stop points the view at a building and says what it is, and you go in yourself after.
+   */
+  const focusForTour = useCallback((landmarkId: string | null) => {
+    if (!landmarkId) {
+      // Pull back to the middle of the town for the wide stops.
+      setActive(null);
+      setSelectedTile(null);
+      setNavigationTarget({ x: 13, y: 13 });
+      return;
+    }
+    const l = LANDMARKS.find((k) => k.id === landmarkId);
+    if (!l) return;
+    setActive(null);
+    setSelectedTile(null);
+    setNavigationTarget({ x: l.x, y: l.y });
+  }, []);
+
   const systemOpen = showVoting || showPanchayat || showBank;
 
   return (
@@ -202,6 +251,11 @@ export function FutureIndia({
             <p className="text-white/60 text-xs">How I want to see India&apos;s civic systems work in 2047 — argued technically, not just drawn · click any named building</p>
           </div>
           <div className="flex items-center gap-4 pointer-events-auto">
+            <button
+              onClick={() => { setShowWelcome(false); setShowTour(true); }}
+              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white/80 text-xs font-medium transition-colors">
+              ▶ Take the tour
+            </button>
             <button
               onClick={() => setShowIntent(true)}
               className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white/80 text-xs font-medium transition-colors">
@@ -266,6 +320,10 @@ export function FutureIndia({
               className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">
               Explore the town →
             </button>
+            <button onClick={() => { setShowWelcome(false); setShowTour(true); }}
+              className="block mx-auto mt-4 px-5 py-2.5 rounded-xl border border-white/20 bg-white/5 text-white/80 hover:border-amber-400/60 hover:text-white text-sm font-medium transition-colors">
+              ▶ Or take the narrated tour
+            </button>
             <button onClick={() => { setShowWelcome(false); setShowIntent(true); }}
               className="block mx-auto mt-4 text-white/60 hover:text-amber-300 text-sm underline underline-offset-4">
               Or read why I built this first
@@ -283,6 +341,12 @@ export function FutureIndia({
 
       {/* The confidential ledger a regulator can audit without reading */}
       {showBank && <BankOfBharat onClose={() => setShowBank(false)} onShowIntent={() => setShowIntent(true)} />}
+
+      {/* The guide, and the tour. Both are hidden while a system has the screen. */}
+      {booted && !systemOpen && !showWelcome && !showIntent && !showTour && <AskTheTown />}
+      {booted && showTour && !systemOpen && (
+        <GuidedTour onFocus={focusForTour} onClose={() => setShowTour(false)} />
+      )}
 
       {/* Why any of this exists. Sits above the systems so it can be opened from inside one. */}
       {showIntent && <Intent onClose={() => setShowIntent(false)} />}

@@ -1,0 +1,207 @@
+'use client';
+
+/**
+ * What the town knows about itself.
+ *
+ * Two layers, and the second one is not a consolation prize:
+ *
+ * - `TOWN_BRIEF` grounds the model. It is compiled from VISION.md and from how each system
+ *   actually works, so the guide answers from this project rather than from whatever a
+ *   0.5B model half-remembers about blockchains.
+ * - `FAQ` answers without any model at all, by matching keywords. These are written by hand
+ *   and they are *more* accurate than the model — a small model asked about Pedersen
+ *   commitments will confabulate, and a curated paragraph will not. The FAQ is checked
+ *   first for exactly that reason; the model handles what it does not cover.
+ */
+
+export const TOWN_BRIEF = `
+You are the guide to "Bharat 2047", an explorable isometric town that argues how India's
+civic systems should work in 2047. It was built by Pawan Chander as a public, open-source
+prototype. You answer visitors' questions about it.
+
+WHAT THE TOWN IS
+- A living isometric town (built on the open-source IsoCity engine, MIT licensed) where you
+  click a building to open a civic system that genuinely runs in your browser.
+- Nothing is a mockup, a video or a screenshot. Three systems are finished and working.
+
+SYSTEM 1 — THE DIGITAL VOTING CENTRE
+- A citizen's identity becomes an anonymous token: SHA-256 of their identity plus a national
+  salt. The chain stores the token, never the person.
+- The vote is sealed with real SHA-256 and mined with real proof-of-work: the browser
+  searches for a nonce whose block hash starts with "000". You watch the nonce race.
+- You can click any block and rewrite its vote. Every block from the break onward is then
+  marked invalid, because each link is checked against what the previous block actually
+  hashes to. Restoring puts the real votes back and re-mines.
+- One person, one vote is enforced structurally: the electoral roll is checked against the
+  chain before anyone reaches a ballot, and a citizen already in a block is refused.
+- Honest caveat: this demonstrates the integrity layer. A real election also needs
+  coercion-resistance, verified voter rolls and offline fallbacks.
+
+SYSTEM 2 — THE AI PANCHAYAT KENDRA
+- A villager states a problem in plain language. You can speak it with the microphone in
+  English, Hindi, Punjabi, Telugu, Tamil, Bengali or Marathi.
+- A multinomial Naive Bayes classifier, trained in your browser at page load on a visible
+  120-line corpus, reads it. Measured accuracy: 92.5% leave-one-out across 10 case types,
+  with all 9 of its mistakes falling below the auto-route confidence gate.
+- A tokenizer collapses Devanagari, Hinglish and English into one feature space.
+- Eligibility rules are evaluated against the citizen's actual record, and "unknown" is a
+  real third outcome next to pass and fail.
+- Five gates decide whether software may proceed alone: confidence, vocabulary, evidence,
+  adverse finding, and policy. Disputes never auto-decide however confident the engine is.
+- Each case decision is sealed with SHA-256, chained to the previous case.
+- The language model, when awake, gives a second reading shown beside the classifier and
+  rewrites the final verdict into the visitor's language. It never decides the case.
+
+SYSTEM 3 — THE BANK OF BHARAT
+- The question is not "can banking go on a chain" — the town already has two hash chains.
+  It is what a regulator can compute over a bank's books without being shown any account.
+- Every balance is sealed in a real Pedersen commitment over RFC 3526 MODP Group 14, a
+  published 2048-bit safe prime.
+- Solvency is proved by the homomorphic identity C(a)·C(b) = C(a+b): multiply all 26 account
+  commitments and compare against the declared total. Hiding one rupee fails as loudly as
+  hiding fifty lakh, and no account is ever opened to catch it.
+- A depositor proves her balance is inside the audited Merkle root without learning anyone
+  else's. Schnorr proofs of knowledge use Fiat-Shamir over SHA-256.
+- Structuring, layering and a pass-through mule are found from the shape of the transaction
+  graph and the clock, while every amount stays sealed. 152 of 163 transfers are never
+  opened.
+- Honest caveats stated on screen: the customers are synthetic from a fixed seed; Benford's
+  law cannot run over sealed commitments so it runs on published figures; and hiding amounts
+  while leaving the transaction graph visible is a real, unsolved tradeoff.
+
+HOW THE AI AND VOICE WORK
+- Everything runs in the visitor's browser. No API keys, no accounts, no server. Anyone can
+  fork the repo and get the whole experience.
+- Speech recognition is the browser's own Web Speech API. Where a language pack is installed
+  the audio never leaves the device; otherwise the browser sends it to its own speech
+  service, and the interface says which one is happening.
+- The model is Qwen2.5 (Apache-2.0) run through WebLLM over WebGPU. It is opt-in, states its
+  download size, and is cached after the first download.
+- Models under bespoke community licences (Llama, Gemma) were rejected because they would
+  compromise the promise that a fork runs completely.
+
+WHAT IS PLANNED, NOT BUILT
+Education records, an AI safety command with audited camera access, a smart waste network, a
+mobility hub, health and insurance, digital rights, and policy transparency.
+
+HOW TO ANSWER
+- Be brief: two to four sentences unless asked for more.
+- Be concrete and use the real numbers above.
+- If the answer is not in what you know, say so plainly and say what the town does cover.
+  Never invent a feature, a number or a claim.
+`.trim();
+
+export interface FaqEntry {
+  /** Lowercase keywords; a question matching two or more is answered from here. */
+  keys: string[];
+  question: string;
+  answer: string;
+}
+
+/**
+ * Hand-written answers to what people actually ask. Checked before the model, because on
+ * these particular questions a curated paragraph beats a small model every time.
+ */
+export const FAQ: FaqEntry[] = [
+  {
+    keys: ['anonymous', 'anonymity', 'secret', 'who i voted', 'privacy', 'vote'],
+    question: 'Is my vote really anonymous?',
+    answer:
+      'The chain never stores who you are. Your identity is hashed with a national salt into a one-way token — SHA-256, irreversible — and only that token goes into the block. Anyone can recount the election; nobody can read a name out of it. The honest limit: this proves the integrity layer, not coercion-resistance. Someone standing over you in the booth is a problem no chain solves.',
+  },
+  {
+    keys: ['bribe', 'miner', 'mining', '51', 'attack', 'proof of work', 'hack'],
+    question: 'What if someone bribes the miner?',
+    answer:
+      'Bribing one miner does not help, because mining does not decide what a vote says — it only seals what was already cast. To change a result you would have to rewrite a block and then re-mine every block after it faster than the rest of the network builds honest ones. You can try exactly this on the chain screen: edit a vote and watch every later block go invalid at once. In this prototype the difficulty is tiny so you can see it work; a real deployment would set it so that re-mining is astronomically expensive.',
+  },
+  {
+    keys: ['blockchain', 'why chain', 'need a blockchain', 'database'],
+    question: 'Why a blockchain and not a database?',
+    answer:
+      'Because the thing that fails in Indian civic records is rarely storage — it is the quiet edit afterwards. A database can be changed by whoever holds the credentials, and nothing on its face shows it. Here, changing one entry visibly breaks every entry after it, in a way anyone can check without trusting the operator. That is the only property being claimed.',
+  },
+  {
+    keys: ['real', 'fake', 'mockup', 'actually work', 'pre-recorded', 'simulated'],
+    question: 'Is any of this actually real, or is it a mockup?',
+    answer:
+      'The mechanisms are real and run in your browser: genuine SHA-256, genuine proof-of-work, a classifier trained on page load from a corpus you can read in the repo, and 2048-bit Pedersen commitments. What is synthetic is the data — the citizens, the votes and the bank customers are invented, generated from a fixed seed so every visitor sees the same town. Each system says on screen which parts are which.',
+  },
+  {
+    keys: ['accuracy', 'accurate', 'classifier', 'naive bayes', 'wrong', 'confidence'],
+    question: 'How accurate is the panchayat classifier?',
+    answer:
+      '92.5% leave-one-out across 10 case types on 120 examples — and you can re-run that validation yourself from the button in the sidebar. The number that matters more: all 9 of its mistakes fell below the confidence gate, so every one of them would have been handed to a human rather than auto-routed. Being wrong is fine; being wrong and confident is not.',
+  },
+  {
+    keys: ['human', 'gate', 'review', 'approve', 'automatic'],
+    question: 'When does a human have to decide?',
+    answer:
+      'Five gates, any one of which hands the case over: confidence below the threshold, too many words the model has never seen, an unresolved check that bears on the decision, an adverse finding (software may carry a claim forward, never record a refusal), and policy — disputes never auto-decide however confident the engine is. The interesting part of civic AI is not the answer, it is the gate.',
+  },
+  {
+    keys: ['pedersen', 'commitment', 'homomorphic', 'solvency', 'audit', 'bank'],
+    question: 'How can a regulator audit a bank without reading it?',
+    answer:
+      'Each balance is sealed in a Pedersen commitment. Those commitments add: multiply the commitments of two balances and you get a commitment to their sum. So the auditor multiplies all 26 accounts together and compares against a commitment to the total the bank declares. If they match, the declaration is true. No individual balance is ever revealed — and hiding a single rupee fails exactly as loudly as hiding fifty lakh. Try it with the "Hide ₹1" button.',
+  },
+  {
+    keys: ['benford', 'law', 'first digit'],
+    question: 'Why does Benford’s law not run on the sealed data?',
+    answer:
+      'Benford needs the magnitudes of numbers, and a commitment hides magnitude by construction — that is the whole point of it. So the Benford test runs on figures the bank publishes itself, not on the sealed ledger, and the screen says so rather than letting you assume otherwise. It is one of two limits stated openly; the other is that hiding amounts while leaving the transaction graph visible is a real, unsolved tradeoff.',
+  },
+  {
+    keys: ['microphone', 'speech', 'voice', 'recording', 'listening', 'audio'],
+    question: 'Where does my voice go when I speak?',
+    answer:
+      'Nowhere we control — there is no server here at all. The browser does the recognition. If your device has a language pack installed, the audio is transcribed locally and never leaves the machine, and the badge next to the microphone says so. If it does not, the browser sends the audio to its own speech service to transcribe. That badge tells you which of the two is happening every time.',
+  },
+  {
+    keys: ['model', 'llm', 'webllm', 'download', 'qwen', 'ai', 'gpu'],
+    question: 'What is the AI, and why do I have to download it?',
+    answer:
+      'It is Qwen2.5, an Apache-2.0 open-weights model, running in your own browser on your graphics card through WebLLM. There is no API to call, so the weights have to be on your machine — 275 MB for the light version, 838 MB for the full one, downloaded once and cached. It is entirely optional: every decision in every system is made by deterministic engines that run without it.',
+  },
+  {
+    keys: ['open source', 'licence', 'license', 'github', 'fork', 'code'],
+    question: 'Is the code open?',
+    answer:
+      'Yes — it is public on GitHub, and the point of the design is that a fork runs completely. No API keys, no accounts, no paid service, no server you depend on. That constraint is why the AI runs in your browser and why models under bespoke community licences were rejected in favour of Apache-2.0 ones.',
+  },
+  {
+    keys: ['who built', 'author', 'pawan', 'why exists', 'purpose', 'portfolio'],
+    question: 'Who built this and why?',
+    answer:
+      'Pawan Chander built it as an argument, not a demo. It is his answer to "how should India’s civic systems work in 2047", made both aesthetically and technically — which is why every mechanism actually runs instead of being drawn. The "Why this exists" button in the town’s title bar has the full statement.',
+  },
+  {
+    keys: ['next', 'roadmap', 'coming', 'planned', 'future', 'other buildings'],
+    question: 'What is coming next?',
+    answer:
+      'Seven more systems, one at a time and each built to the same bar: school and degree records that cannot be forged, an AI safety command where every access to footage is itself logged, a smart waste network, a mobility hub, health and insurance claims that cannot silently vanish, digital rights, and policy transparency. The greyed-out buildings in the town are those.',
+  },
+];
+
+/** Find a curated answer, requiring enough overlap that a stray word cannot trigger one. */
+export function faqAnswer(question: string): FaqEntry | null {
+  const q = question.toLowerCase();
+  let best: { entry: FaqEntry; score: number } | null = null;
+  for (const entry of FAQ) {
+    const score = entry.keys.reduce((n, k) => (q.includes(k) ? n + 1 : n), 0);
+    if (score > 0 && (!best || score > best.score)) best = { entry, score };
+  }
+  // One keyword is a coincidence; two is a question about that thing. A single very
+  // specific keyword ("pedersen", "benford") is enough on its own.
+  if (!best) return null;
+  const specific = best.entry.keys.some((k) => k.length >= 7 && q.includes(k));
+  return best.score >= 2 || specific ? best.entry : null;
+}
+
+export const SUGGESTED_QUESTIONS = [
+  'Is my vote really anonymous?',
+  'What if someone bribes the miner?',
+  'How can a regulator audit a bank without reading it?',
+  'When does a human have to decide?',
+  'Where does my voice go when I speak?',
+];

@@ -23,6 +23,11 @@ import {
 } from './panchayat';
 import { IntentCard } from './Intent';
 import { ArrivalScene } from './ArrivalScene';
+import { useTownAI } from './ai/TownAI';
+import { AwakenBrain, BrainBadge, LanguagePicker } from './ai/AiControls';
+import { VoiceInput, SpeakButton } from './ai/VoiceInput';
+import { languageFor } from './ai/languages';
+import { SecondOpinion, secondOpinion, spokenVerdict, templateVerdict } from './ai/panchayatBrain';
 
 type Step = 'arrive' | 'listen' | 'understand' | 'checks' | 'draft' | 'review' | 'route' | 'register';
 
@@ -50,7 +55,6 @@ const STATUS_GLYPH: Record<'pass' | 'fail' | 'unknown', string> = {
 };
 
 export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void; onShowIntent?: () => void }) {
-  const [model, setModel] = useState<TrainedModel | null>(null);
   const [step, setStep] = useState<Step>('arrive');
   const [citizenIdx, setCitizenIdx] = useState(0);
   const [utterance, setUtterance] = useState(CITIZENS[0].opening);
@@ -70,22 +74,77 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
   const [looRunning, setLooRunning] = useState(false);
   const listenTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Voice, and the optional in-browser model. The desk works identically without either.
+  const townAI = useTownAI();
+  const [opinion, setOpinion] = useState<SecondOpinion | null>(null);
+  const [opinionRunning, setOpinionRunning] = useState(false);
+  const [verdictSpeech, setVerdictSpeech] = useState<{ text: string; fromModel: boolean } | null>(null);
+
   const citizen: Citizen = CITIZENS[citizenIdx % CITIZENS.length];
 
-  // Train once, on open. Roughly a millisecond — but it is a real training pass.
-  useEffect(() => {
-    setModel(trainClassifier());
-  }, []);
+  // Trained once, when this screen opens. It is a real training pass over the corpus and
+  // takes about a millisecond, so it belongs in render rather than in an effect that would
+  // make the whole desk render twice before it can show anything.
+  const model: TrainedModel = useMemo(() => trainClassifier(), []);
 
   useEffect(() => () => { if (listenTimer.current) clearInterval(listenTimer.current); }, []);
+
+  /**
+   * The receipt, as a sentence rather than a table. Built from the engine's own output, so
+   * it exists whether or not a model is awake; the model only ever rewrites it into the
+   * villager's language.
+   */
+  const verdictFacts = useMemo(() => {
+    if (!lastCase) return null;
+    const meta = INTENTS[lastCase.intent];
+    const problem = findings.find((f) => f.status === 'problem');
+    return {
+      citizenName: lastCase.citizenName,
+      intentLabel: meta.label,
+      department: lastCase.department,
+      officer: meta.officer,
+      slaDays: lastCase.slaDays,
+      needsHuman: lastCase.decision !== 'auto-routed',
+      headline: problem ? `${problem.label}: ${problem.detail}` : 'Nothing in your record blocks it.',
+      caseId: lastCase.id,
+    };
+  }, [lastCase, findings]);
+
+  const baseVerdict = useMemo(
+    () => (verdictFacts ? templateVerdict(verdictFacts) : ''),
+    [verdictFacts],
+  );
+
+  useEffect(() => {
+    if (!verdictFacts) return;
+    let cancelled = false;
+    // When the brain is asleep this resolves immediately with the desk's own wording.
+    spokenVerdict(townAI.awake ? townAI.ask : async () => null, verdictFacts, townAI.language)
+      .then((v) => { if (!cancelled) setVerdictSpeech(v); })
+      .catch(() => { /* the template is already on screen */ });
+    return () => { cancelled = true; };
+  }, [verdictFacts, townAI.language, townAI.awake, townAI.ask]);
 
   /* ------------------------------------------------------------- transitions */
 
   const startListening = useCallback(() => {
-    if (!model) return;
     setStep('listen');
     setHeard('');
+    setOpinion(null);
+    setVerdictSpeech(null);
     const text = utterance.trim();
+
+    // If the town's brain is awake, ask it to read the same sentence — in parallel, so its
+    // answer is waiting by the time the classifier's working is on screen. It is a second
+    // reading shown beside the engine, never a replacement for it.
+    if (townAI.awake) {
+      setOpinionRunning(true);
+      secondOpinion(townAI.ask, text)
+        .then(setOpinion)
+        .catch(() => setOpinion(null))
+        .finally(() => setOpinionRunning(false));
+    }
+
     let i = 0;
     if (listenTimer.current) clearInterval(listenTimer.current);
     listenTimer.current = setInterval(() => {
@@ -100,7 +159,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
         setTimeout(() => setStep('understand'), 700);
       }
     }, 28);
-  }, [model, utterance]);
+  }, [model, utterance, townAI.awake, townAI.ask]);
 
   /** Re-run the checks, diagnosis and routing for whichever intent is currently active. */
   const runChecks = useCallback((intent: IntentId, classification: Classification) => {
@@ -229,6 +288,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
               </React.Fragment>
             ))}
           </div>
+          <BrainBadge />
           <button onClick={onClose} className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-sm whitespace-nowrap">← Back to town</button>
         </div>
       </div>
@@ -276,23 +336,34 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">She says — <span className="text-amber-300">edit this freely</span>, in Hindi, Hinglish or English</label>
-                  <textarea
+                  <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-500/[0.05] p-4">
+                    <div className="mb-1 font-semibold text-amber-200">You are the villager. Say it out loud.</div>
+                    <p className="mb-3 text-sm text-white/55">
+                      Press the microphone and speak your problem in your own language — the way
+                      someone who cannot read or write a form would have to. Nothing is typed, and
+                      nothing is lost.
+                    </p>
+                    <LanguagePicker />
+                  </div>
+
+                  <VoiceInput
+                    language={townAI.language}
                     value={utterance}
-                    onChange={(e) => setUtterance(e.target.value)}
-                    rows={3}
-                    className="w-full p-3 rounded-xl bg-black/30 border border-white/15 focus:border-amber-400/60 focus:outline-none text-white/90 resize-none"
+                    onChange={setUtterance}
+                    onSubmit={startListening}
+                    submitLabel="Take this to the desk →"
+                    hint={
+                      <>
+                        The classifier really re-runs on whatever ends up in that box, spoken or typed.
+                        Try nonsense and watch the confidence collapse and the case get handed to a
+                        human — that is the behaviour worth demonstrating.
+                      </>
+                    }
                   />
-                  <p className="text-white/30 text-xs mt-2 mb-4">
-                    The classifier really re-runs on whatever you type. Try nonsense and watch the confidence
-                    collapse and the case get handed to a human — that is the behaviour worth demonstrating.
-                  </p>
-                  <button
-                    onClick={startListening}
-                    disabled={!model || !utterance.trim()}
-                    className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-semibold text-lg shadow-lg shadow-amber-500/20">
-                    🎙️ Speak to the assistant →
-                  </button>
+
+                  <div className="mt-5">
+                    <AwakenBrain reason="Optional. With it awake, the desk gives a second reading of your problem beside the classifier's — and says the final answer back to you in your own language." />
+                  </div>
                 </div>
               </div>
             </div>
@@ -330,6 +401,61 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 deliberately pessimistic: the raw probability is discounted by the share of words it has
                 never seen and by how little evidence it had.
               </p>
+
+              {/* The model's reading, shown beside the engine's — never instead of it. */}
+              {(opinionRunning || opinion) && (
+                <div className={`mb-5 max-w-3xl rounded-2xl border p-4 ${
+                  opinion && opinion.intent && opinion.intent !== cls.intent
+                    ? 'border-amber-400/40 bg-amber-500/[0.07]'
+                    : 'border-white/12 bg-white/[0.03]'
+                }`}>
+                  <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-white/85">
+                    <span aria-hidden>🧠</span> The town’s AI read it too
+                    <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-normal text-white/45">
+                      second opinion · not the decision
+                    </span>
+                  </div>
+
+                  {opinionRunning && !opinion && (
+                    <p className="text-sm text-white/45" style={{ animation: 'pk-pulse 1.2s infinite' }}>
+                      Reading the complaint…
+                    </p>
+                  )}
+
+                  {opinion && (
+                    <>
+                      <p className="text-sm text-white/70">
+                        It says this is{' '}
+                        <b className="text-white/90">
+                          {opinion.intent ? `${INTENTS[opinion.intent].icon} ${INTENTS[opinion.intent].label}` : 'something not on the list'}
+                        </b>
+                        {' — “'}<span className="italic text-white/55">{opinion.because}</span>{'”'}
+                      </p>
+                      {opinion.intent === cls.intent && (
+                        <p className="mt-2 text-xs text-emerald-300/90">
+                          ✓ Both readers agree. That is worth something, but the classifier is still what
+                          decides — it is the one whose corpus you can read and whose accuracy is measured.
+                        </p>
+                      )}
+                      {opinion.intent && opinion.intent !== cls.intent && (
+                        <p className="mt-2 text-xs text-amber-200/90">
+                          ⚠ The two disagree. The classifier’s call stands and the case is routed on it,
+                          because a 0.5-billion-parameter model’s opinion is not auditable and its accuracy
+                          on this corpus is not measured. You are seeing the disagreement rather than a
+                          quietly-picked winner — and if you think the AI is right, the human reviewer two
+                          steps from here can reclassify it.
+                        </p>
+                      )}
+                      {opinion.offList && (
+                        <p className="mt-2 text-xs text-red-300/90">
+                          ⚠ It answered with a case type that does not exist. This is exactly the failure
+                          the ten fixed classes and the routing gates are there to absorb.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
 
               <div className="grid md:grid-cols-2 gap-4 max-w-3xl">
                 {/* the call */}
@@ -667,6 +793,49 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                       <div className="text-cyan-300 truncate">hash {lastCase.hash.slice(0, 40)}…</div>
                     </div>
                   </div>
+                  {/* Said back out loud. A receipt a villager cannot read is not a receipt. */}
+                  <div className="mb-4 rounded-2xl border border-cyan-400/25 bg-cyan-500/[0.07] p-5">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-cyan-200">🔊 What the desk says back</span>
+                      <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-white/45">
+                        in {languageFor(townAI.language).native}
+                      </span>
+                      {verdictSpeech?.fromModel && (
+                        <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+                          phrased by the town’s AI
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mb-3 text-lg leading-relaxed text-white/90">
+                      {verdictSpeech ? verdictSpeech.text : baseVerdict}
+                    </p>
+
+                    {(verdictSpeech || baseVerdict) && (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <SpeakButton
+                          text={verdictSpeech ? verdictSpeech.text : baseVerdict}
+                          language={townAI.language}
+                          autoPlay={!!verdictSpeech}
+                          label="Say it again"
+                        />
+                        {verdictSpeech && !verdictSpeech.fromModel && townAI.language !== 'en-IN' && (
+                          <span className="text-[11px] text-white/40">
+                            {townAI.awake
+                              ? 'The model’s reply came back in the wrong script, so this is the desk’s own wording.'
+                              : 'Awaken the town’s AI on the first screen to hear this in your own language.'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="mt-3 text-[11px] leading-relaxed text-white/35">
+                      This is the one place a language model is allowed to speak here, and only after every
+                      decision has already been made by rules you can read. It phrases the verdict; it does
+                      not reach it.
+                    </p>
+                  </div>
+
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 mb-6">
                     <b className="text-white/80">Escalation is automatic.</b> {INTENTS[lastCase.intent].label} carries a{' '}
                     {lastCase.slaDays}-day SLA. Unresolved past that, it escalates to the Block Development Officer and appears
@@ -766,7 +935,8 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
               <li>🔤 <b className="text-white/80">The tokenizer</b> — Devanagari, Hinglish and English really do collapse into one feature space.</li>
               <li>📐 <b className="text-white/80">The rules</b> — every eligibility check is evaluated against the citizen record, with <i>unknown</i> as a real third outcome.</li>
               <li>🔒 <b className="text-white/80">The seal</b> — genuine SHA-256, chained case to case, shared with the voting centre.</li>
-              <li>💬 <b className="text-white/80">Not real</b> — the sentences spoken back are templated from the engine&apos;s output, not model-generated.</li>
+              <li>🎙️ <b className="text-white/80">The microphone</b> — your browser&apos;s own speech recognition. No key, and nothing uploaded by us; the button says whether your device recognised the audio locally or sent it to the browser&apos;s own service.</li>
+              <li>💬 <b className="text-white/80">The spoken reply</b> — templated from the engine&apos;s output by default. Awaken the town&apos;s AI and an open-weights model rewrites that same verdict into your language, in your browser. It phrases the answer; it never reaches it.</li>
             </ul>
           </div>
 

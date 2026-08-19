@@ -5,6 +5,7 @@ import { compressToUTF16 } from 'lz-string';
 import { GameProvider } from '@/context/GameContext';
 import { FutureIndia } from '@/components/india/FutureIndia';
 import { BootScreen } from '@/components/india/BootScreen';
+import { TownAIProvider } from '@/components/india/ai/TownAI';
 
 const STORAGE_KEY = 'isocity-game-state';
 
@@ -73,13 +74,15 @@ export default function IndiaPage() {
     <div className="w-full h-screen overflow-hidden bg-[#0b1020]">
       {/* The world mounts underneath the boot screen so its assets load while you read it. */}
       {townReady && (
-        <GameProvider>
-          <FutureIndia
-            booted={booted}
-            onAssetProgress={handleAssetProgress}
-            onReady={handleReady}
-          />
-        </GameProvider>
+        <TownAIProvider>
+          <GameProvider>
+            <FutureIndia
+              booted={booted}
+              onAssetProgress={handleAssetProgress}
+              onReady={handleReady}
+            />
+          </GameProvider>
+        </TownAIProvider>
       )}
       {!booted && <BootScreen progress={progress} />}
     </div>
