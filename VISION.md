@@ -3,6 +3,9 @@
 > **This file defines the project. Read it before writing any code here.**
 > Status: systems 1, 2 and 3 are built and live. Next system is chosen by Pawan,
 > one at a time, in roughly the order below.
+>
+> **This is the flagship.** Of everything I have built, Bharat 2047 is the project
+> I want judged first — see [Positioning](#positioning-this-is-the-flagship).
 
 This project is NOT a demo with two or three screens. It is a complete,
 explorable answer to one question: "How should one town in future India
@@ -104,6 +107,116 @@ The voting centre implements this pattern — study it before building anything.
 
 ---
 
+# The 2026-08-20 upgrade
+
+*Everything below was added by Pawan on 2026-08-20. Where it conflicts with
+anything above, this wins.*
+
+## Positioning: this is the flagship
+
+Bharat 2047 is my **standout project**. On pawanchander.com it is featured
+**first** in the projects/prototypes list, and it carries the **strongest card and
+preview of any project on the site** — not an equal among equals. Every decision
+inside this repo is held to flagship quality, which is a higher bar than "good".
+
+If a change would be acceptable in an ordinary side project but not in the one
+piece of work I most want to be judged on, it does not ship.
+
+## The open principle: no keys, ever
+
+This repo is public and it must stay **completely runnable by anyone who forks
+it**. No API keys, no paid services, no accounts, no server the visitor depends
+on. A stranger clones it, runs `npm install && npm run dev`, and gets the *entire*
+experience — including every AI and voice feature. There is no degraded
+"open-source edition".
+
+This is not only an ethics position, it is the technical constraint that shapes
+the architecture: **all intelligence runs client-side, in the visitor's own
+browser, on open technology.**
+
+- **Speech to text** — the Web Speech API (`webkitSpeechRecognition`), with a
+  language picker: English, Hindi, Punjabi, Telugu, Tamil, Bengali, Marathi
+  (`en-IN`, `hi-IN`, `pa-IN`, `te-IN`, `ta-IN`, `bn-IN`, `mr-IN`). Browsers
+  without it get a designed message, never a dead button.
+- **Text to speech** — `window.speechSynthesis`, choosing a voice that matches the
+  chosen language when the device has one.
+- **The LLM brain** — [WebLLM](https://github.com/mlc-ai/web-llm) running an
+  **Apache- or MIT-licensed** instruct model in-browser over WebGPU. A model under
+  a bespoke community licence (Llama, Gemma) is not acceptable here however good
+  it is: it would compromise the fork-and-run promise.
+- **Opt-in, never automatic.** The model appears behind an
+  **"Awaken the town's AI 🧠"** button that states the download size up front,
+  streams with a real progress bar, can be cancelled, and caches so it is never
+  downloaded twice. WebGPU is feature-detected.
+
+### The fallback chain is part of the design
+
+**WebLLM → deterministic engine → typed input.** Every feature has all three
+rungs, and the site stays *fully usable with zero downloads on any device*. A
+visitor on an old Android phone with no WebGPU and no microphone must still get
+the complete argument — they simply get it by typing.
+
+This has a consequence worth stating plainly, because it is the honest version of
+"AI-powered": **the deterministic engines remain the decision-makers.** The
+Naive Bayes classifier, the eligibility rules and the five routing gates decide
+what happens to a citizen's case; they are auditable and they are the project's
+actual claim. The language model is used where the README already said a model
+could safely be used — the layer where being wrong is not consequential:
+understanding as a *second opinion shown beside the engine*, and putting the
+engine's verdict into natural spoken language. When the two disagree, the screen
+shows the disagreement and the engine wins.
+
+## What is being built on top of this
+
+1. **The talking AI Panchayat** — the crown jewel. The visitor *is* the villager:
+   they press a mic and speak their problem in their own language
+   ("meri pension teen mahine ton nahi aayi"), and the pipeline runs
+   speech → text → understanding → scheme match → complaint filed and routed →
+   and the answer is **shown and spoken back** in that same language. The point it
+   exists to prove: *a citizen who cannot read or type can still be fully heard by
+   the system.* The pipeline is visible — heard text, parsed intent, matched
+   scheme — the way the voting centre shows its hashing.
+2. **"Ask the town anything"** — a floating guide. Any question, any supported
+   language ("is my vote really anonymous?", "what if someone bribes the miner?"),
+   answered by the in-browser model grounded in a system prompt compiled from this
+   file plus how each built system actually works. It says when it does not know.
+   Falls back to a curated FAQ engine.
+3. **The narrated guided tour** — a "Take the tour" mode: the camera flies from
+   landmark to landmark while the town narrates the Bharat 2047 story in the
+   chosen language. Skippable, and subtitled — the subtitles double as the
+   fallback when no voice is available.
+
+## Performance guardrails (non-negotiable)
+
+- **The first load must never get slower than it is today.** No new feature may
+  add weight to it. The measured baseline on 2026-08-20 is **609 KB**
+  (596 KB JS + 13 KB CSS, brotli, 14 files) for `/india`.
+- **Everything new is lazy.** WebLLM, voice and tour code load through dynamic
+  `import()`, fetched only when the visitor activates that feature. The main
+  bundle is measured before and after every change and **both numbers are
+  reported**. If it grew, that is fixed before shipping.
+- The model download states its size up front, streams with a progress bar, is
+  cancellable, and is cached so it never downloads twice.
+- Every change is tested on a simulated slow-4G connection and the load time
+  reported.
+
+## How we work now
+
+Established 2026-08-20 and used for every item from here on:
+
+1. **Reason first.** Before writing code, a short written plan: the technical
+   choices and *why*, the risky parts, and my own additional ideas ranked by
+   impact against effort.
+2. **Pawan approves the extra ideas.** The named items get built; anything I
+   invented waits for a yes.
+3. **Then build**, to the flagship bar — no half-features. Every state
+   (permission denied, no WebGPU, no voice installed, model still downloading,
+   model cancelled) gets a designed, polished experience, not an error string.
+4. **Test the whole /india flow**, commit cleanly, push, redeploy, and report the
+   URLs, what changed, and the before/after numbers.
+
+---
+
 ## Where the built systems live
 
 | System | Experience | Engine |
@@ -120,9 +233,16 @@ Every journey opens on the shared drawn walk-up scene in
 
 ## Outstanding against this vision
 
-Nothing structural. The palette question is closed — see the amended design rule
-above: Bharat 2047 keeps its own identity, and the bar it is held to is
-exceptional craft rather than a colour match.
+The palette question is closed — see the amended design rule above: Bharat 2047
+keeps its own identity, and the bar it is held to is exceptional craft rather than
+a colour match.
 
-The standing work is the roadmap itself: systems 4 through 10, one at a time, each
-built to the same bar the voting centre and the panchayat set.
+Open work, in order:
+
+1. The three items of the 2026-08-20 upgrade: the talking panchayat, the "ask the
+   town anything" guide, and the narrated tour.
+2. Featuring Bharat 2047 first on pawanchander.com, with the strongest card and
+   preview on the site. That lives in the portfolio repo, not this one, but it is
+   part of this project's definition of done.
+3. The roadmap itself: systems 4 through 10, one at a time, each built to the bar
+   the voting centre, the panchayat and the bank set.
