@@ -1,0 +1,207 @@
+'use client';
+
+/**
+ * Bharat 2047 — explorable Future India town.
+ * The IsoCity engine renders the living world; clicking a landmark
+ * opens that civic system. Live: Digital Voting Centre, AI Panchayat Kendra.
+ */
+
+import React, { useEffect, useMemo, useState } from 'react';
+import { CanvasIsometricGrid } from '@/components/game/CanvasIsometricGrid';
+import { VotingCentre } from './VotingCentre';
+import { PanchayatKendra } from './PanchayatKendra';
+
+interface Landmark {
+  id: string;
+  name: string;
+  icon: string;
+  x: number; y: number; w: number; h: number; // grid footprint
+  status: 'live' | 'next' | 'planned';
+  tagline: string;
+  description: string;
+  /** label on the button that opens a live system */
+  cta?: string;
+}
+
+const LANDMARKS: Landmark[] = [
+  {
+    id: 'voting', name: 'Digital Voting Centre', icon: '🗳️',
+    x: 13, y: 6, w: 2, h: 2, status: 'live',
+    tagline: 'Blockchain elections — tamper-proof, anonymous, instantly auditable.',
+    description: 'Step inside and follow a citizen through a full blockchain vote: identity → anonymous token → ballot → SHA-256 seal → proof-of-work mining → the public chain. Then try to hack it.',
+    cta: '🗳️ Step inside — cast a vote',
+  },
+  {
+    id: 'panchayat', name: 'AI Panchayat Kendra', icon: '🏛️',
+    x: 16, y: 6, w: 1, h: 1, status: 'live',
+    tagline: 'Every villager gets a tireless assistant — and a human still signs every decision.',
+    description: 'A villager brings any problem — a pension not arriving, wages unpaid, a handpump dry. A classifier trained live in your browser reads it in Hindi, Hinglish or English and shows its working; a rules engine checks her actual record; then five gates decide whether software may proceed alone or a panchayat member must sign. Type your own complaint and watch the confidence move.',
+    cta: '🏛️ Step inside — bring a problem',
+  },
+  {
+    id: 'bank', name: 'Bank of Bharat', icon: '🏦',
+    x: 13, y: 13, w: 3, h: 3, status: 'next',
+    tagline: 'New-age banking — every transaction on an immutable public ledger.',
+    description: 'Stricter rules, enforced by mathematics instead of trust: transactions recorded on a blockchain ledger regulators and auditors can verify in real time. No hidden books, no vanishing loans. Coming next in this prototype.',
+  },
+  {
+    id: 'school', name: 'National Digital School', icon: '🏫',
+    x: 6, y: 6, w: 2, h: 2, status: 'planned',
+    tagline: 'Grades & certificates on decentralized storage — impossible to forge.',
+    description: 'Planned: every marksheet and degree anchored to decentralized storage, verifiable by any employer in seconds.',
+  },
+  {
+    id: 'hospital', name: 'Smart Health Centre', icon: '🏥',
+    x: 20, y: 6, w: 2, h: 2, status: 'planned',
+    tagline: 'AI triage + portable health records + transparent insurance.',
+    description: 'Planned: AI-assisted triage for villages, records the patient owns, and insurance claims settled on-chain.',
+  },
+  {
+    id: 'police', name: 'AI Safety Command', icon: '🚓',
+    x: 6, y: 21, w: 1, h: 1, status: 'planned',
+    tagline: 'AI CCTV that spots incidents in seconds — with privacy safeguards.',
+    description: 'Planned: camera network detects accidents & crimes, dispatches the nearest responder, and logs every access to footage on an audit chain.',
+  },
+  {
+    id: 'mobility', name: 'Smart Mobility Hub', icon: '🚌',
+    x: 13, y: 21, w: 2, h: 2, status: 'planned',
+    tagline: 'Buses & trains that citizens can actually plan their day around.',
+    description: 'Planned: live tracking, demand-responsive routes, one QR ticket for every mode of transport.',
+  },
+  {
+    id: 'garbage', name: 'Smart Waste Network', icon: '🗑️',
+    x: 6, y: 23, w: 1, h: 1, status: 'planned',
+    tagline: 'Bins that call the municipality — and watch over life itself.',
+    description: 'Planned: fill-level sensors dispatch trucks on optimized routes; thermal sensors detect any living being and trigger an instant emergency alert.',
+  },
+];
+
+const STATUS_META = {
+  live: { label: 'LIVE DEMO', cls: 'bg-emerald-500 text-black' },
+  next: { label: 'COMING NEXT', cls: 'bg-amber-500 text-black' },
+  planned: { label: 'PLANNED', cls: 'bg-white/20 text-white/80' },
+} as const;
+
+export function FutureIndia() {
+  const [selectedTile, setSelectedTile] = useState<{ x: number; y: number } | null>(null);
+  const [active, setActive] = useState<Landmark | null>(null);
+  const [showVoting, setShowVoting] = useState(false);
+  const [showPanchayat, setShowPanchayat] = useState(false);
+  const [navigationTarget, setNavigationTarget] = useState<{ x: number; y: number } | null>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  const hitTest = useMemo(() => {
+    return (x: number, y: number): Landmark | null => {
+      for (const l of LANDMARKS) {
+        if (x >= l.x && x < l.x + l.w && y >= l.y && y < l.y + l.h) return l;
+      }
+      return null;
+    };
+  }, []);
+
+  // When the engine reports a clicked tile, check if it's a landmark
+  useEffect(() => {
+    if (!selectedTile) return;
+    const l = hitTest(selectedTile.x, selectedTile.y);
+    if (l) {
+      setActive(l);
+      setNavigationTarget({ x: l.x, y: l.y });
+    } else {
+      setActive(null);
+    }
+  }, [selectedTile, hitTest]);
+
+  const openLandmark = (l: Landmark) => {
+    setActive(l);
+    setNavigationTarget({ x: l.x, y: l.y });
+  };
+
+  return (
+    <div className="w-full h-screen overflow-hidden bg-[#0b1020] relative">
+      {/* The living town */}
+      <CanvasIsometricGrid
+        overlayMode="none"
+        selectedTile={selectedTile}
+        setSelectedTile={setSelectedTile}
+        navigationTarget={navigationTarget}
+        onNavigationComplete={() => setNavigationTarget(null)}
+      />
+
+      {/* Title bar */}
+      <div className="absolute top-0 inset-x-0 z-20 pointer-events-none">
+        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-b from-[#0b1020]/90 to-transparent">
+          <div>
+            <h1 className="text-white text-2xl font-bold tracking-wide drop-shadow">
+              <span className="text-amber-400">भारत</span> BHARAT <span className="text-emerald-400">2047</span>
+            </h1>
+            <p className="text-white/60 text-xs">An interactive prototype of how India&apos;s civic systems could work · click any glowing building</p>
+          </div>
+          <div className="text-right text-white/40 text-xs pointer-events-auto">
+            drag to pan · scroll to zoom
+          </div>
+        </div>
+      </div>
+
+      {/* System dock */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2 flex-wrap justify-center max-w-4xl px-4">
+        {LANDMARKS.map((l) => (
+          <button key={l.id} onClick={() => openLandmark(l)}
+            className={`px-3 py-2 rounded-xl border text-sm backdrop-blur transition-all
+              ${active?.id === l.id ? 'bg-amber-500 text-black border-amber-400 font-semibold' : 'bg-[#0b1020]/80 text-white/80 border-white/15 hover:border-amber-400/60 hover:text-white'}`}>
+            <span className="mr-1">{l.icon}</span>{l.name}
+            {l.status === 'live' && <span className="ml-2 inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+          </button>
+        ))}
+      </div>
+
+      {/* Landmark panel */}
+      {active && !showVoting && !showPanchayat && (
+        <div className="absolute right-4 top-20 z-20 w-[340px] rounded-2xl bg-[#0e1428]/95 border border-white/15 shadow-2xl backdrop-blur p-5 text-white">
+          <div className="flex items-start justify-between mb-2">
+            <div className="text-4xl">{active.icon}</div>
+            <button onClick={() => { setActive(null); setSelectedTile(null); }} className="text-white/40 hover:text-white">✕</button>
+          </div>
+          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 ${STATUS_META[active.status].cls}`}>
+            {STATUS_META[active.status].label}
+          </span>
+          <h2 className="text-xl font-bold mb-1">{active.name}</h2>
+          <p className="text-amber-300/90 text-sm mb-3">{active.tagline}</p>
+          <p className="text-white/60 text-sm mb-4">{active.description}</p>
+          {active.status === 'live' ? (
+            <button onClick={() => (active.id === 'panchayat' ? setShowPanchayat(true) : setShowVoting(true))}
+              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg shadow-lg shadow-amber-500/25">
+              {active.cta ?? 'Step inside'}
+            </button>
+          ) : (
+            <div className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-center text-white/40 text-sm">
+              This system opens in the next version
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Welcome overlay */}
+      {showWelcome && (
+        <div className="absolute inset-0 z-30 bg-[#0b1020]/85 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="max-w-lg text-center text-white">
+            <div className="text-6xl mb-4">🇮🇳</div>
+            <h1 className="text-4xl font-bold mb-3"><span className="text-amber-400">Bharat</span> 2047</h1>
+            <p className="text-white/70 mb-2">A living, explorable prototype of future India&apos;s civic systems — voting, panchayats, banking, schools — rebuilt on AI and blockchain.</p>
+            <p className="text-white/50 text-sm mb-6">This is a real simulation: the town lives, traffic flows, and the voting centre runs genuine cryptography in your browser.</p>
+            <button onClick={() => setShowWelcome(false)}
+              className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">
+              Explore the town →
+            </button>
+            <div className="mt-4 text-white/30 text-xs">Built on the open-source IsoCity engine (MIT)</div>
+          </div>
+        </div>
+      )}
+
+      {/* The working blockchain voting experience */}
+      {showVoting && <VotingCentre onClose={() => setShowVoting(false)} />}
+
+      {/* The working AI grievance desk */}
+      {showPanchayat && <PanchayatKendra onClose={() => setShowPanchayat(false)} />}
+    </div>
+  );
+}
