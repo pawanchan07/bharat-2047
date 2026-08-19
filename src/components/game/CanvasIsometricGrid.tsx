@@ -121,10 +121,35 @@ export interface CanvasIsometricGridProps {
   onNavigationComplete?: () => void;
   onViewportChange?: (viewport: { offset: { x: number; y: number }; zoom: number; canvasSize: { width: number; height: number } }) => void;
   onBargeDelivery?: (cargoValue: number, cargoType: number) => void;
+  /**
+   * Suppress the city builder's own chrome — the tile inspector, incident tooltips and
+   * discovery dialogs. Showcases built on this engine (Bharat 2047) present their own
+   * panels, and the builder's "Tile (13,13) — Museum" card must never appear beside them.
+   */
+  hideEngineUI?: boolean;
+  /**
+   * Sprite sheets to load before reporting ready, by key. Everything else is deferred to
+   * idle time instead of competing with first paint. Undefined loads every sheet eagerly,
+   * which is what the city builder needs — it can place any building at any moment.
+   */
+  eagerSheets?: SpriteSheetKey[];
+  /** Fires as the eager sheets land, so a host can draw a real progress bar. */
+  onSpriteProgress?: (loaded: number, total: number) => void;
+  /**
+   * Stop animating the world. A host that covers the canvas with a full-screen overlay
+   * should set this: the traffic, pedestrians and lighting behind it are invisible but were
+   * still burning a frame budget, which starved timers in whatever was on top.
+   */
+  paused?: boolean;
 }
 
+/** Keys for the optional sprite sheets a pack can carry, for {@link CanvasIsometricGridProps.eagerSheets}. */
+export type SpriteSheetKey =
+  | 'construction' | 'abandoned' | 'dense' | 'parks' | 'parksConstruction' | 'farms'
+  | 'shops' | 'stations' | 'modern' | 'services' | 'infrastructure' | 'mansions' | 'planes';
+
 // Canvas-based Isometric Grid - HIGH PERFORMANCE
-export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile, isMobile = false, navigationTarget, onNavigationComplete, onViewportChange, onBargeDelivery }: CanvasIsometricGridProps) {
+export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile, isMobile = false, navigationTarget, onNavigationComplete, onViewportChange, onBargeDelivery, hideEngineUI = false, eagerSheets, onSpriteProgress, paused = false }: CanvasIsometricGridProps) {
   const { state, latestStateRef, placeAtTile, finishTrackDrag, connectToCity, checkAndDiscoverCities, currentSpritePack, visualHour } = useGame();
   const { grid, gridSize, selectedTool, speed, adjacentCities, waterBodies, gameVersion } = state;
   
@@ -596,6 +621,10 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
     zoomRef.current = zoom;
   }, [zoom]);
 
+  // Sync the paused flag to a ref so the render loop can check it without restarting.
+  const pausedRef = useRef(paused);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
+
   // Notify parent of viewport changes for minimap
   useEffect(() => {
     onViewportChange?.({ offset, zoom, canvasSize });
@@ -860,65 +889,85 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
     return unsubscribe;
   }, []);
   
-  // Load sprite sheets on mount and when sprite pack changes
-  // This now runs in background - rendering starts immediately with placeholders
+  // The sprite-progress callback is read through a ref so that a host passing an inline
+  // function never restarts the (expensive) sheet loading below.
+  const spriteProgressRef = useRef(onSpriteProgress);
+  useEffect(() => { spriteProgressRef.current = onSpriteProgress; }, [onSpriteProgress]);
+
+  // Load sprite sheets on mount and when sprite pack changes.
+  // Runs in the background - rendering starts immediately with placeholders.
   useEffect(() => {
-    // Load images progressively - each will trigger a re-render when ready
-    // Priority: main sprite sheet first, then water, then secondary sheets
-    
-    // High priority - main sprite sheet
-    loadSpriteImage(currentSpritePack.src, true).catch(console.error);
-    
-    // High priority - water texture
-    loadImage(WATER_ASSET_PATH).catch(console.error);
-    
-    // Medium priority - load secondary sheets after a small delay
-    // This allows the main content to render first
-    const loadSecondarySheets = () => {
-      if (currentSpritePack.constructionSrc) {
-        loadSpriteImage(currentSpritePack.constructionSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.abandonedSrc) {
-        loadSpriteImage(currentSpritePack.abandonedSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.denseSrc) {
-        loadSpriteImage(currentSpritePack.denseSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.parksSrc) {
-        loadSpriteImage(currentSpritePack.parksSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.parksConstructionSrc) {
-        loadSpriteImage(currentSpritePack.parksConstructionSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.farmsSrc) {
-        loadSpriteImage(currentSpritePack.farmsSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.shopsSrc) {
-        loadSpriteImage(currentSpritePack.shopsSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.stationsSrc) {
-        loadSpriteImage(currentSpritePack.stationsSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.modernSrc) {
-        loadSpriteImage(currentSpritePack.modernSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.servicesSrc) {
-        loadSpriteImage(currentSpritePack.servicesSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.infrastructureSrc) {
-        loadSpriteImage(currentSpritePack.infrastructureSrc, true).catch(console.error);
-      }
-      if (currentSpritePack.mansionsSrc) {
-        loadSpriteImage(currentSpritePack.mansionsSrc, true).catch(console.error);
-      }
-      // Load airplane sprite sheet (always loaded, not dependent on sprite pack)
-      loadSpriteImage(AIRPLANE_SPRITE_SRC, false).catch(console.error);
+    // The main sheet and the water texture are always needed: nothing renders without them.
+    const critical: { src: string; filter: boolean }[] = [
+      { src: currentSpritePack.src, filter: true },
+      { src: WATER_ASSET_PATH, filter: false },
+    ];
+
+    // Every optional sheet this pack carries, in the order the engine wants them.
+    const optional: { key: SpriteSheetKey; src?: string; filter: boolean }[] = [
+      { key: 'construction', src: currentSpritePack.constructionSrc, filter: true },
+      { key: 'abandoned', src: currentSpritePack.abandonedSrc, filter: true },
+      { key: 'dense', src: currentSpritePack.denseSrc, filter: true },
+      { key: 'parks', src: currentSpritePack.parksSrc, filter: true },
+      { key: 'parksConstruction', src: currentSpritePack.parksConstructionSrc, filter: true },
+      { key: 'farms', src: currentSpritePack.farmsSrc, filter: true },
+      { key: 'shops', src: currentSpritePack.shopsSrc, filter: true },
+      { key: 'stations', src: currentSpritePack.stationsSrc, filter: true },
+      { key: 'modern', src: currentSpritePack.modernSrc, filter: true },
+      { key: 'services', src: currentSpritePack.servicesSrc, filter: true },
+      { key: 'infrastructure', src: currentSpritePack.infrastructureSrc, filter: true },
+      { key: 'mansions', src: currentSpritePack.mansionsSrc, filter: true },
+      { key: 'planes', src: AIRPLANE_SPRITE_SRC, filter: false },
+    ];
+
+    const present = optional.filter((s): s is typeof s & { src: string } => !!s.src);
+    // Without an explicit list every sheet is eager, which is what the city builder needs:
+    // the player can place any building at any moment.
+    const isEager = (k: SpriteSheetKey) => !eagerSheets || eagerSheets.includes(k);
+    const eager = present.filter((s) => isEager(s.key));
+    const deferred = present.filter((s) => !isEager(s.key));
+
+    let cancelled = false;
+    const load = (s: { src: string; filter: boolean }) =>
+      (s.filter ? loadSpriteImage(s.src, true) : loadImage(s.src)).catch(console.error);
+
+    // Progress covers exactly the sheets a host waits on, so a loading bar that reaches
+    // 100% means the town really is ready to draw.
+    const total = critical.length + eager.length;
+    let done = 0;
+    const step = () => { if (!cancelled) spriteProgressRef.current?.(Math.min(++done, total), total); };
+
+    spriteProgressRef.current?.(0, total);
+
+    // Everything the first view needs, started together and counted as it lands. The
+    // critical pair is listed first so the browser gives it the connection first. No timer
+    // gates this: a cleanup that cancelled a pending timer used to leave the host's loading
+    // screen waiting for progress that could never arrive.
+    const needed = [...critical, ...eager];
+    const neededDone = Promise.all(needed.map((s) => load(s).then(step)));
+
+    // Everything else is genuinely optional for this world. It waits for the whole needed
+    // set to land and then for the browser to go idle, so it can never take bandwidth from
+    // the sheets the first view actually depends on.
+    let idleHandle: number | null = null;
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    if (deferred.length > 0) {
+      neededDone.then(() => {
+        if (cancelled) return;
+        const loadDeferred = () => { if (!cancelled) deferred.forEach(load); };
+        const ric = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+        if (ric) idleHandle = ric(loadDeferred, { timeout: 8000 });
+        else idleTimer = setTimeout(loadDeferred, 2000);
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      if (idleTimer) clearTimeout(idleTimer);
+      const cic = (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback;
+      if (idleHandle !== null && cic) cic(idleHandle);
     };
-    
-    // Load secondary sheets after 50ms to prioritize first paint
-    const timer = setTimeout(loadSecondarySheets, 50);
-    return () => clearTimeout(timer);
-  }, [currentSpritePack]);
+  }, [currentSpritePack, eagerSheets]);
   
   // Building helper functions moved to buildingHelpers.ts
   
@@ -2403,6 +2452,15 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
     
     const render = (time: number) => {
       animationFrameId = requestAnimationFrame(render);
+
+      // A full-screen system is open on top of us. Nothing here is visible, and every frame
+      // spent on it delays the thing the visitor is actually looking at (the voting centre
+      // mines a real block on this same thread). Keep the loop alive, do no work.
+      if (pausedRef.current) {
+        lastTime = time;
+        lastRenderTime = time;
+        return;
+      }
       
       // Frame rate limiting for mobile - skip frames to maintain target FPS
       const timeSinceLastRender = time - lastRenderTime;
@@ -3089,7 +3147,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
         style={{ mixBlendMode: 'multiply' }}
       />
       
-      {selectedTile && selectedTool === 'select' && !isMobile && (
+      {selectedTile && selectedTool === 'select' && !isMobile && !hideEngineUI && (
         <TileInfoPanel
           tile={grid[selectedTile.y][selectedTile.x]}
           services={state.services}
@@ -3098,7 +3156,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       )}
       
       {/* City Connection Dialog */}
-      {cityConnectionDialog && (() => {
+      {cityConnectionDialog && !hideEngineUI && (() => {
         // Find a discovered but not connected city in this direction
         const city = adjacentCities.find(c => c.direction === cityConnectionDialog.direction && c.discovered && !c.connected);
         if (!city) return null;
@@ -3219,7 +3277,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       })()}
       
       {/* Incident Tooltip - shows when hovering over fire or crime */}
-      {hoveredIncident && (() => {
+      {hoveredIncident && !hideEngineUI && (() => {
         // Calculate position to avoid overflow
         const tooltipWidth = 200;
         const padding = 16;
