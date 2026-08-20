@@ -115,9 +115,13 @@ anything above, this wins.*
 ## Positioning: this is the flagship
 
 Bharat 2047 is my **standout project**. On pawanchander.com it is featured
-**first** in the projects/prototypes list, and it carries the **strongest card and
-preview of any project on the site** — not an equal among equals. Every decision
-inside this repo is held to flagship quality, which is a higher bar than "good".
+**first** in the projects/prototypes list. Every decision inside this repo is held
+to flagship quality, which is a higher bar than "good".
+
+**Amended 2026-08-20:** first *position* is the whole of it. The site does not
+label it the flagship or give it a bigger card than the others — that was tried and
+Pawan called it back. The work should read as the strongest thing in the list
+because of what it is, not because of a chip that says so.
 
 If a change would be acceptable in an ordinary side project but not in the one
 piece of work I most want to be judged on, it does not ship.
@@ -243,9 +247,11 @@ guide, the narrated tour, and all five of the extra ideas — one shared cast of
 across the three systems, a town that visibly reacts to what you do, a saveable proof
 card, the five named attacks as a scoreboard, and a citizen's day from dawn to dusk.
 
-Bharat 2047 is now featured first on pawanchander.com, on a full-width card carrying a
-real screenshot of the town, a "The flagship" chip, and a link straight into the
-prototype — plus its own action in the site's hero. That was item 1 and it is done.
+Bharat 2047 now leads the projects list on pawanchander.com, on an ordinary card that
+happens to carry a real screenshot of the town and a link straight into the prototype,
+plus its own action in the site's hero. It was briefly given a full-width card and a
+"The flagship" chip; Pawan asked for that to come off, so first position is the only
+distinction it gets. That was item 1 and it is done.
 
 **System 4 — the National Digital School — is live** (2026-08-20). A certificate
 signs its own Merkle root with a real ECDSA P-256 key, carries a real IPFS CIDv1,
