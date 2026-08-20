@@ -22,7 +22,7 @@ prototype. You answer visitors' questions about it.
 WHAT THE TOWN IS
 - A living isometric town (built on the open-source IsoCity engine, MIT licensed) where you
   click a building to open a civic system that genuinely runs in your browser.
-- Nothing is a mockup, a video or a screenshot. Three systems are finished and working.
+- Nothing is a mockup, a video or a screenshot. Four systems are finished and working.
 
 SYSTEM 1 — THE DIGITAL VOTING CENTRE
 - A citizen's identity becomes an anonymous token: SHA-256 of their identity plus a national
@@ -69,6 +69,27 @@ SYSTEM 3 — THE BANK OF BHARAT
   law cannot run over sealed commitments so it runs on published figures; and hiding amounts
   while leaving the transaction graph visible is a real, unsolved tradeoff.
 
+SYSTEM 4 — THE NATIONAL DIGITAL SCHOOL
+- The problem: verifying an Indian degree means telephoning an institution that may not
+  answer, so most employers never do — which is why forged marksheets work at all.
+- A certificate is issued as eleven fields. Each field is salted and hashed into a leaf, the
+  leaves build a Merkle tree, and the school signs only the root with a real ECDSA P-256 key
+  generated in the browser through Web Crypto.
+- The certificate's address is a genuine IPFS CIDv1 — raw codec, sha2-256, base32 — computed
+  over the certificate bytes, so the address is the document.
+- Selective disclosure is the point: a graduate can show three fields out of eleven and the
+  verifier still checks them against the root the school signed. Marks she does not want read
+  are never sent.
+- Change any field and its Merkle proof stops matching the signed root — while the signature
+  itself still verifies, because a forger never touched the root. That distinction is shown
+  on screen.
+- Revocation is a hash-chained register, so a revoked degree cannot be quietly un-revoked and
+  an edit to the register is itself detectable.
+- Verification is four checks — content address, signature, issuer, revocation — and takes a
+  couple of milliseconds, offline, with no call to the university.
+- Honest caveat: the cryptography is the easy half. Who is allowed to be an issuer, and how a
+  lost signing key is rotated, is governance, and this prototype does not solve it.
+
 HOW THE AI AND VOICE WORK
 - Everything runs in the visitor's browser. No API keys, no accounts, no server. Anyone can
   fork the repo and get the whole experience.
@@ -81,8 +102,8 @@ HOW THE AI AND VOICE WORK
   compromise the promise that a fork runs completely.
 
 WHAT IS PLANNED, NOT BUILT
-Education records, an AI safety command with audited camera access, a smart waste network, a
-mobility hub, health and insurance, digital rights, and policy transparency.
+An AI safety command with audited camera access, a smart waste network, a mobility hub,
+health and insurance, digital rights, and policy transparency.
 
 HOW TO ANSWER
 - Be brief: two to four sentences unless asked for more.
@@ -152,6 +173,18 @@ export const FAQ: FaqEntry[] = [
       'Benford needs the magnitudes of numbers, and a commitment hides magnitude by construction — that is the whole point of it. So the Benford test runs on figures the bank publishes itself, not on the sealed ledger, and the screen says so rather than letting you assume otherwise. It is one of two limits stated openly; the other is that hiding amounts while leaving the transaction graph visible is a real, unsolved tradeoff.',
   },
   {
+    keys: ['degree', 'certificate', 'marksheet', 'school', 'diploma', 'forge', 'merkle'],
+    question: 'How can a degree prove itself without calling the university?',
+    answer:
+      'The school signs the certificate once, with a real ECDSA P-256 key, and what it signs is a Merkle root over eleven salted fields. Anyone can then verify four things offline in about two milliseconds: that the content address really is the hash of these bytes, that the signature is the school’s, that the issuer is recognised, and that the certificate is not in the revocation register. Change a single mark and its Merkle proof stops matching the root — while the signature still verifies, because the forger never touched the root.',
+  },
+  {
+    keys: ['selective', 'disclosure', 'hide marks', 'privacy degree', 'show only'],
+    question: 'How does a graduate show a degree without showing her marks?',
+    answer:
+      'Each field is its own leaf, so she sends the three fields an employer actually needs plus their Merkle proofs, and nothing else. The verifier recomputes the root from what he was given and checks it against the root the school signed. He learns her degree and her year; he never sees a mark. The honest caveat is that the hard part is not this — it is governance: who is allowed to be an issuer, and how a lost signing key is rotated.',
+  },
+  {
     keys: ['microphone', 'speech', 'voice', 'recording', 'listening', 'audio'],
     question: 'Where does my voice go when I speak?',
     answer:
@@ -179,7 +212,7 @@ export const FAQ: FaqEntry[] = [
     keys: ['next', 'roadmap', 'coming', 'planned', 'future', 'other buildings'],
     question: 'What is coming next?',
     answer:
-      'Seven more systems, one at a time and each built to the same bar: school and degree records that cannot be forged, an AI safety command where every access to footage is itself logged, a smart waste network, a mobility hub, health and insurance claims that cannot silently vanish, digital rights, and policy transparency. The greyed-out buildings in the town are those.',
+      'Six more systems, one at a time and each built to the same bar: an AI safety command where every access to footage is itself logged, a smart waste network, a mobility hub, health and insurance claims that cannot silently vanish, digital rights, and policy transparency. The greyed-out buildings in the town are those.',
   },
 ];
 

@@ -149,6 +149,60 @@ function PollingStation({ lit }: { lit: boolean }) {
   );
 }
 
+/** The school: a long low block, a bell, and a board with the results pinned to it. */
+function SchoolBlock({ lit }: { lit: boolean }) {
+  return (
+    <svg viewBox="0 0 220 170" className="w-full h-full overflow-visible" aria-hidden>
+      <rect x="27" y="12" width="2.5" height="56" fill="#8a93a8" />
+      <g>
+        <rect x="29.5" y="14" width="28" height="5.5" fill="#FF9933" />
+        <rect x="29.5" y="19.5" width="28" height="5.5" fill="#FFFFFF" />
+        <rect x="29.5" y="25" width="28" height="5.5" fill="#138808" />
+      </g>
+
+      <rect x="16" y="72" width="188" height="80" rx="3" fill="#e6e0f2" />
+      <rect x="16" y="72" width="188" height="80" rx="3" fill="url(#vs-wall)" />
+      <path d="M8 72 L110 44 L212 72 Z" fill="#5b4b8a" />
+      <path d="M8 72 L110 44 L212 72 Z" fill="#000" opacity="0.12" />
+      <rect x="4" y="70" width="212" height="6" rx="2" fill="#453a6b" />
+
+      {/* a row of classroom windows */}
+      {[30, 62, 148, 180].map((x) => (
+        <rect key={x} x={x} y="84" width="22" height="20" rx="2" fill="#2b3f63" opacity="0.72" />
+      ))}
+
+      <rect x="92" y="104" width="36" height="48" rx="3" fill={lit ? '#f8d99a' : '#243354'} className={lit ? 'vs-door-lit' : ''} />
+      <rect x="92" y="104" width="36" height="48" rx="3" fill="none" stroke="#8d84ad" strokeWidth="2" />
+
+      {/* the results board, which is the entire reason she is here */}
+      <rect x="140" y="110" width="40" height="28" rx="2" fill="#1d2b1f" stroke="#4f8c67" strokeWidth="1.2" />
+      {[115, 121, 127, 133].map((y) => (
+        <rect key={y} x="145" y={y} width={y === 127 ? 22 : 30} height="2.4" rx="1.2" fill="#8fd0a8" opacity="0.65" />
+      ))}
+
+      {/* the bell */}
+      <path d="M186 84 q6 0 6 7 v5 h-12 v-5 q0 -7 6 -7 z" fill="#c9a227" />
+      <rect x="185" y="78" width="2" height="6" fill="#8a93a8" />
+
+      <rect x="66" y="62" width="88" height="15" rx="2" fill="#1b1633" stroke="#6f5fb0" strokeWidth="1" />
+      <text x="110" y="73" textAnchor="middle" fontSize="8.5" fill="#c4b5fd" fontFamily="var(--font-sans), system-ui, sans-serif">
+        राजकीय विद्यालय
+      </text>
+
+      <rect x="80" y="152" width="60" height="5" rx="1" fill="#d8d2e6" />
+      <rect x="74" y="157" width="72" height="5" rx="1" fill="#c6bfd6" />
+      <rect x="68" y="162" width="84" height="5" rx="1" fill="#b0a8c4" />
+
+      <defs>
+        <linearGradient id="vs-wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.16" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
 /** The same person, standing still, framed head-and-shoulders for the biometric scan. */
 export function CitizenPortrait({ paletteIndex, className = '' }: { paletteIndex: number; className?: string }) {
   return (
@@ -210,6 +264,21 @@ function PanchayatBhawan({ lit }: { lit: boolean }) {
   );
 }
 
+const SKY = {
+  dusk: {
+    air: 'linear-gradient(#0d1630 0%, #1b2950 46%, #3b4a79 78%, #6b5f7e 100%)',
+    sun: 'left-[21%] top-[43%]',
+    trees: '#0a1128',
+    ground: 'linear-gradient(#233055, #161d38)',
+  },
+  day: {
+    air: 'linear-gradient(#2a5a9e 0%, #4b86c4 38%, #9dbcda 72%, #dbe6ef 100%)',
+    sun: 'left-[16%] top-[16%]',
+    trees: '#1d4030',
+    ground: 'linear-gradient(#5c7f6a, #38513f)',
+  },
+} as const;
+
 export function ArrivalScene({
   phase: phaseProp = 'waiting', citizenName, paletteIndex = 0,
   variant = 'polling', caption, arrivedLabel = 'At the booth entrance', autoPlay = false,
@@ -217,7 +286,7 @@ export function ArrivalScene({
   phase?: WalkPhase;
   citizenName: string;
   paletteIndex?: number;
-  variant?: 'polling' | 'panchayat';
+  variant?: 'polling' | 'panchayat' | 'school';
   /** Overrides the default "walking to the …" strapline. */
   caption?: string;
   arrivedLabel?: string;
@@ -232,6 +301,12 @@ export function ArrivalScene({
     const t = setTimeout(() => setAutoPhase('arrived'), WALK_MS);
     return () => clearTimeout(t);
   }, [autoPlay]);
+
+  /**
+   * The same illustration at two times of day. Results day happens at noon; the booth is a
+   * story about the hour before polling closes, and the panchayat opens in the early light.
+   */
+  const sky = variant === 'school' ? SKY.day : SKY.dusk;
 
   const phase = autoPlay ? autoPhase : phaseProp;
   const walking = phase === 'walking';
@@ -265,20 +340,20 @@ export function ArrivalScene({
       `}</style>
 
       {/* sky */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(#0d1630 0%, #1b2950 46%, #3b4a79 78%, #6b5f7e 100%)' }} />
-      {/* early sun */}
-      <div className="absolute left-[21%] top-[43%] h-14 w-14 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,196,120,.95) 0%, rgba(255,160,80,.35) 45%, rgba(255,150,70,0) 70%)' }} />
+      <div className="absolute inset-0" style={{ background: sky.air }} />
+      {/* the sun — low on the horizon at dusk, high overhead at midday */}
+      <div className={`absolute h-14 w-14 rounded-full ${sky.sun}`} style={{ background: 'radial-gradient(circle, rgba(255,196,120,.95) 0%, rgba(255,160,80,.35) 45%, rgba(255,150,70,0) 70%)' }} />
 
       {/* distant treeline */}
       <svg viewBox="0 0 400 60" preserveAspectRatio="none" className="absolute inset-x-0 bottom-[26%] h-12 w-full" aria-hidden>
         <path
           d="M0 60 L0 40 q12 -14 24 -2 q10 -18 22 -4 q14 -16 26 0 q10 -12 20 2 q16 -18 30 -1 q12 -14 24 1 q14 -16 28 0 q12 -10 22 3 q14 -16 28 -2 q12 -12 24 2 q14 -14 26 1 q10 -8 20 3 q12 -12 24 0 q10 -8 18 2 L400 60 Z"
-          fill="#0a1128" opacity="0.9"
+          fill={sky.trees} opacity="0.9"
         />
       </svg>
 
       {/* ground */}
-      <div className="absolute inset-x-0 bottom-0 h-[26%]" style={{ background: 'linear-gradient(#233055, #161d38)' }} />
+      <div className="absolute inset-x-0 bottom-0 h-[26%]" style={{ background: sky.ground }} />
       <div className="absolute inset-x-0 bottom-[24%] h-px bg-white/10" />
       {/* paving joints along the footpath */}
       <div className="absolute inset-x-0 bottom-[8%] flex justify-between px-2 opacity-25">
@@ -291,7 +366,9 @@ export function ArrivalScene({
       <div className="absolute bottom-[18%] right-[4%] h-[74%] aspect-[220/170]">
         {variant === 'panchayat'
           ? <PanchayatBhawan lit={walking || arrived} />
-          : <PollingStation lit={walking || arrived} />}
+          : variant === 'school'
+            ? <SchoolBlock lit={walking || arrived} />
+            : <PollingStation lit={walking || arrived} />}
       </div>
 
       {/* two villagers already waiting */}
@@ -312,7 +389,7 @@ export function ArrivalScene({
 
       {/* who this is, and where they are going */}
       <div className="absolute left-4 top-3 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[11px] text-white/70 backdrop-blur">
-        {citizenName} · {caption ?? (variant === 'panchayat' ? 'walking to the panchayat bhawan' : 'walking to the polling booth')}
+        {citizenName} · {caption ?? (variant === 'panchayat' ? 'walking to the panchayat bhawan' : variant === 'school' ? 'walking up to the school' : 'walking to the polling booth')}
       </div>
       {arrived && (
         <div className="absolute right-4 top-3 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold text-emerald-300 backdrop-blur">

@@ -3,7 +3,7 @@
 > **Read [VISION.md](VISION.md) first — it defines this project.**
 
 An explorable, living isometric town showing how future India's civic systems
-could work. Three of them are fully built and running for real in the browser:
+could work. Four of them are fully built and running for real in the browser:
 
 - a **blockchain voting centre** — real SHA-256 hashing, real proof-of-work
   mining, live tamper detection;
@@ -14,7 +14,11 @@ could work. Three of them are fully built and running for real in the browser:
 - a **Bank of Bharat** — a confidential ledger a regulator can audit *without
   being allowed to read it*: real 2048-bit Pedersen commitments, a solvency proof
   that is pure homomorphic arithmetic and catches a one-rupee lie, and fraud
-  detectors that find structuring and layering while every amount stays sealed.
+  detectors that find structuring and layering while every amount stays sealed;
+- a **National Digital School** — a degree that proves itself: a real ECDSA P-256
+  signature over a Merkle root, a real IPFS content address, and selective
+  disclosure that lets a graduate prove she holds the degree while showing three
+  fields out of eleven.
 
 No API keys, no network calls, nothing pre-recorded.
 
@@ -131,6 +135,46 @@ rather than letting you assume otherwise. The design also hides amounts but not 
 transaction graph; hide the graph too and every detector goes blind. That tradeoff
 is real, unsolved, and stated on screen.
 
+Then open the **National Digital School**:
+
+18. Press **Step inside — verify a degree**, then **Issue her certificate**. Eleven
+    fields are each salted and hashed into their own leaf; the leaves build a Merkle
+    tree; the school signs *the root*, not the document. The certificate's address is
+    a genuine IPFS CIDv1 — base32 over a raw codec plus a sha2-256 multihash.
+19. **Verify** runs four checks in about a millisecond, offline: content address,
+    signature, issuer key, revocation. No call to the university.
+20. **Forge it** — rewrite any mark. Watch *which* check fails: the signature still
+    verifies, because the forger never touched the root and could not produce a new
+    one. What catches it is the Merkle proof.
+21. **Show less** — hand an employer 4 fields out of 11. What is left off is genuinely
+    not in what they receive; they hold a hash, not a hidden value, which is why the
+    per-field salt is not decoration.
+22. **Revoke** — cancel the degree. Only the fourth check moves, because a signature
+    is a statement about the past and the past did not change. Revocation is a
+    liveness question and cryptography alone cannot answer it.
+
+### What is real in the National Digital School, and what is not
+
+**Real:** ECDSA P-256 keypairs generated in your browser through Web Crypto, and
+signatures that really verify against the published key; salted SHA-256 leaves, the
+Merkle tree, and inclusion proofs that any implementation would accept; the IPFS
+CIDv1 (any IPFS tool would agree with the address); and a hash-chained revocation
+register, so editing the register is itself detected.
+
+**Not real:** the three students, their marks and the school's identity are invented,
+and the school's signing key lives only for as long as the tab does.
+
+**Worth knowing:** this proves a certificate is authentic and unaltered. It cannot
+prove the school was *honest* when it issued one — a corrupt institution signing with
+a real key still produces a perfectly valid degree. Who is allowed to be an issuer,
+and how a lost signing key is rotated, is governance, and no amount of cryptography
+moves it. What this does remove is the several million forgeries that are just
+photocopies with a number changed.
+
+Everything asserted above is checked by `npm run verify-school`, which runs 19 tests
+against the same module the screen uses: forgery, key substitution, field-moving, salt
+guessing, selective disclosure and revocation.
+
 ## Putting it on your website
 
 Two good options:
@@ -224,19 +268,20 @@ WebGPU you get a designed explanation and a page that still works completely.
   compiled from `VISION.md`. Every answer says which one wrote it.
 - **Take the tour** — six stops, the camera flying between landmarks while the town explains
   itself. Subtitles are the fallback rung, so they are always on screen.
-- **A citizen's day** — follow one person from 06:10 to 21:00 through all three systems, with
-  the light moving with her. The same six people appear in every building, and what they did
+- **A citizen's day** — follow one person from 06:10 to 21:00 through all four systems, with
+  the light moving with her. The same six adults appear in the voting centre, the panchayat and the bank — the school has
+  its own graduating class, one of them Kamla Devi’s granddaughter — and what they did
   in one is visible in the others.
 
 **The town remembers.** Cast a vote, file a grievance or catch the bank in a lie and it is
-recorded, marked over the place it happened, and collected in a panel with the five attacks
+recorded, marked over the place it happened, and collected in a panel with the six named attacks
 this town invites you to try — and a proof card you can save.
 
 ## Notes on speed
 
 Every one of the features above is loaded only when you use it. Measured first-load
 JavaScript for `/india`: **2,515 KB before this work, 2,402 KB after** — it got *smaller*,
-because the three civic systems became dynamic imports at the same time. The WebLLM runtime
+because the civic systems became dynamic imports at the same time. The WebLLM runtime
 (5.9 MB) and the model weights are fetched only when you press the button.
 
 The town is fixed, so `/india` only waits on the sprite sheets it actually uses — the
@@ -256,4 +301,6 @@ Time to a fully painted town on the live site: **~3.2 s**, TTFB 40 ms.
 - ✅ Digital Voting Centre — LIVE
 - ✅ AI Panchayat Kendra — LIVE
 - ✅ Bank of Bharat — LIVE
-- 🗓️ Digital school records, smart waste, AI safety, mobility hub
+- ✅ National Digital School — LIVE
+- 🗓️ AI safety command, smart waste, mobility hub, health and insurance,
+  digital rights, policy transparency

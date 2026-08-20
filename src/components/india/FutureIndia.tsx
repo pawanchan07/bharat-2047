@@ -3,7 +3,8 @@
 /**
  * Bharat 2047 — explorable Future India town.
  * The IsoCity engine renders the living world; clicking a landmark opens that civic
- * system. Live: Digital Voting Centre, AI Panchayat Kendra, Bank of Bharat.
+ * system. Live: Digital Voting Centre, AI Panchayat Kendra, Bank of Bharat, and the
+ * National Digital School.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -38,6 +39,10 @@ const PanchayatKendra = dynamic(() => import('./PanchayatKendra').then((m) => m.
 const BankOfBharat = dynamic(() => import('./BankOfBharat').then((m) => m.BankOfBharat), {
   ssr: false, loading: SystemLoading,
 });
+const NationalDigitalSchool = dynamic(
+  () => import('./NationalDigitalSchool').then((m) => m.NationalDigitalSchool),
+  { ssr: false, loading: SystemLoading },
+);
 const Intent = dynamic(() => import('./Intent').then((m) => m.Intent), {
   ssr: false, loading: SystemLoading,
 });
@@ -92,9 +97,10 @@ const LANDMARKS: Landmark[] = [
   },
   {
     id: 'school', name: 'National Digital School', icon: '🏫',
-    x: 6, y: 6, w: 2, h: 2, status: 'planned',
-    tagline: 'Grades & certificates on decentralized storage — impossible to forge.',
-    description: 'Planned: every marksheet and degree anchored to decentralized storage, verifiable by any employer in seconds.',
+    x: 6, y: 6, w: 2, h: 2, status: 'live',
+    tagline: 'A certificate that proves itself — and shows only what you choose.',
+    description: 'Verifying an Indian degree today means telephoning an institution that may not answer, so most employers simply do not — which is exactly why forged marksheets work. Here a certificate carries its own proof: real ECDSA signatures, a real IPFS content address, and a Merkle tree that lets a graduate prove she has the degree without revealing a single mark. Try changing one, and watch it stop verifying.',
+    cta: '🏫 Step inside — verify a degree',
   },
   {
     id: 'hospital', name: 'Smart Health Centre', icon: '🏥',
@@ -141,6 +147,19 @@ export function FutureIndia({
   const [showVoting, setShowVoting] = useState(false);
   const [showPanchayat, setShowPanchayat] = useState(false);
   const [showBank, setShowBank] = useState(false);
+  const [showSchool, setShowSchool] = useState(false);
+
+  /**
+   * Which door each landmark opens. A map rather than an if/else chain, because the chain
+   * had an `else` on the end: adding the school quietly made its button open the voting
+   * centre. A missing entry here opens nothing, which is a bug you can see.
+   */
+  const OPEN_SYSTEM: Record<string, () => void> = useMemo(() => ({
+    voting: () => setShowVoting(true),
+    panchayat: () => setShowPanchayat(true),
+    bank: () => setShowBank(true),
+    school: () => setShowSchool(true),
+  }), []);
   const [navigationTarget, setNavigationTarget] = useState<{ x: number; y: number } | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showIntent, setShowIntent] = useState(false);
@@ -220,7 +239,7 @@ export function FutureIndia({
     setNavigationTarget({ x: l.x, y: l.y });
   }, []);
 
-  const systemOpen = showVoting || showPanchayat || showBank;
+  const systemOpen = showVoting || showPanchayat || showBank || showSchool;
 
   return (
     <div className="w-full h-screen overflow-hidden bg-[#0b1020] relative">
@@ -303,7 +322,7 @@ export function FutureIndia({
       </div>
 
       {/* Landmark panel */}
-      {active && !showVoting && !showPanchayat && !showBank && (
+      {active && !systemOpen && (
         <div className="absolute right-4 top-20 z-20 w-[340px] rounded-2xl bg-[#0e1428]/95 border border-white/15 shadow-2xl backdrop-blur p-5 text-white">
           <div className="flex items-start justify-between mb-2">
             <div className="text-4xl">{active.icon}</div>
@@ -316,11 +335,7 @@ export function FutureIndia({
           <p className="text-amber-300/90 text-sm mb-3">{active.tagline}</p>
           <p className="text-white/60 text-sm mb-4">{active.description}</p>
           {active.status === 'live' ? (
-            <button onClick={() => {
-              if (active.id === 'panchayat') setShowPanchayat(true);
-              else if (active.id === 'bank') setShowBank(true);
-              else setShowVoting(true);
-            }}
+            <button onClick={() => OPEN_SYSTEM[active.id]?.()}
               className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg shadow-lg shadow-amber-500/25">
               {active.cta ?? 'Step inside'}
             </button>
@@ -339,7 +354,7 @@ export function FutureIndia({
             <Tricolour className="w-20 h-auto mx-auto mb-5 drop-shadow-lg" />
             <h1 className="text-4xl font-bold mb-5"><span className="text-amber-400">Bharat</span> 2047</h1>
             <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047 — voting, panchayats, banking, schools — and I would rather show you than tell you.</p>
-            <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, the panchayat trains a real classifier in your browser while you watch, and the bank is audited without anyone being allowed to read it.</p>
+            <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, the panchayat trains a real classifier in your browser while you watch, the bank is audited without anyone being allowed to read it, and the school signs a degree you can check yourself.</p>
             <button onClick={() => setShowWelcome(false)}
               className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">
               Explore the town →
@@ -366,14 +381,13 @@ export function FutureIndia({
       {/* The confidential ledger a regulator can audit without reading */}
       {showBank && <BankOfBharat onClose={() => setShowBank(false)} onShowIntent={() => setShowIntent(true)} />}
 
+      {/* A certificate that carries its own proof */}
+      {showSchool && <NationalDigitalSchool onClose={() => setShowSchool(false)} onShowIntent={() => setShowIntent(true)} />}
+
       {booted && showDay && !systemOpen && !showWelcome && (
         <CitizensDay
           onFocus={focusForTour}
-          onEnter={(system) => {
-            if (system === 'panchayat') setShowPanchayat(true);
-            else if (system === 'bank') setShowBank(true);
-            else setShowVoting(true);
-          }}
+          onEnter={(system) => OPEN_SYSTEM[system]?.()}
           onClose={() => setShowDay(false)}
         />
       )}

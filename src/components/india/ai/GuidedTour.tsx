@@ -50,9 +50,15 @@ export const TOUR: TourStop[] = [
   },
   {
     landmarkId: 'school',
+    title: 'The National Digital School',
+    narration:
+      'A degree here proves itself. The school signs it with a real key, the certificate gets a real content address, and every field hangs off a Merkle tree — so a graduate can prove she has the degree while showing you three fields and hiding the rest. Change one mark and it stops verifying, in front of you.',
+  },
+  {
+    landmarkId: null,
     title: 'The buildings still greyed out',
     narration:
-      'Seven more systems are planned, and they are deliberately not pretended at. School records that cannot be forged, cameras whose every viewing is itself logged, waste bins that call for themselves, and claims that cannot quietly vanish. One at a time, each built to the same standard as the three that work.',
+      'Six more systems are planned, and they are deliberately not pretended at. Cameras whose every viewing is itself logged, waste bins that call for themselves, transport a family can plan a day around, and claims that cannot quietly vanish. One at a time, each built to the standard of the four that work.',
   },
   {
     landmarkId: null,

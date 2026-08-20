@@ -224,6 +224,7 @@ Established 2026-08-20 and used for every item from here on:
 | Digital Voting Centre | `src/components/india/VotingCentre.tsx` | `src/components/india/blockchain.ts` |
 | AI Panchayat Kendra | `src/components/india/PanchayatKendra.tsx` | `src/components/india/panchayat.ts` |
 | Bank of Bharat | `src/components/india/BankOfBharat.tsx` | `src/components/india/bank.ts` |
+| National Digital School | `src/components/india/NationalDigitalSchool.tsx` | `src/components/india/school.ts` |
 
 Landmarks, the dock and the explore mode are in
 `src/components/india/FutureIndia.tsx`. A system goes live by flipping its
@@ -242,10 +243,27 @@ guide, the narrated tour, and all five of the extra ideas — one shared cast of
 across the three systems, a town that visibly reacts to what you do, a saveable proof
 card, the five named attacks as a scoreboard, and a citizen's day from dawn to dusk.
 
+Bharat 2047 is now featured first on pawanchander.com, on a full-width card carrying a
+real screenshot of the town, a "The flagship" chip, and a link straight into the
+prototype — plus its own action in the site's hero. That was item 1 and it is done.
+
+**System 4 — the National Digital School — is live** (2026-08-20). A certificate
+signs its own Merkle root with a real ECDSA P-256 key, carries a real IPFS CIDv1,
+and supports selective disclosure: four fields out of eleven, still verifying against
+the root the school signed. Editing a field breaks its Merkle proof while the
+signature keeps verifying, which is the distinction the screen is built to teach.
+Revocation is a hash-chained register, so cancelling is itself tamper-evident.
+19 assertions in `npm run verify-school` cover forgery, key substitution,
+field-moving, salt guessing, selective disclosure and revocation.
+
+It shipped inside the performance guardrail: `/india` first-load JS measured
+**746.2 KB gzip before, 746.6 KB after** (2,402.9 KB → 2,403.9 KB uncompressed,
+15 files, measured the same way on a production build both times). The entire
+Education system rides in a lazy chunk fetched when you walk through the door.
+
 Open work, in order:
 
-1. Featuring Bharat 2047 first on pawanchander.com, with the strongest card and
-   preview on the site. That lives in the portfolio repo, not this one, but it is
-   part of this project's definition of done.
-2. The roadmap itself: systems 4 through 10, one at a time, each built to the bar
-   the voting centre, the panchayat and the bank set.
+1. The rest of the roadmap: systems 5 through 10 — AI Safety Command, Smart Waste
+   Network, Smart Mobility Hub, Smart Health Centre with insurance, digital rights
+   and policy transparency — one at a time, each built to the bar the voting centre,
+   the panchayat, the bank and the school set.

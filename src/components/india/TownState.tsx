@@ -3,9 +3,10 @@
 /**
  * What has actually happened in this town, remembered across its systems.
  *
- * Before this, the three civic systems were three demos wearing a shared skin: each had its
+ * Before this, the civic systems were separate demos wearing a shared skin: each had its
  * own list of citizens and forgot everything the moment you walked out. This is the thread
- * that makes it one place — the same six people move between the buildings, what they did in
+ * that makes it one place — the same six adults move between the voting centre, the panchayat
+ * and the bank (the school has its own graduating class), what they did in
  * one is visible in another, and the world outside changes when a case is resolved.
  *
  * It is deliberately not persisted. A visitor should get the pristine town every time, the
@@ -37,7 +38,7 @@ export interface TownEvent {
   /** Who it happened to, when it happened to somebody. */
   personId?: string;
   /** Which system it came from. */
-  system: 'voting' | 'panchayat' | 'bank';
+  system: 'voting' | 'panchayat' | 'bank' | 'school';
   label: string;
   detail: string;
   /** Grid tile the world should mark, when the event has a place. */
@@ -51,7 +52,7 @@ export interface TownEvent {
  */
 export interface Attack {
   id: string;
-  system: 'voting' | 'panchayat' | 'bank';
+  system: 'voting' | 'panchayat' | 'bank' | 'school';
   title: string;
   /** What you actually do. */
   how: string;
@@ -83,6 +84,12 @@ export const ATTACKS: Attack[] = [
     title: 'Hide a single rupee',
     how: 'Press “Hide ₹1” on the same screen.',
     held: 'A one-rupee lie fails exactly as loudly as a fifty-lakh one. The homomorphic check has no tolerance to hide inside.',
+  },
+  {
+    id: 'forge-certificate', system: 'school',
+    title: 'Change a mark on a degree',
+    how: 'In the school, rewrite any field on an issued certificate.',
+    held: 'The edited field stops hashing into the root the school signed, so its Merkle proof fails — while the signature itself still verifies, because the forger never touched the root.',
   },
   {
     id: 'confuse-desk', system: 'panchayat',

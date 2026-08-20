@@ -11,7 +11,8 @@
     "crop-screenshots": "bash scripts/crop-screenshots.sh",
     "compress-images": "node scripts/compress-images.mjs",
     "optimize-static-images": "node scripts/optimize-static-images.mjs",
-    "verify-voting": "node --no-warnings scripts/verify-voting-chain.mjs"
+    "verify-voting": "node --no-warnings scripts/verify-voting-chain.mjs",
+    "verify-school": "node --no-warnings scripts/verify-school-credentials.mjs"
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.84",

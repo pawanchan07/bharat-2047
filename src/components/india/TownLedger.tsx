@@ -8,7 +8,7 @@
  * - **What happened** — the consequence loop. Vote, file a grievance, catch the bank in a
  *   lie, and the town outside registers it instead of forgetting the moment you close a
  *   screen. MIT CityScope is listed in VISION as an inspiration; this is it.
- * - **Try to break it** — the five attacks, named. The attacks already existed; making them
+ * - **Try to break it** — every named attack in the town. The attacks already existed; making them
  *   a checklist turns the security argument into the thing you play rather than read.
  * - **Your proof card** — a receipt of what you personally did here, drawn to a canvas you
  *   can save. A flagship project should leave with the visitor.
@@ -19,10 +19,11 @@ import { PEOPLE, useTownState } from './TownState';
 
 type Tab = 'log' | 'break' | 'card';
 
-const SYSTEM_META: Record<'voting' | 'panchayat' | 'bank', { icon: string; name: string }> = {
+const SYSTEM_META: Record<'voting' | 'panchayat' | 'bank' | 'school', { icon: string; name: string }> = {
   voting: { icon: '🗳️', name: 'Digital Voting Centre' },
   panchayat: { icon: '🏛️', name: 'AI Panchayat Kendra' },
   bank: { icon: '🏦', name: 'Bank of Bharat' },
+  school: { icon: '🏫', name: 'National Digital School' },
 };
 
 export function TownLedger({ onClose }: { onClose: () => void }) {
@@ -209,7 +210,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
         {tab === 'break' && (
           <>
             <p className="mb-4 text-sm text-white/55">
-              Five things this town invites you to try. None of them is a trick question — each
+              {town.attacks.length} things this town invites you to try. None of them is a trick question — each
               one really works the way it says, and each one really holds. The point is not that
               you cannot break it; it is that you can watch exactly why not.
             </p>
@@ -243,7 +244,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
             </div>
             {held === town.attacks.length && (
               <p className="mt-4 rounded-xl border border-emerald-400/30 bg-emerald-500/[0.08] p-3 text-sm text-emerald-200">
-                All five held. That is the argument: not that the town is clever, but that you
+                Every one held. That is the argument: not that the town is clever, but that you
                 were able to check it yourself, without being asked to trust anyone.
               </p>
             )}

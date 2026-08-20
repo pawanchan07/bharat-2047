@@ -18,7 +18,7 @@ import { PEOPLE, accountForPerson, useTownState } from './TownState';
 import { useTownAI } from './ai/TownAI';
 import { SpeakButton } from './ai/VoiceInput';
 
-export type DaySystem = 'panchayat' | 'bank' | 'voting' | null;
+export type DaySystem = 'panchayat' | 'bank' | 'voting' | 'school' | null;
 
 interface Chapter {
   /** Hour of the day, for the light. */
@@ -48,6 +48,13 @@ const CHAPTERS: Chapter[] = [
       `She cannot fill a form, so she says the problem out loud. The desk hears her in her own language, checks her actual record rather than asking her to prove it, and — because the finding is adverse — refuses to decide it alone. ${name} leaves with a case number instead of an instruction to come back.`,
   },
   {
+    hour: 12, clock: '12:20', title: 'The school, for her granddaughter',
+    landmarkId: 'school', system: 'school',
+    enter: 'Check the degree with her',
+    text: (name) =>
+      `Anjali's degree came through this year, and the job she is applying for wants it verified. Nobody telephones the college. The certificate carries its own proof, so the employer checks it in about two milliseconds — and sees her degree and her year without ever being shown a single mark. ${name} cannot read the certificate; she does not have to.`,
+  },
+  {
     hour: 14, clock: '14:00', title: 'The bank, after the heat',
     landmarkId: 'bank', system: 'bank',
     enter: 'Look at the books with her',
@@ -65,7 +72,7 @@ const CHAPTERS: Chapter[] = [
     hour: 21, clock: '21:00', title: 'The same day, differently',
     landmarkId: null, system: null,
     text: (name) =>
-      `Three systems, one day, and not one of them asked ${name} to read, to travel twice, or to trust an official's word. That is the whole argument of this town. Everything you just watched runs for real — go and take any of it apart.`,
+      `Four systems, one day, and not one of them asked ${name} to read, to travel twice, or to trust an official's word. That is the whole argument of this town. Everything you just watched runs for real — go and take any of it apart.`,
   },
 ];
 
