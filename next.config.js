@@ -1,4 +1,3 @@
-const { withGTConfig } = require("gt-next/config");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -6,19 +5,41 @@ const nextConfig = {
   reactCompiler: true,
 
   /*
-   * This deployment exists to show Bharat 2047, so the bare domain has to land on the
-   * town rather than on the IsoCity city-builder we are built on. Someone arriving at
-   * bharat.pawanchander.com should see the prototype, not a generic game.
-   *
-   * The original IsoCity game is not deleted — it is still at /game, and still at / in
-   * local development if you comment this block out.
+   * Static export. Everything here runs in the browser once loaded, so Cloudflare serves
+   * the built HTML from Workers assets and nothing renders per request.
    */
-  async redirects() {
-    return [{ source: '/', destination: '/india', permanent: false }];
+  output: 'export',
+
+  /*
+   * The optimiser is a server. Without one, next/image has to be told to emit plain <img>
+   * tags rather than /_next/image URLs that nothing will answer.
+   */
+  images: { unoptimized: true },
+
+  /*
+   * gt-next is replaced by a local shim. It is a server library: its provider reads request
+   * headers, which forces per-request rendering and blocks static export entirely. The shim
+   * keeps the same API so all 121 call sites are untouched and the UI is identical; what it
+   * drops is the translation lookup, leaving the English already in the source.
+   */
+  turbopack: {
+    resolveAlias: {
+      'gt-next': './src/lib/gt/index.tsx',
+      'gt-next/client': './src/lib/gt/client.tsx',
+    },
   },
-  async rewrites() {
-    return [{ source: '/game', destination: '/' }];
+  webpack: (config) => {
+    config.resolve.alias['gt-next/client'] = require('path').resolve(__dirname, 'src/lib/gt/client.tsx');
+    config.resolve.alias['gt-next'] = require('path').resolve(__dirname, 'src/lib/gt/index.tsx');
+    return config;
   },
+
+  /*
+   * There is deliberately no redirects(), rewrites() or headers() here. Static export drops
+   * all three silently. The root rewrite that sends bharat.pawanchander.com to /india and
+   * iso-coaster.com to /coaster now lives in each Worker's entry script, and the asset cache
+   * headers live in public/_headers, which Cloudflare Workers assets reads.
+   */
 
   /*
    * Vercel fingerprints /_next/static, but files under public/ are served with a
@@ -30,31 +51,6 @@ const nextConfig = {
    * stale-while-revalidate gets the repeat-visit win without that trap. The town layout
    * changes more often, so it gets an hour.
    */
-  async headers() {
-    return [
-      {
-        source: '/assets/:path*',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=604800' }],
-      },
-      {
-        source: '/example-states/:path*',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' }],
-      },
-      {
-        source: '/apple-touch-icon.png',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=604800' }],
-      },
-      /*
-       * There is deliberately no rule for the /india document itself. It renders on demand
-       * because the root layout resolves a locale from the request headers, and Next sets
-       * `private, no-cache, no-store` on dynamically rendered routes — a Cache-Control set
-       * here is overridden and does nothing, which was measured on the deployment rather
-       * than assumed. Caching the shell would need the locale lookup gone; the document is
-       * a few kilobytes and served in tens of milliseconds, so the sprite sheets above are
-       * where the win actually is.
-       */
-    ];
-  },
 };
 
-module.exports = withGTConfig(nextConfig);
+module.exports = nextConfig;

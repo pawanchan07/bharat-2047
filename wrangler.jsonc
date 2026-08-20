@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bharat-2047",
+  "main": "worker/bharat.ts",
+  "compatibility_date": "2026-08-20",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    // The coop rooms are /coop/[roomCode], a client-side route with no exported HTML per
+    // room, so an unknown path has to fall back to the app shell rather than 404. Every
+    // other route in the export does have its own file and is served directly.
+    "not_found_handling": "single-page-application",
+    // Assets win over the Worker by default, so "/" was being served straight from
+    // index.html and the rewrite below never ran. These paths go to the script first.
+    "run_worker_first": ["/", "/game", "/coop/*", "/coaster/coop/*"]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  // The Worker entry is not part of the Next app and does not share its DOM lib. It is
+  // typed against the Workers runtime instead, which is why the Next tsconfig excludes
+  // this directory.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["*.ts"]
+}

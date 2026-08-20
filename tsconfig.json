@@ -38,7 +38,9 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    // Typed against the Workers runtime, not the DOM. See worker/tsconfig.json.
+    "worker"
   ]
 }
 

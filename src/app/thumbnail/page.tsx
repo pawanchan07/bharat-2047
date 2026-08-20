@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface OGData {
@@ -92,7 +92,7 @@ function DiscordCard({ og }: { og: OGData }) {
   );
 }
 
-export default function ThumbnailPreview() {
+function ThumbnailPreviewInner() {
   const searchParams = useSearchParams();
   const [inputUrl, setInputUrl] = useState('');
   const [og, setOG] = useState<OGData | null>(null);
@@ -250,5 +250,17 @@ export default function ThumbnailPreview() {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * useSearchParams has to sit behind a Suspense boundary: static export prerenders this page
+ * with no query string at all, and only fills one in once the browser takes over.
+ */
+export default function ThumbnailPreview() {
+  return (
+    <Suspense fallback={null}>
+      <ThumbnailPreviewInner />
+    </Suspense>
   );
 }

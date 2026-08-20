@@ -1,9 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
-import { getLocale } from "gt-next/server";
-import { GTProvider } from "gt-next";
+/*
+ * There is deliberately no translation provider here.
+ *
+ * gt-next's provider resolves a locale from request headers, which forces every route to
+ * render per request and cannot be statically exported. Bharat 2047 does not use gt-next at
+ * all, so rather than keep a server on the critical path for a site that is entirely
+ * client-side, the routes that do need it are parked in app/_parked until they are ported.
+ */
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -20,7 +25,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://iso-city.com'),
+  metadataBase: new URL('https://bharat.pawanchander.com'),
   title: {
     default: 'ISOCITY — Metropolis Builder',
     template: 'ISOCITY — %s',
@@ -66,7 +71,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: {children: React.ReactNode;}) {
   return (
-  <html className={`dark ${playfair.variable} ${dmSans.variable}`} lang={await getLocale()}>
+  <html className={`dark ${playfair.variable} ${dmSans.variable}`} lang="en">
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         {/* A purpose-made 180px icon. This used to point at a 1.7 MB sprite sheet. */}
@@ -85,7 +90,7 @@ export default async function RootLayout({ children }: {children: React.ReactNod
         type="image/webp" />
 
       </head>
-      <body className="bg-background text-foreground antialiased font-sans overflow-hidden"><GTProvider>{children}<Analytics /></GTProvider></body>
+      <body className="bg-background text-foreground antialiased font-sans overflow-hidden">{children}</body>
     </html>
   );
 }
