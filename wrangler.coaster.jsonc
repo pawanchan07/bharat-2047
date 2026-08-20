@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // A second Worker over the same build output. iso-coaster.com and bharat.pawanchander.com
+  // are one export served two ways, so this deploys with:
+  //   npx wrangler deploy --config wrangler.coaster.jsonc
+  "name": "iso-coaster",
+  "main": "worker/coaster.ts",
+  "compatibility_date": "2026-08-20",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // Assets are served before the script runs unless a path is listed here, which is what
+    // stopped the root rewrite from firing the first time round.
+    "run_worker_first": ["/", "/coaster/coop/*"]
+  }
+}
