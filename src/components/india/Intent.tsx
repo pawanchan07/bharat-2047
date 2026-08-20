@@ -18,14 +18,60 @@ type Status = 'live' | 'next' | 'planned';
 const ROADMAP: { n: number; name: string; status: Status; line: string }[] = [
   { n: 1, name: 'Digital Voting Centre', status: 'live', line: 'A vote sealed with real SHA-256, mined with real proof-of-work, and a tamper attack you can actually perform.' },
   { n: 2, name: 'AI Panchayat Kendra', status: 'live', line: 'Any problem, in any language, understood by a classifier trained in your browser — and handed to a human the moment it should be.' },
-  { n: 3, name: 'Bank of Bharat', status: 'next', line: 'Every transaction on an auditable ledger. Regulators see the books in real time; no loan quietly vanishes.' },
-  { n: 4, name: 'Education records', status: 'planned', line: 'Marksheets and degrees anchored to decentralized storage. Any employer verifies one in seconds; nobody forges one.' },
+  { n: 3, name: 'Bank of Bharat', status: 'live', line: 'A ledger a regulator can audit without being allowed to read it. Every balance stays sealed while solvency, exposure and most financial crime are still provable.' },
+  { n: 4, name: 'National Digital School', status: 'live', line: 'A degree that proves itself in about a millisecond, offline, and lets a graduate show four fields out of eleven. Change one mark and it stops verifying.' },
   { n: 5, name: 'AI Safety Command', status: 'planned', line: 'Cameras that detect an incident and dispatch the nearest responder — and log every single access to the footage on an audit chain.' },
   { n: 6, name: 'Smart Waste Network', status: 'planned', line: 'Bins that call the municipality before they overflow, and thermal sensors that raise an alarm when something alive is inside one.' },
   { n: 7, name: 'Smart Mobility Hub', status: 'planned', line: 'Buses and trains a family can plan a day around. One ticket, live positions, routes that answer demand.' },
   { n: 8, name: 'Health & insurance', status: 'planned', line: 'AI triage for villages, records the patient owns, and claims settled where they cannot silently disappear.' },
   { n: 9, name: 'Internet & digital rights', status: 'planned', line: 'Public connectivity, digital identity, and what a citizen is actually owed over their own data.' },
   { n: 10, name: 'Policy transparency', status: 'planned', line: 'How a budget is proposed, argued, voted and tracked — visible to the people paying for it.' },
+];
+
+/**
+ * What each built system actually uses, and whether it needed a chain.
+ *
+ * This table is the whole argument. A visitor arrives at a project people describe
+ * as "the blockchain town" and finds that three of its four civic systems do not
+ * use a blockchain — because they only ever needed tamper-evidence, which costs a
+ * hash function rather than a network.
+ */
+const WHAT_IT_USES: { system: string; icon: string; uses: string; chain: boolean; why: string }[] = [
+  {
+    system: 'National Digital School', icon: '🏫',
+    uses: 'Merkle tree · ECDSA P-256 · hash-chained revocation register',
+    chain: false,
+    why: 'No consensus, no network, no peers. A degree verifies offline against a public key, which is the entire product.',
+  },
+  {
+    system: 'Bank of Bharat', icon: '🏦',
+    uses: 'Pedersen commitments · Merkle root · Schnorr proofs',
+    chain: false,
+    why: 'There is no chain in it at all. What a regulator needs is arithmetic over sealed values, not a shared ledger.',
+  },
+  {
+    system: 'AI Panchayat Kendra', icon: '🏛️',
+    uses: 'SHA-256 case decisions, each chained to the previous',
+    chain: false,
+    why: 'A tamper-evident log. One office writes to it, so there is nothing for a consensus protocol to do.',
+  },
+  {
+    system: 'Digital Voting Centre', icon: '🗳️',
+    uses: 'Hash chain · proof-of-work · public verification',
+    chain: true,
+    why: 'The one case that earns it. Candidates actively distrust each other and there is no operator all sides would accept.',
+  },
+];
+
+/** The seven questions a system has to pass before a chain is worth its cost. */
+const CHAIN_TEST = [
+  'More than one party writes to the record.',
+  'Those parties do not trust each other.',
+  'There is no third party all of them would accept as the operator.',
+  'Someone must be able to check it later who was not there when it was written.',
+  'A quiet edit would be catastrophic.',
+  'The throughput and the irreversibility are survivable.',
+  'No personal data needs to sit on the record itself.',
 ];
 
 const STATUS_CHIP: Record<Status, { label: string; cls: string }> = {
@@ -142,7 +188,7 @@ export function Intent({ onClose }: { onClose: () => void }) {
           <h2 className="text-2xl font-bold mb-2">The town, as it is meant to end up</h2>
           <p className="text-white/50 mb-8 max-w-2xl">
             One system at a time, at full depth, until the answer to &ldquo;how should this work in India?&rdquo;
-            is <span className="text-white/80">click the building and see</span>. Two are finished. The rest are
+            is <span className="text-white/80">click the building and see</span>. Four are finished. The rest are
             the plan, published so you can hold me to it.
           </p>
           <div className="space-y-2">
@@ -174,6 +220,89 @@ export function Intent({ onClose }: { onClose: () => void }) {
           </div>
         </section>
 
+        {/* ------------------------------------------------ the unbundling */}
+        <section className="mt-20">
+          <h2 className="text-2xl font-bold mb-2">Where a blockchain actually earns its place</h2>
+          <p className="text-white/50 mb-8 max-w-2xl">
+            &ldquo;Blockchain&rdquo; ships three separate properties as one package, and almost no use case needs
+            all three. <span className="text-white/80">Tamper-evidence</span> — proving nobody quietly edited the
+            record — costs a hash function and nothing else.{' '}
+            <span className="text-white/80">Decentralised consensus</span> — agreeing who may append, among parties
+            who distrust each other — is expensive, slow, and really a political question.{' '}
+            <span className="text-white/80">Trustless value transfer</span> needs both of those plus an asset, and
+            that is crypto. Estonia has run national health and judicial records on hash-linked timestamping for
+            over a decade; it is universally called a blockchain, and it has no consensus and no coin.
+          </p>
+
+          <div className="mb-8 overflow-hidden rounded-2xl border border-white/10">
+            {WHAT_IT_USES.map((w) => (
+              <div key={w.system} className="flex flex-col gap-2 border-b border-white/8 p-4 last:border-b-0 sm:flex-row sm:items-start sm:gap-4">
+                <div className="flex shrink-0 items-center gap-2 sm:w-56">
+                  <span className="text-xl" aria-hidden>{w.icon}</span>
+                  <span className="text-sm font-semibold">{w.system}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-mono text-[11px] leading-relaxed text-cyan-300/70">{w.uses}</div>
+                  <p className="mt-1 text-sm leading-relaxed text-white/50">{w.why}</p>
+                </div>
+                <span className={`h-fit shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                  w.chain ? 'bg-amber-500 text-black' : 'border border-white/15 text-white/45'
+                }`}>
+                  {w.chain ? 'NEEDS A CHAIN' : 'NO BLOCKCHAIN'}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="mb-8 max-w-2xl text-white/50">
+            Three of the four civic systems in a town people read as &ldquo;the blockchain project&rdquo; do not use
+            a blockchain. That is not a shortcut I am confessing to — it is the argument. Saying so is more
+            credible than any feature I could add on top.
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <div className="mb-3 font-semibold">The test a system has to pass</div>
+              <p className="mb-3 text-sm leading-relaxed text-white/50">
+                A chain earns its cost only when <span className="text-white/80">all seven</span> hold. Fail one and
+                a database with an append-only audit log beats it on speed, cost, energy, correctability and legal
+                exposure.
+              </p>
+              <ol className="space-y-1.5">
+                {CHAIN_TEST.map((q, i) => (
+                  <li key={q} className="flex gap-2 text-[13px] leading-relaxed text-white/60">
+                    <span className="shrink-0 font-mono text-white/25">{i + 1}</span>
+                    {q}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <div className="mb-2 font-semibold">Don&rsquo;t think crypto</div>
+                <p className="text-sm leading-relaxed text-white/50">
+                  Cryptocurrency is the loudest application of this technology, not the largest set of them. India
+                  already runs a sovereign one that is nothing like it: the RBI began its wholesale digital rupee
+                  pilot on 1 November 2022 and the retail pilot a month later — legal tender, no speculation, no
+                  mining. I do not put a percentage on how small crypto is in the picture, because any number I gave
+                  would be rhetoric I could not defend.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <div className="mb-2 font-semibold">And it is paired, never alone</div>
+                <p className="text-sm leading-relaxed text-white/50">
+                  Zero-knowledge proofs, so a citizen proves eligibility without the attribute. AI in one direction
+                  only — the model decides, the ledger records, never the reverse. Hardware key custody and
+                  threshold signing, because a national issuing key cannot live where this prototype&rsquo;s does.
+                  Offline-first, because a village with no network still has to verify a degree. And never raw
+                  biometrics: a fingerprint cannot be revoked.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* -------------------------------------------------- what it isn't */}
         <section className="mt-20">
           <h2 className="text-2xl font-bold mb-2">What this is not</h2>
@@ -184,6 +313,15 @@ export function Intent({ onClose }: { onClose: () => void }) {
                 Real reform needs law, budgets, procurement, unions, elections and the patience to survive all
                 of them. I am not pretending a prototype substitutes for any of that. I am arguing about what
                 the built thing at the end should look like.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-red-500/[0.07] border border-red-500/20">
+              <div className="font-semibold mb-2 text-red-300">Not a claim that everything needs a blockchain</div>
+              <p className="text-sm text-white/55 leading-relaxed">
+                Most things do not, including three of the four systems here. A chain proves nobody edited the
+                record after it was written — it says nothing about whether the record was true when written. A
+                corrupt institution signing with a real key still produces a perfectly valid degree, and no amount
+                of cryptography moves that. It is fine to say blockchain. It is not fine to say it alone.
               </p>
             </div>
             <div className="p-5 rounded-2xl bg-red-500/[0.07] border border-red-500/20">

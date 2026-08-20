@@ -13,6 +13,7 @@ import {
 import { IntentCard } from './Intent';
 import { ArrivalScene, CitizenPortrait, useWalkToBooth } from './ArrivalScene';
 import { PEOPLE, useTownState } from './TownState';
+import { WhatItUses, WhatItCosts } from './SystemFacts';
 
 const CANDIDATES = [
   { id: 'pragati', name: 'Pragati Party', icon: '🌾', color: '#f59e0b' },
@@ -576,6 +577,17 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
             <div className="font-semibold mb-2">What&apos;s real in this demo?</div>
             <p className="text-sm text-white/60">Every hash is genuine SHA-256 computed by your browser. Mining really searches for a nonce with a {DIFFICULTY_PREFIX}-prefixed hash. The tamper demo really re-verifies the chain block by block.</p>
           </div>
+          <WhatItUses
+            uses={"Hash chain · proof-of-work · public verification"}
+            needsChain={true}
+            why={"The one system here that earns a chain. Candidates actively distrust each other and there is no operator all sides would accept, which is exactly the case consensus was invented for."}
+          />
+          <WhatItCosts points={[
+          "Irreversibility. A vote sealed in error stays sealed — there is no chargeback, and correcting a genuine mistake means appending, never editing.",
+          "A public ledger plus a small ward leaks more than it looks like. Four hundred voters and a handful of blocks is a real deanonymisation surface.",
+          "Proof-of-work at national scale is indefensible on energy. A real deployment anchors batches rather than mining every ballot.",
+          "It proves nobody edited the record after the fact. It cannot prove the roll was honest before it."
+]} />
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <div className="font-semibold mb-1 text-amber-300">Honest caveat</div>
             <p className="text-xs text-white/50">Real national elections also need coercion-resistance, verified voter rolls, and offline fallbacks — this prototype shows the integrity layer, the part blockchain does best.</p>

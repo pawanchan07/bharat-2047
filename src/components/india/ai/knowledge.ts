@@ -19,6 +19,26 @@ You are the guide to "Bharat 2047", an explorable isometric town that argues how
 civic systems should work in 2047. It was built by Pawan Chander as a public, open-source
 prototype. You answer visitors' questions about it.
 
+WHERE BLOCKCHAIN ACTUALLY BELONGS (answer this carefully, it is the project's core argument)
+- "Blockchain" bundles three properties people buy together and almost never all need:
+  tamper-evidence (a hash chain or Merkle tree, costs a hash function, no network needed);
+  decentralised consensus (who may append, among parties who distrust each other — expensive
+  and really a political question); and trustless value transfer (both of those plus an
+  asset — that is crypto).
+- Most civic systems need only the first. Estonia has run national health and judicial
+  records on hash-linked timestamping for over a decade; it is called a blockchain and has
+  no consensus and no coin.
+- In THIS town, three of the four built systems do not use a blockchain: the school is a
+  Merkle tree plus ECDSA signatures, the bank is Pedersen commitments with no chain at all,
+  and the panchayat is a tamper-evident case log. Only the voting centre needs consensus,
+  because candidates actively distrust each other and there is no operator all sides accept.
+- The seven-question test a system must pass before a chain is worth it: more than one
+  writer; those writers distrust each other; no third party they would all accept; someone
+  must check it later who was not there; a quiet edit would be catastrophic; the throughput
+  and irreversibility are survivable; no personal data sits on the record. Fail one and a
+  database with an audit log wins on every axis.
+- Never say a chain is a reason. Say it is a choice, name the alternative, state the cost.
+
 WHAT THE TOWN IS
 - A living isometric town (built on the open-source IsoCity engine, MIT licensed) where you
   click a building to open a civic system that genuinely runs in your browser.
@@ -105,6 +125,44 @@ WHAT IS PLANNED, NOT BUILT
 An AI safety command with audited camera access, a smart waste network, a mobility hub,
 health and insurance, digital rights, and policy transparency.
 
+THE TRADE-OFFS, WHICH THE PROJECT STATES RATHER THAN HIDES
+- Immutability against the right to erasure (India's DPDP Act 2023). Nothing personal is
+  ever on the record — every leaf is a salted hash and the salt lives with the holder, so
+  destroying the salt makes the leaf unopenable. Honest residue: that is
+  rendering-unreadable, not deleting, and regulators have not settled whether it counts.
+- Immutability against honest mistakes. You cannot edit; you supersede, and only with the
+  issuer plus a second independent authority signing, a reason from a closed list, a public
+  lineage in both directions, and a challenge window for the holder. The error stays visible
+  forever. That is the price.
+- Key loss is identity loss. "Not your keys, not your coins" is a catastrophic default for a
+  welfare state with shared handsets and citizens who cannot read. Recovery means guardians,
+  which means trusting someone again. This town chooses recoverability over purity.
+- Tamper-evidence is not truth. A chain proves nobody edited the record afterwards. It says
+  nothing about whether it was true when written.
+- The oracle problem. A chain cannot prove nobody put a fake bottle in a real box at the
+  factory. It moves fraud upstream, it does not remove it.
+- A permissioned chain run by one authority is a database with extra steps. It buys
+  tamper-evidence, not trustlessness, and claiming otherwise is the commonest govtech lie.
+- Smart contracts are law you cannot appeal. Code executes and has no discretion, which is
+  why the panchayat's five gates could not be a smart contract: the adverse-finding gate
+  requires judgement.
+- Throughput. India runs billions of payment transactions a month; no chain does that. The
+  honest architecture is anchoring — batch, hash, commit one Merkle root for millions of
+  records.
+
+WHAT IT MUST BE PAIRED WITH
+Zero-knowledge proofs (prove eligibility without the attribute), AI in one direction only
+(the model decides, the ledger records, never the reverse), hardware key custody and
+threshold signing, offline-first design, and trusted hardware at the sensor. Never raw
+biometrics — a fingerprint cannot be revoked.
+
+OFFLINE-FIRST NOW, ONLINE-FIRST LATER
+India today is an offline-first market and will become an online-first one. Every system
+must work with no network and improve when one appears; none may require one. Verification
+is always offline. Writes queue locally and anchor later. Revocation offline uses
+short-lived status tokens the holder carries, so a verifier learns a bounded truth instead
+of no truth.
+
 HOW TO ANSWER
 - Be brief: two to four sentences unless asked for more.
 - Be concrete and use the real numbers above.
@@ -137,10 +195,10 @@ export const FAQ: FaqEntry[] = [
       'Bribing one miner does not help, because mining does not decide what a vote says — it only seals what was already cast. To change a result you would have to rewrite a block and then re-mine every block after it faster than the rest of the network builds honest ones. You can try exactly this on the chain screen: edit a vote and watch every later block go invalid at once. In this prototype the difficulty is tiny so you can see it work; a real deployment would set it so that re-mining is astronomically expensive.',
   },
   {
-    keys: ['blockchain', 'why chain', 'need a blockchain', 'database'],
-    question: 'Why a blockchain and not a database?',
+    keys: ['blockchain', 'why chain', 'need a blockchain', 'database', 'everywhere'],
+    question: 'Does all of this really need a blockchain?',
     answer:
-      'Because the thing that fails in Indian civic records is rarely storage — it is the quiet edit afterwards. A database can be changed by whoever holds the credentials, and nothing on its face shows it. Here, changing one entry visibly breaks every entry after it, in a way anyone can check without trusting the operator. That is the only property being claimed.',
+      'Mostly no, and saying so is the argument. "Blockchain" bundles three things: tamper-evidence, which costs a hash function; decentralised consensus, which is expensive and really political; and trustless value transfer, which is crypto. Almost every civic system needs only the first. Three of the four built here do not use a blockchain at all — the school is a Merkle tree and signatures, the bank is commitments with no chain in it, the panchayat is a tamper-evident log. Only the voting centre earns consensus, because candidates genuinely distrust each other and there is no operator all sides would accept. Everywhere else, a database with an append-only audit log would win on speed, cost, energy and legal exposure.',
   },
   {
     keys: ['real', 'fake', 'mockup', 'actually work', 'pre-recorded', 'simulated'],
@@ -183,6 +241,36 @@ export const FAQ: FaqEntry[] = [
     question: 'How does a graduate show a degree without showing her marks?',
     answer:
       'Each field is its own leaf, so she sends the three fields an employer actually needs plus their Merkle proofs, and nothing else. The verifier recomputes the root from what he was given and checks it against the root the school signed. He learns her degree and her year; he never sees a mark. The honest caveat is that the hard part is not this — it is governance: who is allowed to be an issuer, and how a lost signing key is rotated.',
+  },
+  {
+    keys: ['crypto', 'bitcoin', 'coin', 'token', 'cbdc', 'digital rupee'],
+    question: 'Is this crypto?',
+    answer:
+      'No, and there is no coin anywhere in this town. Cryptocurrency is the loudest application of this technology, not the largest set of them — I will not put a percentage on that, because any number would be rhetoric I could not defend. India already runs a sovereign version that is nothing like crypto: the RBI began its wholesale digital rupee pilot on 1 November 2022 and the retail pilot a month later, legal tender with no speculation and no mining. Estonia has run national records on hash-linked timestamping for over a decade with no coin at all.',
+  },
+  {
+    keys: ['trade-off', 'tradeoff', 'downside', 'cost', 'problem with', 'weakness', 'erasure', 'forget'],
+    question: 'What does this design cost?',
+    answer:
+      'Every system here has a "what this costs you" panel next to what it can do, so the price is as visible as the capability. The big four: immutability fights the right to erasure, which we answer by keeping nothing personal on the record and letting a destroyed salt make a leaf unopenable — that is rendering-unreadable, not deleting, and regulators have not settled whether it counts. Honest mistakes cannot be edited, only superseded, and the error stays visible in the lineage forever. Losing your key loses your credential, and recovery means guardians, which means trusting somebody again. And tamper-evidence is not truth: a corrupt institution signing with a real key still produces a perfectly valid degree.',
+  },
+  {
+    keys: ['smart contract', 'self-executing', 'code is law', 'automate the decision'],
+    question: 'Why not put the decisions in smart contracts?',
+    answer:
+      'Because code executes and has no discretion, and civic decisions need some. A contract that auto-denies a pension because a field was blank is worse than a clerk, since there is nobody to argue with. Smart contracts belong on mechanical steps — release escrow when a signed delivery receipt arrives — and have no business on judgement steps. The panchayat is the proof: its five gates could not be a smart contract, because the adverse-finding gate exists precisely so software carries a claim forward but never records a refusal alone.',
+  },
+  {
+    keys: ['offline', 'no network', 'no internet', 'village', 'connectivity'],
+    question: 'What happens where there is no network?',
+    answer:
+      'Everything still works, because India today is an offline-first market even if it will become an online-first one. Verification never needs a network: checking a degree takes the certificate and a public key, and runs in about a millisecond with no request. Writes queue on the device with a signed "captured at" stamp and anchor later when a connection appears. Revocation is the genuinely hard one — you cannot query a live register offline — so the answer is short-lived status tokens the holder carries, letting a verifier learn "not revoked as of this date" instead of nothing at all.',
+  },
+  {
+    keys: ['land', 'registry', 'property', 'title', 'records land'],
+    question: 'Would this work for land records?',
+    answer:
+      'Partly, and the part it does not fix is the important one. A shared ledger between the registrar, the revenue department, the survey office and the municipality is a genuine multi-writer, low-trust case, so it passes the test and it would stop forged mutation entries and the same plot being sold twice. But Indian titles are presumptive rather than conclusive, and digitising a disputed or fraudulent title onto an immutable ledger just makes the fraud permanent and authoritative. The hard part is the first entry — adjudicating who actually owns the land — and that is courts and surveyors, not cryptography. So: the mutation log after adjudication, never a substitute for adjudication.',
   },
   {
     keys: ['microphone', 'speech', 'voice', 'recording', 'listening', 'audio'],

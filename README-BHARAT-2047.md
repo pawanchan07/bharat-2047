@@ -22,6 +22,51 @@ could work. Four of them are fully built and running for real in the browser:
 
 No API keys, no network calls, nothing pre-recorded.
 
+## Three of these four do not use a blockchain
+
+This project gets read as "the blockchain town". It is worth being blunt about what
+that actually means, because the word bundles three separate properties that people
+buy as a package and almost never all need:
+
+- **Tamper-evidence** — a hash chain or a Merkle tree. Proves nobody quietly edited
+  the record after it was written. Costs a hash function. No network, no consensus,
+  no token.
+- **Decentralised consensus** — agreement on who may append, among parties who
+  distrust each other. Expensive, slow, and fundamentally a political question.
+- **Trustless value transfer** — both of the above plus an asset. This is crypto.
+
+Almost every civic system needs only the first. Estonia has run national health and
+judicial records on hash-linked timestamping for over a decade; it is universally
+called a blockchain, and it has no consensus and no coin.
+
+| System | What it actually uses | Needs a chain? |
+| --- | --- | --- |
+| National Digital School | Merkle tree, ECDSA P-256, hash-chained revocation register | **No** |
+| Bank of Bharat | Pedersen commitments, Merkle root, Schnorr proofs | **No** — there is no chain in it at all |
+| AI Panchayat Kendra | SHA-256 case decisions chained to the previous case | **No** — a tamper-evident log |
+| Digital Voting Centre | Hash chain, proof-of-work, public verification | **Yes** |
+
+The voting centre is the one case that earns it: candidates actively distrust each
+other and there is no operator all sides would accept, which is precisely what
+consensus was invented for. Everywhere else a database with an append-only audit log
+wins on speed, cost, energy, correctability and legal exposure.
+
+**The test a system has to pass** before a chain is worth its cost — all seven, not
+some: more than one party writes; those parties distrust each other; no third party
+they would all accept; someone must check it later who was not there; a quiet edit
+would be catastrophic; the throughput and irreversibility are survivable; no personal
+data sits on the record itself.
+
+Every system in the town now carries a **what this actually uses** card and a **what
+this costs you** card next to what it can do, so the price is as visible as the
+capability. The full reasoning — the trade-offs, how each one is answered, what
+blockchain has to be paired with, and the offline-first rule — is in
+[VISION.md](VISION.md) under *The blockchain doctrine*.
+
+And it is not crypto. There is no coin anywhere in this repo. India already runs a
+sovereign digital currency that is nothing like one: the RBI began its wholesale
+digital rupee pilot on 1 November 2022 and the retail pilot a month later.
+
 Built on the open-source [IsoCity](https://github.com/amilich/isometric-city)
 engine (MIT license — kept in `LICENSE`).
 

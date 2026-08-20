@@ -18,6 +18,7 @@ import {
 } from './bank';
 import { IntentCard } from './Intent';
 import { useTownState } from './TownState';
+import { WhatItUses, WhatItCosts } from './SystemFacts';
 
 type Step = 'vault' | 'audit' | 'depositor' | 'exposure' | 'patterns' | 'disclose' | 'benford';
 
@@ -584,6 +585,17 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
             </p>
           </div>
 
+          <WhatItUses
+            uses={"Pedersen commitments · Merkle root · Schnorr proofs"}
+            needsChain={false}
+            why={"There is no chain in this building at all. What a regulator needs is arithmetic over sealed values, and homomorphic commitments deliver that without a ledger, a network or a token."}
+          />
+          <WhatItCosts points={[
+          "Amounts are hidden but the transaction graph is not. Hide the graph too and every fraud detector goes blind — an unsolved tradeoff, not a solved one.",
+          "Benford’s law needs magnitudes, so it cannot run over sealed commitments. It runs on figures the bank publishes about itself.",
+          "Commitment arithmetic is far slower than reading a balance. Privacy is bought with compute on every audit.",
+          "Solvency proved against a declared total is only as good as the list of accounts the bank admits to holding."
+]} />
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <div className="font-semibold mb-1 text-amber-300">Honest caveat</div>
             <p className="text-xs text-white/50">

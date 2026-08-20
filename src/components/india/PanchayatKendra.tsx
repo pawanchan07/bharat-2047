@@ -29,6 +29,7 @@ import { AwakenBrain, BrainBadge, LanguagePicker } from './ai/AiControls';
 import { VoiceInput, SpeakButton } from './ai/VoiceInput';
 import { languageFor } from './ai/languages';
 import { SecondOpinion, secondOpinion, spokenVerdict, templateVerdict } from './ai/panchayatBrain';
+import { WhatItUses, WhatItCosts } from './SystemFacts';
 
 type Step = 'arrive' | 'listen' | 'understand' | 'checks' | 'draft' | 'review' | 'route' | 'register';
 
@@ -1023,6 +1024,17 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             )}
           </div>
 
+          <WhatItUses
+            uses={"SHA-256 case decisions, each chained to the previous"}
+            needsChain={false}
+            why={"A tamper-evident log, not a blockchain. One office writes to it, so there is nothing for a consensus protocol to do — the hash chain alone gives every property this desk needs."}
+          />
+          <WhatItCosts points={[
+          "A sealed decision log means a wrong routing is permanent and public. You append a correction; you never remove the error.",
+          "The classifier is fast because it is small. It will meet words it has never seen, and the honest response to that is a human, not a guess.",
+          "Five gates that hand cases to people means the system is only as quick as the panchayat behind it. Auditability costs latency.",
+          "None of this could be a smart contract. The adverse-finding gate requires discretion, and code that must execute has none."
+]} />
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <div className="font-semibold mb-1 text-amber-300">Honest caveat</div>
             <p className="text-xs text-white/50">

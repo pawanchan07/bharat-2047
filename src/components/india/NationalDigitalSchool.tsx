@@ -21,6 +21,7 @@ import {
 import { IntentCard } from './Intent';
 import { ArrivalScene } from './ArrivalScene';
 import { useTownState } from './TownState';
+import { WhatItUses, WhatItCosts } from './SystemFacts';
 
 type Step = 'arrive' | 'issue' | 'verify' | 'forge' | 'disclose' | 'revoke';
 
@@ -642,6 +643,17 @@ export function NationalDigitalSchool({
             </ul>
           </div>
 
+          <WhatItUses
+            uses={"Merkle tree · ECDSA P-256 · hash-chained revocation register"}
+            needsChain={false}
+            why={"No consensus, no network, no peers, no chain. A degree verifies offline against a published key, which is the entire product — and is why it works in a village with no signal."}
+          />
+          <WhatItCosts points={[
+          "A signed record cannot be edited. A misspelled name is corrected by superseding the certificate, and the error stays visible in its lineage forever.",
+          "Erasure works by destroying the salt, which renders a leaf unopenable rather than deleting it. Whether that satisfies the DPDP Act is untested.",
+          "Lose the key and you lose the credential. Recovery means guardians, which means trusting somebody again.",
+          "ECDSA and SHA-256 are not forever. A degree signed in 2047 has to still verify in 2097, so the signature suite has to be replaceable by design."
+]} />
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
             <div className="mb-1 font-semibold text-amber-300">Honest caveat</div>
             <p className="text-xs leading-relaxed text-white/50">
