@@ -27,12 +27,12 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL('https://bharat.pawanchander.com'),
   title: {
-    default: 'ISOCITY — Metropolis Builder',
-    template: 'ISOCITY — %s',
+    default: 'ISOCITY: Metropolis Builder',
+    template: 'ISOCITY: %s',
   },
   description: 'A richly detailed isometric city builder. Build your metropolis and manage resources with cars, planes, helicopters, boats, trains, citizens, and more.',
   openGraph: {
-    title: 'ISOCITY — Metropolis Builder',
+    title: 'ISOCITY: Metropolis Builder',
     description: 'A richly detailed isometric city builder. Build your metropolis and manage resources with cars, planes, helicopters, boats, trains, citizens, and more.',
     type: 'website',
     siteName: 'IsoCity',

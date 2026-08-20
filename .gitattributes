@@ -1,0 +1,5 @@
+# school.ts hashes each certificate field as `key\0value\0salt`. The NUL is a deliberate
+# domain separator, so that "Name" + "Kamla Devi" can never collide with "NameKamla" + "Devi".
+# Git sniffs those two bytes and calls the whole file binary, which hides every diff in the
+# one module whose changes most need reading. It is UTF-8 text; tell Git so.
+src/components/india/school.ts diff text

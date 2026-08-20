@@ -83,9 +83,9 @@ export function AwakenBrain({ reason }: { reason?: string }) {
   if (status === 'unsupported') {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <div className="mb-1 font-semibold text-white/80">The town’s brain cannot run here 🧠</div>
+        <div className="mb-1 font-semibold text-white/80">The town&apos;s brain cannot run here 🧠</div>
         <p className="text-sm text-white/50">
-          {gpuReason ?? 'This device has no WebGPU.'} The model runs on your own graphics card —
+          {gpuReason ?? 'This device has no WebGPU.'} The model runs on your own graphics card;
           there is no server to fall back to, by design.
         </p>
         <p className="mt-2 text-sm text-white/50">
@@ -102,7 +102,7 @@ export function AwakenBrain({ reason }: { reason?: string }) {
       <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/[0.07] p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="mb-1 font-semibold text-emerald-300">The town’s brain is awake 🧠</div>
+            <div className="mb-1 font-semibold text-emerald-300">The town&apos;s brain is awake 🧠</div>
             <p className="text-sm text-white/60">
               {model.label} · Qwen2.5 · Apache-2.0 · running on your graphics card. Nothing you say
               leaves this browser.
@@ -124,7 +124,7 @@ export function AwakenBrain({ reason }: { reason?: string }) {
     return (
       <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.07] p-4">
         <div className="mb-2 flex items-baseline justify-between gap-3">
-          <span className="font-semibold text-amber-300">Waking the town’s brain…</span>
+          <span className="font-semibold text-amber-300">Waking the town&apos;s brain…</span>
           <span className="font-mono text-sm tabular-nums text-amber-200">{Math.round(progress * 100)}%</span>
         </div>
         <div
@@ -152,7 +152,7 @@ export function AwakenBrain({ reason }: { reason?: string }) {
             Cancel
           </button>
           <span className="text-[11px] text-white/35">
-            Cancelling keeps whatever arrived — resuming later carries on from here.
+            Cancelling keeps whatever arrived, and resuming later carries on from here.
           </span>
         </div>
       </div>
@@ -162,9 +162,9 @@ export function AwakenBrain({ reason }: { reason?: string }) {
   // ------------------------------------------------------- asleep / error
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-      <div className="mb-1 font-semibold text-white/85">Awaken the town’s AI 🧠</div>
+      <div className="mb-1 font-semibold text-white/85">Awaken the town&apos;s AI 🧠</div>
       <p className="mb-3 text-sm text-white/50">
-        {reason ?? 'Optional. An open-weights model downloads once and then runs entirely on your own machine — no key, no account, nothing sent anywhere.'}
+        {reason ?? 'Optional. An open-weights model downloads once and then runs entirely on your own machine: no key, no account, nothing sent anywhere.'}
       </p>
 
       {error && (
@@ -203,7 +203,7 @@ export function AwakenBrain({ reason }: { reason?: string }) {
       {metered && !cached && (
         <p className="mb-3 rounded-lg border border-amber-400/30 bg-amber-500/[0.07] p-2.5 text-xs text-amber-200/90">
           You look to be on a slow or metered connection. {model.downloadMB} MB is a lot to spend
-          there — the Light model, or skipping this entirely, may be the better call.
+          there. The Light model, or skipping this entirely, may be the better call.
         </p>
       )}
 
@@ -211,12 +211,12 @@ export function AwakenBrain({ reason }: { reason?: string }) {
         onClick={awaken}
         className="w-full rounded-xl bg-amber-500 px-5 py-3 font-bold text-black shadow-lg shadow-amber-500/20 hover:bg-amber-400"
       >
-        {cached ? `Awaken the town’s AI 🧠 · already downloaded` : `Awaken the town’s AI 🧠 · ${model.downloadMB} MB`}
+        {cached ? `Awaken the town's AI 🧠 · already downloaded` : `Awaken the town's AI 🧠 · ${model.downloadMB} MB`}
       </button>
 
       <p className="mt-3 text-[11px] leading-relaxed text-white/35">
         What it is allowed to do is deliberately narrow. The classifier, the eligibility rules
-        and the routing gates still decide every case — they are auditable and they are the
+        and the routing gates still decide every case. They are auditable and they are the
         actual claim. The model gives a second reading beside them and puts the verdict into
         your language. Where the two disagree, you see the disagreement and the engine wins.
       </p>

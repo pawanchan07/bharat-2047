@@ -58,7 +58,7 @@ export async function mineBlock(
   partial: Omit<VoteBlock, 'hash' | 'nonce'>,
   onProgress?: (nonce: number, hash: string) => void,
   // Each report is also a yield back to the browser, and a yield costs far more than the
-  // hashes between them — a hidden tab clamps timers to hundreds of milliseconds, which
+  // hashes between them: a hidden tab clamps timers to hundreds of milliseconds, which
   // turned a block into minutes. At this cadence the nonce counter still updates roughly
   // twenty times per block, so the race is still visible.
   reportEvery = 200
@@ -90,7 +90,7 @@ export interface ChainCheck {
  *
  * Two details matter for this to mean what the screen says it means. Each link is checked
  * against what the previous block *actually hashes to*, not against the hash it claims to
- * have — otherwise editing a vote would only ever flag the block you edited, because its
+ * have. Otherwise editing a vote would only ever flag the block you edited, because its
  * stale hash field still satisfies its successor. And once a block is invalid, every block
  * built on top of it is invalid too: they descend from something no honest node would
  * accept. That is why one changed vote shatters the rest of the chain.

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Digital Voting Centre — a working blockchain voting demo.
+ * Digital Voting Centre: a working blockchain voting demo.
  * Every hash is real SHA-256 (Web Crypto). Mining is real proof-of-work.
  */
 
@@ -188,7 +188,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
       town.recordAttack('rewrite-vote');
       town.record({
         kind: 'attack', system: 'voting',
-        label: 'A sealed vote was rewritten — and it held',
+        label: 'A sealed vote was rewritten, and it held',
         detail: `Block #${copy[idx].index} was edited, and ${check.brokenAt.length} block${check.brokenAt.length === 1 ? '' : 's'} went invalid at once. Nobody had to be told; the chain says so on its face.`,
         at: { x: 13, y: 6 },
       });
@@ -199,7 +199,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
     const firstBroken = chainCheck.brokenAt[0];
     if (firstBroken === undefined || firstBroken < 1) return;
 
-    // The honest network does not re-seal the attacker's edit — it discards it and rebuilds
+    // The honest network does not re-seal the attacker's edit. It discards it and rebuilds
     // from the last good block, so the votes that come back are the ones really cast.
     let fixed = chain.map((b) => {
       const honest = honestVotesRef.current.get(b.index);
@@ -245,7 +245,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
       town.record({
         kind: 'attack', system: 'voting',
         label: `${citizen.name} was refused a second ballot`,
-        detail: `Her token was already in block #${priorBlock?.index ?? '—'}, so the roll check stopped her at the door rather than at the count.`,
+        detail: `Her token was already in block #${priorBlock?.index ?? '?'}, so the roll check stopped her at the door rather than at the count.`,
         at: { x: 13, y: 6 },
       });
     }
@@ -262,7 +262,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
         @keyframes vc-pulse { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
         @keyframes vc-pop { 0% { transform: scale(.97); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
         /* No fill-mode: a throttled or background tab can leave an animation unstarted, and
-           with 'both' the panel would sit on the 0% keyframe (opacity 0) — invisible content
+           with 'both' the panel would sit on the 0% keyframe (opacity 0), which is invisible content
            rather than an un-animated one. The resting style must be the visible one. */
         .vc-pop { animation: vc-pop .4s ease-out; }
       `}</style>
@@ -272,7 +272,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
         <div className="flex items-center gap-3">
           <span className="text-2xl">🗳️</span>
           <div>
-            <div className="font-semibold tracking-wide">Digital Voting Centre — Ward 04, Rampur</div>
+            <div className="font-semibold tracking-wide">Digital Voting Centre · Ward 04, Rampur</div>
             <div className="text-xs text-white/50">General Election 2047 · Every step below is real cryptography running in your browser</div>
           </div>
         </div>
@@ -295,7 +295,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           {step === 'arrive' && (
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">A citizen arrives to vote</h2>
-              <p className="text-white/60 mb-6 max-w-xl">In Bharat 2047, a vote is cast in a booth — but recorded on a public, tamper-evident blockchain that anyone can audit, while the voter stays anonymous.</p>
+              <p className="text-white/60 mb-6 max-w-xl">In Bharat 2047, a vote is cast in a booth, but recorded on a public, tamper-evident blockchain that anyone can audit, while the voter stays anonymous.</p>
 
               <ArrivalScene phase={walk.phase} citizenName={citizen.name} paletteIndex={citizenIdx} />
 
@@ -322,8 +322,8 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                     <div className="font-semibold text-red-300 mb-1">⛔ {citizen.name} has already voted.</div>
                     <p className="text-sm text-white/60">
                       That token is already sealed into{' '}
-                      <b className="text-white/80">block #{priorBlock?.index ?? '—'}</b> of the public chain, so the roll
-                      check refuses entry at the door. There is no second ballot to offer — not here, and not
+                      <b className="text-white/80">block #{priorBlock?.index ?? '?'}</b> of the public chain, so the roll
+                      check refuses entry at the door. There is no second ballot to offer, not here, and not
                       anywhere else in this booth.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -350,7 +350,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                 )}
               </div>
 
-              {/* The roll itself. Choosing a citizen decides who walks in next — it never
+              {/* The roll itself. Choosing a citizen decides who walks in next. It never
                   offers anyone a second vote; the ones already on the chain are refused. */}
               <div className="mt-8">
                 <div className="text-xs uppercase tracking-widest text-white/35 mb-2">Electoral roll · Ward 04</div>
@@ -365,7 +365,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                             : 'bg-white/5 border-white/15 text-white/80 hover:border-amber-400/50'}`}>
                       <div className="font-semibold">{r.name}</div>
                       <div className={i === citizenIdx ? 'text-black/60' : 'text-white/40'}>
-                        {r.voted ? '✓ voted — cannot vote again' : 'not yet voted'}
+                        {r.voted ? '✓ voted, cannot vote again' : 'not yet voted'}
                       </div>
                     </button>
                   ))}
@@ -377,7 +377,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           {step === 'identity' && (
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">Step 1 · Identity, without exposure</h2>
-              <p className="text-white/60 mb-6 max-w-xl">Biometric check confirms <b>{citizen.name}</b> is a registered voter. The identity is then converted into a one-way anonymous token — the chain never learns <i>who</i> the voter is.</p>
+              <p className="text-white/60 mb-6 max-w-xl">Biometric check confirms <b>{citizen.name}</b> is a registered voter. The identity is then converted into a one-way anonymous token, so the chain never learns <i>who</i> the voter is.</p>
               <div className="flex gap-8 items-center">
                 <div className="relative w-40 h-48 rounded-2xl border-2 border-cyan-400/40 bg-cyan-400/5 flex items-center justify-center overflow-hidden">
                   <CitizenPortrait paletteIndex={citizenIdx} className="h-full w-auto" />
@@ -393,7 +393,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                       <div className="text-emerald-300 font-semibold mb-1">✓ Eligible voter confirmed</div>
                       <div className="text-white/60 text-xs">Anonymous token issued:</div>
                       <div className="font-mono text-cyan-300 text-sm mt-1">{voterToken || '…'}</div>
-                      <div className="text-white/40 text-[11px] mt-2">token = SHA-256(identity + national salt) — irreversible</div>
+                      <div className="text-white/40 text-[11px] mt-2">token = SHA-256(identity + national salt), irreversible</div>
                     </div>
                   ) : (
                     <div className="text-white/40 text-sm" style={{ animation: 'vc-pulse 1.2s infinite' }}>Scanning…</div>
@@ -424,7 +424,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           {step === 'seal' && choice && (
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">Step 3 · Sealing the vote</h2>
-              <p className="text-white/60 mb-6 max-w-xl">The vote is fed through SHA-256 — a one-way cryptographic function. Change even one letter and the fingerprint changes completely.</p>
+              <p className="text-white/60 mb-6 max-w-xl">The vote is fed through SHA-256, a one-way cryptographic function. Change even one letter and the fingerprint changes completely.</p>
               <div className="max-w-xl space-y-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                   <div className="text-xs text-white/40 mb-1">Plain vote</div>
@@ -460,7 +460,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                 </div>
                 {mined ? (
                   <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-semibold vc-pop">
-                    ✓ Block mined! Hash begins with {DIFFICULTY_PREFIX} — proof-of-work complete.
+                    ✓ Block mined! Hash begins with {DIFFICULTY_PREFIX} · proof-of-work complete.
                   </div>
                 ) : (
                   <div className="text-white/40 text-sm" style={{ animation: 'vc-pulse .6s infinite' }}>⚡ Searching for a valid nonce…</div>
@@ -473,7 +473,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
             <div className="vc-pop">
               <h2 className="text-3xl font-bold mb-2">{step === 'chain' ? 'Step 5 · Welded into the chain' : 'Live results & public audit'}</h2>
               <p className="text-white/60 mb-4 max-w-2xl">
-                Each block stores the previous block&apos;s hash — tamper with any vote and every later link shatters.
+                Each block stores the previous block&apos;s hash, so tamper with any vote and every later link shatters.
                 <b className="text-amber-300"> Try it:</b> click a block below and change its vote.
               </p>
 
@@ -527,7 +527,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
 
               {!chainCheck.valid && (
                 <div className="vc-pop mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/40 max-w-2xl">
-                  <div className="font-semibold text-red-300 mb-1">🚨 Tampering detected — instantly.</div>
+                  <div className="font-semibold text-red-300 mb-1">🚨 Tampering detected, instantly.</div>
                   <p className="text-sm text-white/60">The edited block&apos;s hash no longer matches its contents, and every later block points to a hash that no longer exists. Every auditor in the country sees this copy is fake. On the real network, thousands of honest nodes simply ignore it.</p>
                   <button onClick={repairChain} className="mt-3 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold">Restore honest chain (re-verify & re-mine)</button>
                 </div>
@@ -536,7 +536,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
               {/* Tally + actions */}
               <div className="mt-6 grid md:grid-cols-2 gap-6 max-w-3xl">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-sm font-semibold mb-3 text-white/70">📊 Live public tally — {totalVotes} vote{totalVotes === 1 ? '' : 's'}</div>
+                  <div className="text-sm font-semibold mb-3 text-white/70">📊 Live public tally · {totalVotes} vote{totalVotes === 1 ? '' : 's'}</div>
                   {CANDIDATES.map((c) => {
                     const n = counts[c.id] || 0;
                     const pct = totalVotes ? Math.round((n / totalVotes) * 100) : 0;
@@ -547,7 +547,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
                       </div>
                     );
                   })}
-                  <div className="text-[11px] text-white/30 mt-2">Anyone can recount — the ledger is public, the voters are anonymous.</div>
+                  <div className="text-[11px] text-white/30 mt-2">Anyone can recount: the ledger is public, the voters are anonymous.</div>
                 </div>
                 <div className="flex flex-col gap-3 justify-center">
                   <button onClick={nextVoter} className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold">🚶 Next citizen votes →</button>
@@ -566,11 +566,11 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">Why blockchain voting?</div>
             <ul className="text-sm text-white/60 space-y-2">
-              <li>🔒 <b className="text-white/80">Tamper-evident</b> — one changed vote breaks every later block, publicly.</li>
-              <li>🕵️ <b className="text-white/80">Anonymous</b> — the chain stores one-way tokens, never identities.</li>
-              <li>🚫 <b className="text-white/80">No double voting</b> — a token that has voted is rejected forever.</li>
-              <li>🧾 <b className="text-white/80">Anyone can audit</b> — the count is recomputable by every citizen.</li>
-              <li>⚡ <b className="text-white/80">Instant results</b> — tallying is reading the public ledger.</li>
+              <li>🔒 <b className="text-white/80">Tamper-evident</b>: one changed vote breaks every later block, publicly.</li>
+              <li>🕵️ <b className="text-white/80">Anonymous</b>: the chain stores one-way tokens, never identities.</li>
+              <li>🚫 <b className="text-white/80">No double voting</b>: a token that has voted is rejected forever.</li>
+              <li>🧾 <b className="text-white/80">Anyone can audit</b>: the count is recomputable by every citizen.</li>
+              <li>⚡ <b className="text-white/80">Instant results</b>: tallying is reading the public ledger.</li>
             </ul>
           </div>
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
@@ -583,14 +583,14 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
             why={"The one system here that earns a chain. Candidates actively distrust each other and there is no operator all sides would accept, which is exactly the case consensus was invented for."}
           />
           <WhatItCosts points={[
-          "Irreversibility. A vote sealed in error stays sealed — there is no chargeback, and correcting a genuine mistake means appending, never editing.",
+          "Irreversibility. A vote sealed in error stays sealed: there is no chargeback, and correcting a genuine mistake means appending, never editing.",
           "A public ledger plus a small ward leaks more than it looks like. Four hundred voters and a handful of blocks is a real deanonymisation surface.",
           "Proof-of-work at national scale is indefensible on energy. A real deployment anchors batches rather than mining every ballot.",
           "It proves nobody edited the record after the fact. It cannot prove the roll was honest before it."
 ]} />
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <div className="font-semibold mb-1 text-amber-300">Honest caveat</div>
-            <p className="text-xs text-white/50">Real national elections also need coercion-resistance, verified voter rolls, and offline fallbacks — this prototype shows the integrity layer, the part blockchain does best.</p>
+            <p className="text-xs text-white/50">Real national elections also need coercion-resistance, verified voter rolls, and offline fallbacks. This prototype shows the integrity layer, the part blockchain does best.</p>
           </div>
         </aside>
       </div>

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * "Ask the town anything" — the guide that sits in the corner of the world.
+ * "Ask the town anything": the guide that sits in the corner of the world.
  *
  * It answers from a curated FAQ first and from the in-browser model second, and it labels
  * which one answered. That order is deliberate: on the questions people actually ask, a
@@ -51,7 +51,7 @@ export function AskTheTown() {
     listening.stop();
     setDraft('');
 
-    // The curated answer wins when it exists — it is the more accurate one.
+    // The curated answer wins when it exists: it is the more accurate one.
     const curated = faqAnswer(q);
     if (curated) {
       setTurns((t) => [...t, { question: q, answer: curated.answer, source: 'faq' }]);
@@ -62,8 +62,8 @@ export function AskTheTown() {
       setTurns((t) => [...t, {
         question: q,
         answer:
-          'That one is outside the answers I have written down, and the town’s AI is asleep so I cannot reason about it. ' +
-          'Awaken it below and ask again — or try one of the questions underneath, which I can always answer.',
+          "That one is outside the answers I have written down, and the town's AI is asleep so I cannot reason about it. " +
+          'Awaken it below and ask again, or try one of the questions underneath, which I can always answer.',
         source: 'none',
       }]);
       setShowAwaken(true);
@@ -136,7 +136,7 @@ export function AskTheTown() {
         {turns.length === 0 && (
           <div className="text-sm text-white/50">
             <p className="mb-3">
-              Ask anything about this town — how the voting chain holds, what the panchayat is
+              Ask anything about this town: how the voting chain holds, what the panchayat is
               allowed to decide, how a bank gets audited without being read.
             </p>
             <div className="space-y-1.5">
@@ -184,10 +184,10 @@ export function AskTheTown() {
           </div>
         ))}
 
-        {/* Only offered when a question actually went unanswered — the written answers are
+        {/* Only offered when a question actually went unanswered. The written answers are
             not a lesser product, and nagging after a good one would say they were. */}
         {showAwaken && townAI.status !== 'unsupported' && !townAI.awake && (
-          <AwakenBrain reason="With it awake I can answer questions I have not been given a written answer for — still entirely in your browser." />
+          <AwakenBrain reason="With it awake I can answer questions I have not been given a written answer for, still entirely in your browser." />
         )}
       </div>
 
@@ -201,7 +201,7 @@ export function AskTheTown() {
             onClick={() => (listening.listening ? listening.stop() : (listening.reset(), listening.start()))}
             disabled={!listening.supported}
             aria-label={listening.listening ? 'Stop listening' : 'Ask by voice'}
-            title={listening.supported ? 'Ask by voice' : 'This browser cannot listen — type instead'}
+            title={listening.supported ? 'Ask by voice' : 'This browser cannot listen, so type instead'}
             className={`shrink-0 rounded-full p-3 text-lg transition-colors ${
               !listening.supported
                 ? 'cursor-not-allowed bg-white/5 text-white/25'

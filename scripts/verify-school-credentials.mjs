@@ -3,7 +3,7 @@
  * Asserts what the National Digital School screen claims, against the shipped module:
  * a certificate that proves itself, a forgery that cannot survive, selective disclosure
  * that really hides what it says it hides, and a revocation register that is itself
- * tamper-evident — plus governed supersession: a certificate that cannot be edited, only
+ * tamper-evident, plus governed supersession: a certificate that cannot be edited, only
  * replaced, and only when the rules that stop a supersession being an edit in disguise are
  * actually met.
  *
@@ -25,11 +25,11 @@ const {
 
 let failures = 0
 const check = (label, ok, detail = '') => {
-  console.log(`${ok ? '  PASS' : '  FAIL'}  ${label}${detail ? ' — ' + detail : ''}`)
+  console.log(`${ok ? '  PASS' : '  FAIL'}  ${label}${detail ? ': ' + detail : ''}`)
   if (!ok) failures++
 }
 
-console.log('National Digital School — credential properties\n')
+console.log('National Digital School: credential properties\n')
 
 const school = await createSchool('National Digital School, Rampur')
 const rec = STUDENTS[0]
@@ -43,7 +43,7 @@ check('its address is a real CIDv1 (base32, raw codec, sha2-256)',
   /^bafkrei[a-z2-7]{52}$/.test(cert.cid), cert.cid.slice(0, 24) + '…')
 check('the address is derived from the content it addresses',
   (await cidV1(new TextEncoder().encode(cert.root))) === cert.cid)
-check('the school’s signature over the root verifies',
+check("the school's signature over the root verifies",
   await verifySignature(school.publicKey, cert.root, cert.signature))
 
 // --- full presentation --------------------------------------------------------------
@@ -62,7 +62,7 @@ check('changing one mark breaks the certificate', !out.ok,
   `${before} → 99, failed: ${out.checks.filter((c) => !c.ok).map((c) => c.id).join(', ')}`)
 check('it fails on the content check, not by luck elsewhere',
   out.checks.find((c) => c.id === 'address').ok === false)
-check('the school’s signature still verifies — the root did not change',
+check("the school's signature still verifies, the root did not change",
   out.checks.find((c) => c.id === 'signature').ok === true,
   'which is why the Merkle proof is what catches this')
 
@@ -116,7 +116,7 @@ check('the revocation register chains correctly', await revocationChainValid(rev
 out = await verify(minimal, school, revocations)
 check('a revoked certificate stops verifying', !out.ok,
   out.checks.find((c) => c.id === 'revocation').detail)
-check('it fails only on revocation — the crypto is still sound',
+check('it fails only on revocation, the crypto is still sound',
   out.checks.filter((c) => !c.ok).length === 1)
 
 const tampered = revocations.map((r) => ({ ...r }))

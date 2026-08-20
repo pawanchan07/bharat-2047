@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Bharat 2047 — explorable Future India town.
+ * Bharat 2047: explorable Future India town.
  * The IsoCity engine renders the living world; clicking a landmark opens that civic
  * system. Live: Digital Voting Centre, AI Panchayat Kendra, Bank of Bharat, and the
  * National Digital School.
@@ -16,8 +16,8 @@ import { TownPulse } from './TownPulse';
 import { useTownState } from './TownState';
 
 /**
- * The civic systems are heavy — a trained classifier, 2048-bit commitment arithmetic, a
- * blockchain — and none of them is on screen until you walk into a building. They are
+ * The civic systems are heavy (a trained classifier, 2048-bit commitment arithmetic, a
+ * blockchain) and none of them is on screen until you walk into a building. They are
  * fetched at that moment instead of riding along in the first load, which is also what
  * keeps the voice and model code off the critical path: it lives inside these chunks.
  */
@@ -77,30 +77,30 @@ const LANDMARKS: Landmark[] = [
   {
     id: 'voting', name: 'Digital Voting Centre', icon: '🗳️',
     x: 13, y: 6, w: 2, h: 2, status: 'live',
-    tagline: 'Blockchain elections — tamper-proof, anonymous, instantly auditable.',
+    tagline: 'Blockchain elections: tamper-proof, anonymous, instantly auditable.',
     description: 'Step inside and follow a citizen through a full blockchain vote: identity → anonymous token → ballot → SHA-256 seal → proof-of-work mining → the public chain. Then try to hack it.',
-    cta: '🗳️ Step inside — cast a vote',
+    cta: '🗳️ Step inside and cast a vote',
   },
   {
     id: 'panchayat', name: 'AI Panchayat Kendra', icon: '🏛️',
     x: 16, y: 6, w: 1, h: 1, status: 'live',
-    tagline: 'Every villager gets a tireless assistant — and a human still signs every decision.',
-    description: 'A villager brings any problem — a pension not arriving, wages unpaid, a handpump dry. A classifier trained live in your browser reads it in Hindi, Hinglish or English and shows its working; a rules engine checks her actual record; then five gates decide whether software may proceed alone or a panchayat member must sign. Type your own complaint and watch the confidence move.',
-    cta: '🏛️ Step inside — bring a problem',
+    tagline: 'Every villager gets a tireless assistant, and a human still signs every decision.',
+    description: 'A villager brings any problem: a pension not arriving, wages unpaid, a handpump dry. A classifier trained live in your browser reads it in Hindi, Hinglish or English and shows its working; a rules engine checks her actual record; then five gates decide whether software may proceed alone or a panchayat member must sign. Type your own complaint and watch the confidence move.',
+    cta: '🏛️ Step inside and bring a problem',
   },
   {
     id: 'bank', name: 'Bank of Bharat', icon: '🏦',
     x: 13, y: 13, w: 3, h: 3, status: 'live',
     tagline: 'A bank a regulator can audit without being allowed to read it.',
-    description: 'Not another ledger on a chain — the town already has two. The harder question is what a supervisor can compute over a bank’s books without seeing anybody’s account. Turns out: solvency, sector concentration, and most financial crime. Every balance is sealed in a real Pedersen commitment; the audit multiplies them together and catches a one-rupee lie. Try to cook the books yourself.',
-    cta: '🏦 Step inside — audit the bank',
+    description: "Not another ledger on a chain. The town already has two. The harder question is what a supervisor can compute over a bank's books without seeing anybody's account. Turns out: solvency, sector concentration, and most financial crime. Every balance is sealed in a real Pedersen commitment; the audit multiplies them together and catches a one-rupee lie. Try to cook the books yourself.",
+    cta: '🏦 Step inside and audit the bank',
   },
   {
     id: 'school', name: 'National Digital School', icon: '🏫',
     x: 6, y: 6, w: 2, h: 2, status: 'live',
-    tagline: 'A certificate that proves itself — and shows only what you choose.',
-    description: 'Verifying an Indian degree today means telephoning an institution that may not answer, so most employers simply do not — which is exactly why forged marksheets work. Here a certificate carries its own proof: real ECDSA signatures, a real IPFS content address, and a Merkle tree that lets a graduate prove she has the degree without revealing a single mark. Try changing one, and watch it stop verifying.',
-    cta: '🏫 Step inside — verify a degree',
+    tagline: 'A certificate that proves itself, and shows only what you choose.',
+    description: 'Verifying an Indian degree today means telephoning an institution that may not answer, so most employers simply do not, which is exactly why forged marksheets work. Here a certificate carries its own proof: real ECDSA signatures, a real IPFS content address, and a Merkle tree that lets a graduate prove she has the degree without revealing a single mark. Try changing one, and watch it stop verifying.',
+    cta: '🏫 Step inside and verify a degree',
   },
   {
     id: 'hospital', name: 'Smart Health Centre', icon: '🏥',
@@ -111,7 +111,7 @@ const LANDMARKS: Landmark[] = [
   {
     id: 'police', name: 'AI Safety Command', icon: '🚓',
     x: 6, y: 21, w: 1, h: 1, status: 'planned',
-    tagline: 'AI CCTV that spots incidents in seconds — with privacy safeguards.',
+    tagline: 'AI CCTV that spots incidents in seconds, with privacy safeguards.',
     description: 'Planned: camera network detects accidents & crimes, dispatches the nearest responder, and logs every access to footage on an audit chain.',
   },
   {
@@ -123,7 +123,7 @@ const LANDMARKS: Landmark[] = [
   {
     id: 'garbage', name: 'Smart Waste Network', icon: '🗑️',
     x: 6, y: 23, w: 1, h: 1, status: 'planned',
-    tagline: 'Bins that call the municipality — and watch over life itself.',
+    tagline: 'Bins that call the municipality, and watch over life itself.',
     description: 'Planned: fill-level sensors dispatch trucks on optimized routes; thermal sensors detect any living being and trigger an instant emergency alert.',
   },
 ];
@@ -179,7 +179,7 @@ export function FutureIndia({
   }, []);
 
   // The engine reports the clicked tile; we resolve it to a landmark right there rather
-  // than in an effect, so one click is one render. Only landmarks stay selected — a
+  // than in an effect, so one click is one render. Only landmarks stay selected, because a
   // highlight diamond left on an empty field is the city builder's affordance, not ours,
   // and it explains nothing to a visitor.
   const handleTileSelect = useCallback((tile: { x: number; y: number } | null) => {
@@ -221,7 +221,7 @@ export function FutureIndia({
   );
 
   /**
-   * The tour drives the camera without opening panels — it is a flight over the town, so a
+   * The tour drives the camera without opening panels. It is a flight over the town, so a
    * stop points the view at a building and says what it is, and you go in yourself after.
    */
   const focusForTour = useCallback((landmarkId: string | null) => {
@@ -277,7 +277,7 @@ export function FutureIndia({
             <h1 className="text-white text-2xl font-bold tracking-wide drop-shadow">
               <span className="text-amber-400">भारत</span> BHARAT <span className="text-emerald-400">2047</span>
             </h1>
-            <p className="text-white/60 text-xs">How I want to see India&apos;s civic systems work in 2047 — argued technically, not just drawn · click any named building</p>
+            <p className="text-white/60 text-xs">How I want to see India&apos;s civic systems work in 2047, argued technically, not just drawn · click any named building</p>
           </div>
           <div className="flex items-center gap-4 pointer-events-auto">
             <button
@@ -353,7 +353,7 @@ export function FutureIndia({
           <div className="max-w-lg text-center text-white">
             <Tricolour className="w-20 h-auto mx-auto mb-5 drop-shadow-lg" />
             <h1 className="text-4xl font-bold mb-5"><span className="text-amber-400">Bharat</span> 2047</h1>
-            <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047 — voting, panchayats, banking, schools — and I would rather show you than tell you.</p>
+            <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047: voting, panchayats, banking, schools. And I would rather show you than tell you.</p>
             <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, the panchayat trains a real classifier in your browser while you watch, the bank is audited without anyone being allowed to read it, and the school signs a degree you can check yourself.</p>
             <button onClick={() => setShowWelcome(false)}
               className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">

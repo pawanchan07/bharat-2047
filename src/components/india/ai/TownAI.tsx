@@ -4,7 +4,7 @@
  * One place that holds the town's language and, if the visitor asked for it, its brain.
  *
  * Every AI or voice surface reads from here, so the language you pick at the microphone is
- * the language the tour narrates in and the language the guide answers in — and a model you
+ * the language the tour narrates in and the language the guide answers in, and a model you
  * downloaded once is shared by all three rather than loaded per screen.
  *
  * The provider itself is tiny and safe to mount at page load. Nothing heavy is imported

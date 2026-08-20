@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Read [VISION.md](VISION.md) first — it defines this project.**
+**Read [VISION.md](VISION.md) first. It defines this project.**
 
 Everything about scope, the order systems get built in, the interaction pattern
 every system must follow, the design rules and the working rules lives there.
@@ -19,6 +19,16 @@ Do not plan or write code for this repo before reading it.
 "Actually working" means the core mechanism really runs, client-side, with no API
 keys and nothing pre-recorded. Real SHA-256 in the voting centre; a classifier
 really trained in the browser in the panchayat. If a layer is not real, the UI has
-to say so out loud — see the "What's real in this demo?" panels.
+to say so out loud: see the "What's real in this demo?" panels.
 
 After any change, walk the whole `/india` flow before calling it done.
+
+## Typography
+
+No em dashes, en dashes or curly quotes anywhere this project authors text. They read
+as machine-set rather than written. `npm run verify-typography` checks `src/`, `scripts/`,
+`worker/` and the docs, and fails the build if one appears. VISION.md is exempt.
+
+Removing one is prose work, not find and replace. A dash is doing a job in its sentence,
+and the fix is the punctuation that does that job: a colon, a full stop, a comma, or the
+word the dash was standing in for.

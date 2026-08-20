@@ -1,5 +1,5 @@
 /**
- * AI Panchayat Kendra — the reasoning engine.
+ * AI Panchayat Kendra: the reasoning engine.
  *
  * Everything in this file is real and runs in the browser with no network call:
  *
@@ -11,8 +11,8 @@
  *  3. A rule-based entity extractor (durations, amounts, documents, schemes).
  *  4. A checks engine that really evaluates each eligibility rule and each
  *     root-cause probe against the citizen's record, and returns
- *     pass / fail / unknown — never a guess.
- *  5. A routing policy that decides department, SLA and — critically — whether a
+ *     pass / fail / unknown, never a guess.
+ *  5. A routing policy that decides department, SLA and, critically, whether a
  *     human panchayat member must approve before anything moves.
  *
  * What is NOT real: the sentences the assistant speaks back. Those are templated
@@ -54,7 +54,7 @@ export const INTENTS: Record<IntentId, IntentMeta> = {
     id: 'PENSION_FAILURE', label: 'Pension not received', hindi: 'पेंशन नहीं मिली', icon: '👵',
     department: 'Block Social Welfare Office', officer: 'Block Social Welfare Officer',
     slaDays: 7, neverAutomatic: false,
-    blurb: 'A sanctioned pension has stopped reaching the beneficiary — usually a bank-seeding or life-certificate failure, not a rejection.',
+    blurb: 'A sanctioned pension has stopped reaching the beneficiary, usually a bank-seeding or life-certificate failure, not a rejection.',
   },
   LAND_RECORD_ERROR: {
     id: 'LAND_RECORD_ERROR', label: 'Land record error', hindi: 'भूमि रिकॉर्ड में गलती', icon: '📜',
@@ -78,13 +78,13 @@ export const INTENTS: Record<IntentId, IntentMeta> = {
     id: 'MGNREGA_WAGES', label: 'MGNREGA work or wages', hindi: 'मनरेगा मजदूरी', icon: '⛏️',
     department: 'Block Development Office (MGNREGA cell)', officer: 'Programme Officer, MGNREGA',
     slaDays: 15, neverAutomatic: false,
-    blurb: 'Job card, work demand, or wages unpaid past the 15-day statutory limit — which itself triggers a delay-compensation claim.',
+    blurb: 'Job card, work demand, or wages unpaid past the 15-day statutory limit, which itself triggers a delay-compensation claim.',
   },
   HOUSING_SCHEME: {
     id: 'HOUSING_SCHEME', label: 'Housing scheme (PMAY-G)', hindi: 'आवास योजना', icon: '🏠',
     department: 'Block Development Office (Awas cell)', officer: 'Awas Supervisor',
     slaDays: 30, neverAutomatic: false,
-    blurb: 'Application, instalment or permanent-wait-list grievance under Pradhan Mantri Awas Yojana — Gramin.',
+    blurb: 'Application, instalment or permanent-wait-list grievance under Pradhan Mantri Awas Yojana (Gramin).',
   },
   ELECTRICITY: {
     id: 'ELECTRICITY', label: 'Electricity problem', hindi: 'बिजली की समस्या', icon: '💡',
@@ -96,13 +96,13 @@ export const INTENTS: Record<IntentId, IntentMeta> = {
     id: 'CERTIFICATE', label: 'Certificate needed', hindi: 'प्रमाण पत्र', icon: '🧾',
     department: 'Tehsil e-District Counter', officer: 'Naib Tehsildar',
     slaDays: 14, neverAutomatic: false,
-    blurb: 'Income, caste, residence, birth or death certificate — the documents every other scheme asks for first.',
+    blurb: 'Income, caste, residence, birth or death certificate: the documents every other scheme asks for first.',
   },
   LAND_DISPUTE: {
     id: 'LAND_DISPUTE', label: 'Dispute between parties', hindi: 'आपसी विवाद', icon: '⚖️',
     department: 'Gram Panchayat bench', officer: 'Sarpanch & elected members',
     slaDays: 45, neverAutomatic: true,
-    blurb: 'A boundary, inheritance or neighbour dispute. Two sides, contested facts, and a decision that changes rights — software may summarise it, never settle it.',
+    blurb: 'A boundary, inheritance or neighbour dispute. Two sides, contested facts, and a decision that changes rights. Software may summarise it, never settle it.',
   },
   HEALTH_CARE: {
     id: 'HEALTH_CARE', label: 'Health / Ayushman', hindi: 'स्वास्थ्य', icon: '🏥',
@@ -117,7 +117,7 @@ export const INTENT_IDS = Object.keys(INTENTS) as IntentId[];
 /* ------------------------------------------------------------------- corpus */
 
 /**
- * The training set. Deliberately small and visible — 120 lines a villager might
+ * The training set. Deliberately small and visible: 120 lines a villager might
  * actually say, in Hinglish, English and Hindi. The classifier running in the
  * demo is trained on exactly this and nothing else, and the leave-one-out score
  * you can run from the side panel is measured on exactly this.
@@ -354,7 +354,7 @@ export interface TrainedModel {
   logPrior: Record<IntentId, number>;
   /** log P(token | class), Laplace-smoothed */
   logLik: Record<IntentId, Record<string, number>>;
-  /** log P(a token never seen for this class) — the smoothing floor */
+  /** log P(a token never seen for this class), the smoothing floor */
   logFloor: Record<IntentId, number>;
   docs: number;
   /** milliseconds the training actually took, measured on this device */
@@ -414,7 +414,7 @@ export interface Classification {
   ranked: { intent: IntentId; logScore: number; prob: number }[];
   tokens: string[];
   known: string[];
-  /** words the model has never seen — the honest measure of being out of distribution */
+  /** words the model has never seen: the honest measure of being out of distribution */
   oov: string[];
   oovRate: number;
   /** the tokens that moved the decision, as log-odds against the runner-up */
@@ -428,7 +428,7 @@ export const AUTO_THRESHOLD = 0.62;
  * Two calibration constants, and they were fitted rather than guessed.
  *
  * Raw Naive Bayes sums log-likelihoods over tokens, which saturates the softmax at
- * 1.000 on any sentence longer than a few words — a confidence of "100%" that means
+ * 1.000 on any sentence longer than a few words, a confidence of "100%" that means
  * nothing. Dividing by the token count over-corrects the other way and flattens
  * everything to ~20%. Normalising by sqrt(n) sits between the two, and the
  * temperature then sets how sharply the remaining gap is read.
@@ -503,7 +503,7 @@ export interface LooResult {
  *
  * It retrains the model 120 times, each time holding one example out, and classifies
  * the held-out line. This is the only number in the demo that says how good the model
- * actually is — and the second number matters more than the first: of the lines it got
+ * actually is, and the second number matters more than the first: of the lines it got
  * wrong, how many did the confidence gate refuse to auto-route anyway. A model that is
  * wrong and knows it is a different product from one that is wrong and confident.
  */
@@ -570,7 +570,7 @@ const DOCUMENT_TERMS: Record<string, string> = {
 const SCHEME_TERMS: Record<string, string> = {
   vridha: 'IGNOAPS (old-age pension)', buzurg: 'IGNOAPS (old-age pension)',
   vidhwa: 'IGNWPS (widow pension)', widow: 'IGNWPS (widow pension)',
-  manrega: 'MGNREGA', awas: 'PMAY — Gramin', kisan: 'PM-KISAN',
+  manrega: 'MGNREGA', awas: 'PMAY-Gramin', kisan: 'PM-KISAN',
   ayushman: 'Ayushman Bharat', jal: 'Jal Jeevan Mission',
 };
 
@@ -643,7 +643,7 @@ export interface Citizen {
   household: 'Antyodaya' | 'BPL' | 'APL';
   landHectares: number;
   jobCard: boolean;
-  /** the account exists AND is Aadhaar-seeded — the usual point of failure */
+  /** the account exists AND is Aadhaar-seeded: the usual point of failure */
   aadhaarSeeded: boolean;
   bankAccount: boolean;
   houseType: 'kutcha' | 'pucca';
@@ -732,7 +732,7 @@ const unk = (id: string, label: string, detail: string): CheckResult => ({ id, l
 
 const SCHEMES: SchemeDef[] = [
   {
-    id: 'ignoaps', name: 'IGNOAPS — old-age pension', ministry: 'Rural Development',
+    id: 'ignoaps', name: 'IGNOAPS: old-age pension', ministry: 'Rural Development',
     intents: ['PENSION_FAILURE'],
     rules: [
       (c) => (c.age >= 60
@@ -746,14 +746,14 @@ const SCHEMES: SchemeDef[] = [
         : no('bank', 'Bank account on file', 'No account on record')),
       (c) => (c.aadhaarSeeded
         ? ok('seed', 'Account Aadhaar-seeded (DBT ready)', 'Seeding confirmed in the NPCI mapper')
-        : no('seed', 'Account Aadhaar-seeded (DBT ready)', 'NPCI mapper shows no seeding — every DBT credit will bounce')),
+        : no('seed', 'Account Aadhaar-seeded (DBT ready)', 'NPCI mapper shows no seeding, so every DBT credit will bounce')),
       (c) => (c.lifeCertificateMonthsAgo <= 12
         ? ok('life', 'Life certificate within 12 months', `Filed ${c.lifeCertificateMonthsAgo} months ago`)
-        : no('life', 'Life certificate within 12 months', `Last filed ${c.lifeCertificateMonthsAgo} months ago — lapsed`)),
+        : no('life', 'Life certificate within 12 months', `Last filed ${c.lifeCertificateMonthsAgo} months ago, lapsed`)),
     ],
   },
   {
-    id: 'ignwps', name: 'IGNWPS — widow pension', ministry: 'Rural Development',
+    id: 'ignwps', name: 'IGNWPS: widow pension', ministry: 'Rural Development',
     intents: ['PENSION_FAILURE'],
     rules: [
       (c) => (c.widow
@@ -761,14 +761,14 @@ const SCHEMES: SchemeDef[] = [
         : no('widow', 'Widow on record', 'Not recorded as a widow')),
       (c) => (c.age >= 40 && c.age <= 79
         ? ok('age', 'Age 40 to 79', `${c.age} years`)
-        : no('age', 'Age 40 to 79', `${c.age} years — outside the band`)),
+        : no('age', 'Age 40 to 79', `${c.age} years, outside the band`)),
       (c) => (c.household !== 'APL'
         ? ok('bpl', 'Below-poverty-line household', `${c.household} household`)
         : no('bpl', 'Below-poverty-line household', 'APL household')),
     ],
   },
   {
-    id: 'mgnrega', name: 'MGNREGA — 100 days of guaranteed work', ministry: 'Rural Development',
+    id: 'mgnrega', name: 'MGNREGA: 100 days of guaranteed work', ministry: 'Rural Development',
     intents: ['MGNREGA_WAGES'],
     rules: [
       (c) => (c.age >= 18
@@ -776,15 +776,15 @@ const SCHEMES: SchemeDef[] = [
         : no('adult', 'Adult rural resident', 'Under 18')),
       (c) => (c.jobCard
         ? ok('jobcard', 'Job card issued', 'Job card active')
-        : no('jobcard', 'Job card issued', 'No job card — the Act requires one within 15 days of demand')),
+        : no('jobcard', 'Job card issued', 'No job card, and the Act requires one within 15 days of demand')),
       (c) => (c.bankAccount
         ? ok('bank', 'Wage account for direct credit', 'Account present')
-        : no('bank', 'Wage account for direct credit', 'No account — wages cannot be credited at all')),
-      () => unk('attendance', 'Attendance verified on the muster roll', 'The muster roll is a paper record at the worksite — not in this database'),
+        : no('bank', 'Wage account for direct credit', 'No account, so wages cannot be credited at all')),
+      () => unk('attendance', 'Attendance verified on the muster roll', 'The muster roll is a paper record at the worksite, not in this database'),
     ],
   },
   {
-    id: 'pmayg', name: 'PMAY-G — rural housing', ministry: 'Rural Development',
+    id: 'pmayg', name: 'PMAY-G: rural housing', ministry: 'Rural Development',
     intents: ['HOUSING_SCHEME'],
     rules: [
       (c) => (c.houseType === 'kutcha'
@@ -792,27 +792,27 @@ const SCHEMES: SchemeDef[] = [
         : no('kutcha', 'Currently in a kutcha house', 'A pucca house is recorded')),
       (c) => (c.seccListed
         ? ok('secc', 'On the SECC permanent wait list', 'Listed')
-        : no('secc', 'On the SECC permanent wait list', 'Not listed — the route is an Awas+ survey appeal')),
+        : no('secc', 'On the SECC permanent wait list', 'Not listed, so the route is an Awas+ survey appeal')),
       (c) => (c.landHectares <= 2.5
         ? ok('land', 'Landholding within the limit', `${c.landHectares} ha`)
-        : no('land', 'Landholding within the limit', `${c.landHectares} ha — above the limit`)),
+        : no('land', 'Landholding within the limit', `${c.landHectares} ha, above the limit`)),
       () => unk('other', 'No other pucca house in the family', 'Requires a field visit by the Awas Supervisor'),
     ],
   },
   {
-    id: 'nfsa', name: 'NFSA — subsidised food grain', ministry: 'Consumer Affairs & Food',
+    id: 'nfsa', name: 'NFSA: subsidised food grain', ministry: 'Consumer Affairs & Food',
     intents: ['RATION_CARD'],
     rules: [
       (c) => (c.household !== 'APL'
         ? ok('priority', 'Priority / Antyodaya household', `${c.household}`)
-        : no('priority', 'Priority / Antyodaya household', 'APL — outside the NFSA net')),
+        : no('priority', 'Priority / Antyodaya household', 'APL, outside the NFSA net')),
       (c) => (c.aadhaarSeeded
         ? ok('aadhaar', 'All members Aadhaar-linked', 'Linked')
         : unk('aadhaar', 'All members Aadhaar-linked', 'The household roster is incomplete in this record')),
     ],
   },
   {
-    id: 'ayushman', name: 'Ayushman Bharat — ₹5 lakh cover', ministry: 'Health & Family Welfare',
+    id: 'ayushman', name: 'Ayushman Bharat: ₹5 lakh cover', ministry: 'Health & Family Welfare',
     intents: ['HEALTH_CARE'],
     rules: [
       (c) => (c.seccListed || c.household !== 'APL'
@@ -822,7 +822,7 @@ const SCHEMES: SchemeDef[] = [
     ],
   },
   {
-    id: 'jjm', name: 'Jal Jeevan Mission — tap water', ministry: 'Jal Shakti',
+    id: 'jjm', name: 'Jal Jeevan Mission: tap water', ministry: 'Jal Shakti',
     intents: ['WATER_SUPPLY'],
     rules: [
       (c) => ok('village', 'Village covered under JJM', `${c.village} is a sanctioned habitation`),
@@ -852,14 +852,14 @@ export interface Finding {
   /**
    * An unknown only blocks routing when nobody downstream is going to resolve it.
    * "Is the handpump actually broken" is unknown, but it is also precisely the job
-   * being dispatched — treating it as a blocker would mean a human has to approve
+   * being dispatched, and treating it as a blocker would mean a human has to approve
    * every water complaint, which is how good gates turn into rubber stamps.
    */
   blocking?: boolean;
 }
 
 /**
- * Root-cause probes. The product's real job is not "which scheme is she in" — she
+ * Root-cause probes. The product's real job is not "which scheme is she in", because she
  * already knows that. It is "why has the money stopped", which is nearly always a
  * plumbing failure two systems away from her.
  */
@@ -872,7 +872,7 @@ export function diagnose(intent: IntentId, c: Citizen, e: Entities): Finding[] {
         ? { status: 'ok', label: 'Bank account is Aadhaar-seeded', detail: 'The DBT route is intact.' }
         : {
             status: 'problem', label: 'Bank account is not Aadhaar-seeded',
-            detail: 'The DBT credit has nowhere to land. This alone explains a stopped pension, and it is fixed at the bank branch — not at the welfare office she was sent to.',
+            detail: 'The DBT credit has nowhere to land. This alone explains a stopped pension, and it is fixed at the bank branch, not at the welfare office she was sent to.',
           },
     );
     f.push(
@@ -886,7 +886,7 @@ export function diagnose(intent: IntentId, c: Citizen, e: Entities): Finding[] {
     if (e.durationDays && e.durationDays >= 60) {
       f.push({
         status: 'problem', label: `Arrears accruing for ${Math.round(e.durationDays / 30)} months`,
-        detail: 'Arrears are payable from the date of suspension once the block clears — but they have to be claimed. Nothing pays them out on its own.',
+        detail: 'Arrears are payable from the date of suspension once the block clears, but they have to be claimed. Nothing pays them out on its own.',
       });
     }
   }
@@ -904,7 +904,7 @@ export function diagnose(intent: IntentId, c: Citizen, e: Entities): Finding[] {
         detail: 'Past 15 days the Act itself owes delay compensation at 0.05% per day. That claim should be filed alongside the wage claim, and almost never is.',
       });
     }
-    f.push({ status: 'unknown', label: 'Fund Transfer Order status at the block', detail: 'Whether the FTO was generated and rejected is only visible inside NREGASoft — which is the first thing the Programme Officer will open.' });
+    f.push({ status: 'unknown', label: 'Fund Transfer Order status at the block', detail: 'Whether the FTO was generated and rejected is only visible inside NREGASoft, which is the first thing the Programme Officer will open.' });
   }
 
   if (intent === 'HOUSING_SCHEME') {
@@ -915,7 +915,7 @@ export function diagnose(intent: IntentId, c: Citizen, e: Entities): Finding[] {
       });
     }
     if (c.houseType === 'pucca') {
-      f.push({ status: 'unknown', blocking: true, label: 'Record contradicts the claim — it shows a pucca house', detail: 'One of the two is wrong, and forwarding either version would be a decision. Needs field verification first.' });
+      f.push({ status: 'unknown', blocking: true, label: 'Record contradicts the claim: it shows a pucca house', detail: 'One of the two is wrong, and forwarding either version would be a decision. Needs field verification first.' });
     }
   }
 
@@ -973,9 +973,9 @@ export function routeCase(
     humanReasons.push(`Confidence gate: ${(cls.confidence * 100).toFixed(0)}% is below the ${(AUTO_THRESHOLD * 100).toFixed(0)}% auto-route threshold.`);
   }
   if (cls.oovRate > 0.4) {
-    humanReasons.push(`Vocabulary gate: ${Math.round(cls.oovRate * 100)}% of the words are outside the model's vocabulary — it is guessing more than reading.`);
+    humanReasons.push(`Vocabulary gate: ${Math.round(cls.oovRate * 100)}% of the words are outside the model's vocabulary, so it is guessing more than reading.`);
   }
-  // Evidence gate. Only unknowns that nobody downstream will resolve count — an
+  // Evidence gate. Only unknowns that nobody downstream will resolve count, because an
   // unknown the receiving officer is being dispatched to answer is not a blocker.
   const unknowns =
     verdicts.flatMap((v) => v.checks).filter((x) => x.status === 'unknown').length +
@@ -985,10 +985,10 @@ export function routeCase(
   }
 
   // Adverse-finding gate. The engine may carry a claim forward on its own. It may
-  // never be the thing that records a refusal — a rejection needs a name against it.
+  // never be the thing that records a refusal: a rejection needs a name against it.
   const refusals = verdicts.filter((v) => v.verdict === 'not-eligible');
   if (refusals.length > 0) {
-    humanReasons.push(`Adverse-finding gate: ${refusals.length} entitlement check${refusals.length === 1 ? ' came' : 's came'} back negative (${refusals.map((r) => r.name.split(' — ')[0]).join(', ')}). Software may forward a claim; it may not be the thing that says no.`);
+    humanReasons.push(`Adverse-finding gate: ${refusals.length} entitlement check${refusals.length === 1 ? ' came' : 's came'} back negative (${refusals.map((r) => r.name.split(': ')[0]).join(', ')}). Software may forward a claim; it may not be the thing that says no.`);
   }
 
   // Urgency is a policy decision, not a model output.
@@ -1036,7 +1036,7 @@ export function draftApplication(
     body.push(`Duration reported by the applicant: ${e.durationDays} days, i.e. about ${Math.round(e.durationDays / 30)} month(s).`);
   }
   if (problems.length) {
-    body.push(`Record check identifies ${problems.length} probable cause${problems.length === 1 ? '' : 's'} — ${problems.map((p) => p.label.toLowerCase()).join('; ')}.`);
+    body.push(`Record check identifies ${problems.length} probable cause${problems.length === 1 ? '' : 's'}: ${problems.map((p) => p.label.toLowerCase()).join('; ')}.`);
   }
   if (eligible.length) {
     body.push(`Entitlement confirmed against: ${eligible.map((v) => v.name).join(', ')}.`);
@@ -1057,10 +1057,10 @@ export function draftApplication(
   ];
 
   const spoken = problems.length
-    ? `${c.name} ji — ${meta.hindi}. सबसे संभावित कारण: ${problems[0].label}. Aavedan taiyaar hai; panchayat sadasya ki manzoori ke baad ${meta.department} ko chala jayega, aur aapko receipt number mil jayega.`
-    : `${c.name} ji — aapka mamla ${meta.department} ke paas jayega. Aavedan taiyaar hai, receipt number aaj hi mil jayega.`;
+    ? `${c.name} ji, ${meta.hindi}. सबसे संभावित कारण: ${problems[0].label}. Aavedan taiyaar hai; panchayat sadasya ki manzoori ke baad ${meta.department} ko chala jayega, aur aapko receipt number mil jayega.`
+    : `${c.name} ji, aapka mamla ${meta.department} ke paas jayega. Aavedan taiyaar hai, receipt number aaj hi mil jayega.`;
 
-  return { subject: `${meta.label} — ${c.name}, ${c.village} (Ward 04)`, body, annexures, spoken };
+  return { subject: `${meta.label}: ${c.name}, ${c.village} (Ward 04)`, body, annexures, spoken };
 }
 
 /* --------------------------------------------------- the public case ledger */
@@ -1105,7 +1105,7 @@ export function caseId(n: number): string {
 
 /**
  * Every decision is sealed with a real SHA-256 over its contents plus the previous
- * case's hash — the same tamper-evidence the voting centre uses, pointed at the
+ * case's hash, the same tamper-evidence the voting centre uses, pointed at the
  * thing that actually gets abused in a panchayat: who decided what, and when.
  */
 export async function sealCase(rec: Omit<CaseRecord, 'hash'>): Promise<CaseRecord> {

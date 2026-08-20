@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
 /**
- * This deployment exists to show Bharat 2047 — the bare domain redirects here — so the
+ * This deployment exists to show Bharat 2047, and the bare domain redirects here, so the
  * route carries its own identity rather than inheriting the IsoCity engine's, which is
  * what a shared link or a search result would otherwise show.
  */
 
-const TITLE = 'Bharat 2047 — how India’s civic systems should work';
+const TITLE = "Bharat 2047: how India's civic systems should work";
 const DESCRIPTION =
   'An explorable isometric town where the civic systems actually run: blockchain voting with real SHA-256 and proof-of-work, an AI panchayat whose classifier trains in your browser, and a bank a regulator can audit without being allowed to read it.';
 

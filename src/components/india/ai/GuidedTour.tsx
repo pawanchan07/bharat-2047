@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * "Take the tour" — the camera flies the town while it tells you what you are looking at.
+ * "Take the tour": the camera flies the town while it tells you what you are looking at.
  *
  * Subtitles are not an accessibility afterthought here, they are the fallback rung: a device
  * with no voice for the chosen language still gets the whole tour by reading it. So the
@@ -28,19 +28,19 @@ export const TOUR: TourStop[] = [
     landmarkId: null,
     title: 'Rampur, Ward 04',
     narration:
-      'This is Rampur in 2047. It is not a picture of a town — it is a working one. Every building you can see the name of opens a civic system that actually runs, right here in your browser. Nothing is a video, and nothing is waiting on a server.',
+      'This is Rampur in 2047. It is not a picture of a town, it is a working one. Every building you can see the name of opens a civic system that actually runs, right here in your browser. Nothing is a video, and nothing is waiting on a server.',
   },
   {
     landmarkId: 'voting',
     title: 'The Digital Voting Centre',
     narration:
-      'A citizen votes here. Her identity becomes a one-way token, so the record knows a valid person voted but never who. The vote is sealed with real cryptography and mined with real proof of work — you can watch the numbers race. Then you can try to rewrite a vote, and watch the whole chain after it break.',
+      'A citizen votes here. Her identity becomes a one-way token, so the record knows a valid person voted but never who. The vote is sealed with real cryptography and mined with real proof of work, and you can watch the numbers race. Then you can try to rewrite a vote, and watch the whole chain after it break.',
   },
   {
     landmarkId: 'panchayat',
     title: 'The AI Panchayat Kendra',
     narration:
-      'This is the grievance desk. A villager speaks her problem out loud, in her own language, because most welfare in India is not refused — it is lost in a form nobody could fill. A classifier trained in your browser reads her, rules check her real record, and five gates decide whether software may act alone. Most of the time, it may not.',
+      'This is the grievance desk. A villager speaks her problem out loud, in her own language, because most welfare in India is not refused, it is lost in a form nobody could fill. A classifier trained in your browser reads her, rules check her real record, and five gates decide whether software may act alone. Most of the time, it may not.',
   },
   {
     landmarkId: 'bank',
@@ -52,7 +52,7 @@ export const TOUR: TourStop[] = [
     landmarkId: 'school',
     title: 'The National Digital School',
     narration:
-      'A degree here proves itself. The school signs it with a real key, the certificate gets a real content address, and every field hangs off a Merkle tree — so a graduate can prove she has the degree while showing you three fields and hiding the rest. Change one mark and it stops verifying, in front of you.',
+      'A degree here proves itself. The school signs it with a real key, the certificate gets a real content address, and every field hangs off a Merkle tree, so a graduate can prove she has the degree while showing you three fields and hiding the rest. Change one mark and it stops verifying, in front of you.',
   },
   {
     landmarkId: null,
@@ -119,7 +119,7 @@ export function GuidedTour({
             role: 'system',
             content:
               `Translate the visitor's tour narration into ${lang.english} (${lang.native}). ` +
-              `Keep it warm and spoken, the same length, and reply with the translation only — ` +
+              `Keep it warm and spoken, the same length, and reply with the translation only, with ` +
               `no preamble, no quotes, no English.`,
           },
           { role: 'user', content: TOUR[i].narration },
@@ -138,7 +138,7 @@ export function GuidedTour({
     return () => { cancelled = true; };
   }, [index, needsTranslation, townAI, lang, translations]);
 
-  // Narrate the current stop, and move on when it finishes — or when a reader would have.
+  // Narrate the current stop, and move on when it finishes, or when a reader would have.
   useEffect(() => {
     if (paused || translating) return;
     clearTimer();
@@ -178,12 +178,12 @@ export function GuidedTour({
                 ? `translating into ${lang.native}…`
                 : translated
                   ? `in ${lang.native}`
-                  : townAI.awake ? 'English — translation unavailable' : 'English — wake the AI for your language'}
+                  : townAI.awake ? 'English · translation unavailable' : 'English · wake the AI for your language'}
             </span>
           )}
           {!voice && (
             <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-white/40">
-              no voice installed — read along
+              no voice installed · read along
             </span>
           )}
         </div>

@@ -1,5 +1,5 @@
 /**
- * Bank of Bharat — the confidential-ledger engine.
+ * Bank of Bharat: the confidential-ledger engine.
  *
  * The argument this system makes is deliberately *not* "put banking on a chain".
  * The voting centre and the panchayat already carry a hash chain; a third system
@@ -19,9 +19,9 @@
  *  2. HOMOMORPHIC ADDITION. C(a) · C(b) = C(a+b). This is the whole trick. An
  *     auditor multiplies every account commitment together and checks the product
  *     against the bank's declared total. If the books balance, it matches. If the
- *     bank has a hole, it cannot match — and the auditor never saw one balance.
+ *     bank has a hole, it cannot match, and the auditor never saw one balance.
  *
- *  3. SCHNORR PROOFS OF KNOWLEDGE (Fiat–Shamir, SHA-256). The bank proves it can
+ *  3. SCHNORR PROOFS OF KNOWLEDGE (Fiat-Shamir, SHA-256). The bank proves it can
  *     actually open a commitment without opening it.
  *
  *  4. A MERKLE TREE over the account commitments, so any depositor can verify
@@ -30,14 +30,14 @@
  *
  *  5. STRUCTURAL FRAUD ANALYTICS. Circular flows, pass-through mules and
  *     structuring are found from the *shape* of the transaction graph and its
- *     timing — with every amount still sealed. Benford's law runs on the figures
+ *     timing, with every amount still sealed. Benford's law runs on the figures
  *     the bank publishes itself.
  *
  *  6. SELECTIVE DISCLOSURE. Only once a pattern is found does the regulator
  *     compel an opening, and only for the flagged transfers. The opening is
  *     verified against the original commitment, so the bank cannot substitute
  *     convenient numbers after the fact. Targeted transparency instead of blanket
- *     surveillance — which is the actual product argument.
+ *     surveillance, which is the actual product argument.
  *
  * The privacy/detectability tradeoff this design picks is stated honestly in the
  * UI: amounts are hidden, the transaction graph is not. Hiding the graph too would
@@ -50,7 +50,7 @@ import { sha256 } from './blockchain';
 /* ------------------------------------------------------- group parameters */
 
 /**
- * RFC 3526 MODP Group 14 — a published 2048-bit safe prime. Nothing up anyone's
+ * RFC 3526 MODP Group 14: a published 2048-bit safe prime. Nothing up anyone's
  * sleeve: you can look it up. p = 2q + 1, so squaring any element lands it in the
  * prime-order-q subgroup, where the discrete log problem is the one we rely on.
  */
@@ -95,7 +95,7 @@ export function modInverse(a: bigint, mod: bigint): bigint {
 
 /**
  * The two generators. Both are squares, so both live in the order-q subgroup.
- * h is chosen so that nobody — including whoever wrote this file — knows log_g(h);
+ * h is chosen so that nobody, including whoever wrote this file, knows log_g(h);
  * if anyone did, they could open a commitment to any value they liked.
  */
 export const G = modpow(2n, 2n, P);
@@ -150,7 +150,7 @@ export function sumCommitments(cs: Commitment[]): Commitment {
   return cs.reduce((acc, x) => addCommitments(acc, x), { c: 1n });
 }
 
-/** C(a) / C(b) = C(a − b). Used to check a declared total against the real one. */
+/** C(a) / C(b) = C(a - b). Used to check a declared total against the real one. */
 export function subCommitments(a: Commitment, b: Commitment): Commitment {
   return { c: (a.c * modInverse(b.c, P)) % P };
 }
@@ -168,7 +168,7 @@ export function shortHex(x: bigint, chars = 16): string {
 
 /**
  * Proves "I know (v, r) such that C = g^v h^r" without revealing either.
- * Standard sigma protocol made non-interactive with Fiat–Shamir over SHA-256.
+ * Standard sigma protocol made non-interactive with Fiat-Shamir over SHA-256.
  */
 export interface SchnorrProof {
   commitmentT: bigint;
@@ -271,7 +271,7 @@ export interface Account {
   kind: AccountKind;
   sector: Sector;
   branch: string;
-  /** ground truth, in rupees — sealed in the published ledger, never displayed unopened */
+  /** ground truth, in rupees: sealed in the published ledger, never displayed unopened */
   balance: bigint;
   blinding: bigint;
   commitment: Commitment;
@@ -283,7 +283,7 @@ export interface Transfer {
   id: string;
   from: string;
   to: string;
-  /** ground truth — sealed; the regulator only sees `commitment` until it compels an opening */
+  /** ground truth, sealed; the regulator only sees `commitment` until it compels an opening */
   amount: bigint;
   blinding: bigint;
   commitment: Commitment;
@@ -291,7 +291,7 @@ export interface Transfer {
   /**
    * The bank attaches this when it declines to file a large-transaction report,
    * i.e. it asserts the amount is under the reporting threshold. The assertion is
-   * metadata, not proof — which is exactly what makes it a detectable signal.
+   * metadata, not proof, which is exactly what makes it a detectable signal.
    */
   claimsUnderThreshold: boolean;
 }
@@ -305,7 +305,7 @@ export interface Ledger {
   leaves: string[];
   /** what the bank tells the world its deposits add up to */
   declaredTotal: bigint;
-  /** built in ms, measured — the demo shows the real cost of real crypto */
+  /** built in ms, measured: the demo shows the real cost of real crypto */
   buildMs: number;
 }
 
@@ -374,7 +374,7 @@ export async function buildLedger(seed = 20470815): Promise<Ledger> {
     }
   }
 
-  // PLANT 1 — structuring. Eleven transfers deliberately parked just under the
+  // PLANT 1, structuring. Eleven transfers deliberately parked just under the
   // ₹10 lakh reporting threshold, spread over four days and three counterparties.
   const structuringDays = [7, 8, 9, 10];
   for (let i = 0; i < 11; i++) {
@@ -383,12 +383,12 @@ export async function buildLedger(seed = 20470815): Promise<Ledger> {
     addTransfer('AC004', to, amount, structuringDays[i % structuringDays.length]);
   }
 
-  // PLANT 2 — layering. A closed loop that returns the money to where it started.
+  // PLANT 2, layering. A closed loop that returns the money to where it started.
   addTransfer('AC101', 'AC102', 2_400_000n, 12);
   addTransfer('AC102', 'AC103', 2_380_000n, 13);
   addTransfer('AC103', 'AC101', 2_355_000n, 14);
 
-  // PLANT 3 — a pass-through mule: many in, everything straight back out, same day.
+  // PLANT 3, a pass-through mule: many in, everything straight back out, same day.
   for (let i = 0; i < 6; i++) addTransfer(ordinary[i].id, 'AC104', BigInt(180_000 + i * 9_000), 21);
   addTransfer('AC104', 'AC103', 1_180_000n, 21);
 
@@ -418,7 +418,7 @@ export interface SolvencyResult {
 /**
  * The audit. Multiply every account commitment together, then check the product
  * against a commitment to the declared total using the summed blinding factors.
- * Matching proves the declared total really is the sum of the individual balances —
+ * Matching proves the declared total really is the sum of the individual balances,
  * and the auditor has not seen a single balance.
  */
 export function proveSolvency(ledger: Ledger, declaredOverride?: bigint): SolvencyResult {
@@ -443,7 +443,7 @@ export function proveSolvency(ledger: Ledger, declaredOverride?: bigint): Solven
 export interface SectorExposure {
   sector: Sector;
   accounts: number;
-  /** homomorphic sum over the sector — the regulator opens only this, never a member */
+  /** homomorphic sum over the sector: the regulator opens only this, never a member */
   commitment: Commitment;
   total: bigint;
   share: number;
@@ -456,7 +456,7 @@ export const CONCENTRATION_LIMIT = 0.35;
 /**
  * The regulator's real question is not "what does Kamla have" but "is this bank
  * over-exposed to one sector". That is an aggregate, so it can be answered by
- * opening an aggregate — every individual account stays sealed.
+ * opening an aggregate, and every individual account stays sealed.
  */
 export function sectorExposure(ledger: Ledger): SectorExposure[] {
   const total = ledger.accounts.reduce((s, a) => s + a.balance, 0n);
@@ -494,8 +494,8 @@ export interface Flag {
 
 /**
  * Structuring. Every transfer where the bank declined to file a report carries a
- * "under the threshold" assertion. That assertion is metadata — visible without
- * opening anything — so a cluster of them from one payer in a short window is
+ * "under the threshold" assertion. That assertion is metadata, visible without
+ * opening anything, so a cluster of them from one payer in a short window is
  * visible from the outside. The amounts stay sealed throughout.
  */
 export function detectStructuring(ledger: Ledger, windowDays = 7, minCount = 6): Flag[] {
@@ -541,7 +541,7 @@ export function detectStructuring(ledger: Ledger, windowDays = 7, minCount = 6):
         kind: 'structuring',
         severity: 'high',
         title: `Structuring pattern from ${payer}`,
-        detail: `${best.transfers.length} transfers from day ${best.startDay} over ${windowDays} days, every one asserted to be under the ₹${(Number(REPORTING_THRESHOLD) / 100000).toFixed(0)} lakh reporting threshold, concentrated into ${best.recipients.length} repeat counterparties. The amounts are still sealed — the pattern is visible from the assertions and the timing alone.`,
+        detail: `${best.transfers.length} transfers from day ${best.startDay} over ${windowDays} days, every one asserted to be under the ₹${(Number(REPORTING_THRESHOLD) / 100000).toFixed(0)} lakh reporting threshold, concentrated into ${best.recipients.length} repeat counterparties. The amounts are still sealed; the pattern is visible from the assertions and the timing alone.`,
         accounts: [payer, ...best.recipients],
         transfers: best.transfers.map((t) => t.id),
         statistic: `${best.transfers.length} under-threshold assertions → ${best.recipients.length} repeat counterparties in ${windowDays}d`,
@@ -556,12 +556,12 @@ export function detectStructuring(ledger: Ledger, windowDays = 7, minCount = 6):
  *
  * The naive version of this detector is worthless, and it is worth saying why: in any
  * reasonably dense payment graph, short cycles are everywhere. A first cut of this
- * function raised 121 flags across 26 accounts — a detector that flags the whole bank
+ * function raised 121 flags across 26 accounts. A detector that flags the whole bank
  * has told you nothing, and in a real institution it would be switched off within a week.
  *
  * What separates layering from ordinary commerce is not the loop, it is the *clock*.
- * Ordinary trade also forms cycles — a farmer pays a supplier who pays a distributor who
- * eventually buys from the farmer — but over months, and incidentally. Layering completes
+ * Ordinary trade also forms cycles (a farmer pays a supplier who pays a distributor who
+ * eventually buys from the farmer) but over months, and incidentally. Layering completes
  * deliberately, in days, because the point is to break the audit trail quickly. So the
  * detector requires the whole loop to close inside `maxSpanDays`, with each hop moving
  * forward in time. That single constraint is what makes the output readable.
@@ -594,7 +594,7 @@ export function detectCycles(ledger: Ledger, maxLen = 5, maxSpanDays = 5): Flag[
             kind: 'layering-cycle',
             severity: 'high',
             title: `Circular flow across ${path.length} accounts`,
-            detail: `Value leaves ${start}, passes through ${path.slice(1).join(' → ')} and returns to ${start} in ${edge.day - edges[0].day} days. Trade forms loops too, but over months and by accident; a loop that closes this fast is deliberate. Found from the graph and the clock alone — nothing was decrypted.`,
+            detail: `Value leaves ${start}, passes through ${path.slice(1).join(' → ')} and returns to ${start} in ${edge.day - edges[0].day} days. Trade forms loops too, but over months and by accident; a loop that closes this fast is deliberate. Found from the graph and the clock alone; nothing was decrypted.`,
             accounts: [...path],
             transfers: [...edges.map((e) => e.id), edge.id],
             statistic: `${path.length}-account loop closing in ${edge.day - edges[0].day}d (limit ${maxSpanDays}d)`,
@@ -634,7 +634,7 @@ export function detectPassThrough(ledger: Ledger, minSources = 4): Flag[] {
         kind: 'pass-through',
         severity: 'medium',
         title: `Pass-through account ${account}`,
-        detail: `${sources.size} separate sources paid into ${account} on day ${out.day}, and the account emptied to a single destination within a day. A genuine account accumulates; a mule forwards. Detected from in-degree, out-degree and timing — amounts sealed.`,
+        detail: `${sources.size} separate sources paid into ${account} on day ${out.day}, and the account emptied to a single destination within a day. A genuine account accumulates; a mule forwards. Detected from in-degree, out-degree and timing, amounts sealed.`,
         accounts: [account, ...sources, out.to],
         transfers: [...sameWindow.map((i) => i.id), out.id],
         statistic: `fan-in ${sources.size} → fan-out 1, same-day`,
@@ -663,7 +663,7 @@ export const BENFORD_EXPECTED = Array.from({ length: 9 }, (_, i) => Math.log10(1
 
 /**
  * Benford's law, the oldest trick in forensic accounting. Genuine transaction
- * magnitudes span orders of magnitude, so their leading digits follow log10(1+1/d) —
+ * magnitudes span orders of magnitude, so their leading digits follow log10(1+1/d):
  * a 1 about 30% of the time, a 9 under 5%. Fabricated or manipulated figures rarely do.
  *
  * Note this runs on figures the bank *publishes itself*, not on the sealed amounts.
@@ -715,7 +715,7 @@ export interface Disclosure {
  * The point of the whole design. The regulator does not get the book; it gets the
  * patterns. Once a pattern is found, it compels openings for exactly the flagged
  * transfers, and each opening is checked against the commitment published before
- * anyone was looking — so the bank cannot invent a convenient number now.
+ * anyone was looking, so the bank cannot invent a convenient number now.
  */
 export function discloseTransfers(ledger: Ledger, transferIds: string[]): Disclosure[] {
   const byId = new Map(ledger.transfers.map((t) => [t.id, t]));

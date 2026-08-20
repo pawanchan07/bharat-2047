@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * "Does this need a blockchain?" — the seven-question test, run against the visitor's own
+ * "Does this need a blockchain?": the seven-question test, run against the visitor's own
  * problem instead of against mine.
  *
  * This is the most contrarian screen in the town and the reason it exists. Anyone can build
@@ -11,7 +11,7 @@
  * steering them toward the technology this project is best known for.
  *
  * The verdicts are not a score. Each gate rules out a *different* architecture, so the tool
- * reports the first decisive failure — the one that actually settles it — and names the
+ * reports the first decisive failure, the one that actually settles it, and names the
  * cheaper thing that would win instead. The doctrine behind it is in VISION.md.
  */
 
@@ -40,7 +40,7 @@ const GATES: Gate[] = [
   {
     id: 'noOperator',
     question: 'Is there no third party all of them would accept as the operator?',
-    hint: 'If a regulator, a registrar or a bank is acceptable to everyone, use them — and make them auditable.',
+    hint: 'If a regulator, a registrar or a bank is acceptable to everyone, use them, and make them auditable.',
   },
   {
     id: 'laterCheck',
@@ -86,7 +86,7 @@ function decide(a: Answers): Verdict {
       tone: 'incomplete',
       headline: `${unanswered.length} still to answer`,
       build: '',
-      body: 'A chain earns its cost only when all seven hold. One honest “no” is enough to settle it, so the answer usually arrives before the last question.',
+      body: 'A chain earns its cost only when all seven hold. One honest "no" is enough to settle it, so the answer usually arrives before the last question.',
     };
   }
 
@@ -107,7 +107,7 @@ function decide(a: Answers): Verdict {
       headline: 'Tamper-evidence, not a blockchain',
       build: 'A hash-chained append-only log. SHA-256 and a database column.',
       body: 'One party writes, so there is no disagreement for consensus to resolve. What you actually want is the property people mistake for blockchain: an outsider being able to prove the record was not quietly edited. That costs a hash function and no network at all.',
-      precedent: 'The AI Panchayat Kendra does exactly this — every case decision chained to the last, one office writing.',
+      precedent: 'The AI Panchayat Kendra does exactly this: every case decision chained to the last, one office writing.',
     };
   }
 
@@ -123,7 +123,7 @@ function decide(a: Answers): Verdict {
   if (no('noOperator')) {
     return {
       tone: 'evidence',
-      headline: 'Use the operator — and make them provable',
+      headline: 'Use the operator, and make them provable',
       build: 'The trusted party signs; everyone else verifies against a published key.',
       body: 'If everyone would accept a registrar, a regulator or a university as the operator, removing them is a solution to a problem you do not have. Have them sign what they assert, publish the key, and let anybody check it offline. That is a signature, not a ledger.',
       precedent: 'The National Digital School is this case: the university is trusted to issue, so the product is only that its signature is checkable by anyone, forever, with no call to it.',
@@ -142,7 +142,7 @@ function decide(a: Answers): Verdict {
   if (no('throughputOk')) {
     return {
       tone: 'anchor',
-      headline: 'Anchoring — the data off-chain, the proof on it',
+      headline: 'Anchoring: the data off-chain, the proof on it',
       build: 'Batch the records, build a Merkle root, commit one root per interval.',
       body: 'The case is real but the volume or the irreversibility is not survivable at full fidelity. One on-chain write can cover millions of off-chain records, and each of them still gets an inclusion proof. India runs billions of payment transactions a month; this is the only architecture that meets that and stays honest about it.',
       precedent: 'The school demonstrates the same shape at document scale: eleven fields, one signed root.',
@@ -152,9 +152,9 @@ function decide(a: Answers): Verdict {
   if (no('noPersonalData')) {
     return {
       tone: 'anchor',
-      headline: 'A chain — but never with the data on it',
+      headline: 'A chain, but never with the data on it',
       build: 'Salted hashes and commitments on the record; the values stay with the person.',
-      body: 'Everything else passes, so the ledger is justified — and the moment personal data touches it you have built something incompatible with the right to erasure. Put salted hashes on the record and let the holder keep the salt. Destroying a salt makes a leaf unopenable, which is as close to deletion as an immutable record gets. Be honest that it is rendering-unreadable rather than deleting.',
+      body: 'Everything else passes, so the ledger is justified, and the moment personal data touches it you have built something incompatible with the right to erasure. Put salted hashes on the record and let the holder keep the salt. Destroying a salt makes a leaf unopenable, which is as close to deletion as an immutable record gets. Be honest that it is rendering-unreadable rather than deleting.',
       precedent: 'The bank and the school both do this: commitments and salted leaves on the record, values with the person.',
     };
   }
@@ -163,7 +163,7 @@ function decide(a: Answers): Verdict {
     tone: 'chain',
     headline: 'This one earns a chain',
     build: 'Decentralised consensus, and the governance question of who validates.',
-    body: 'All seven hold, which is rare. Note what is left even so: the hardest part is now political rather than cryptographic — whoever runs the validators is the security model. And a chain still proves only that nobody edited the record afterwards. It says nothing about whether it was true when written.',
+    body: 'All seven hold, which is rare. Note what is left even so: the hardest part is now political rather than cryptographic, because whoever runs the validators is the security model. And a chain still proves only that nobody edited the record afterwards. It says nothing about whether it was true when written.',
     precedent: 'The Digital Voting Centre is the one system here that passes: candidates genuinely distrust each other and there is no operator all sides would accept.',
   };
 }
@@ -182,12 +182,12 @@ const PRESETS: { name: string; note: string; answers: Answers }[] = [
   },
   {
     name: 'Land mutation records',
-    note: 'Passes — but only for the part after adjudication',
+    note: 'Passes, but only for the part after adjudication',
     answers: { multiWriter: 'yes', distrust: 'yes', noOperator: 'yes', laterCheck: 'yes', quietEditFatal: 'yes', throughputOk: 'yes', noPersonalData: 'no' },
   },
   {
     name: 'Cross-border shipping, four firms',
-    note: 'It passes — and the chain still cannot see the factory floor',
+    note: 'It passes, and the chain still cannot see the factory floor',
     answers: { multiWriter: 'yes', distrust: 'yes', noOperator: 'yes', laterCheck: 'yes', quietEditFatal: 'yes', throughputOk: 'yes', noPersonalData: 'yes' },
   },
   {
@@ -236,7 +236,7 @@ export function ChainTest() {
       </div>
       <p className="mb-5 max-w-2xl text-sm leading-relaxed text-white/50">
         Answer for something you are actually thinking about building. It will usually tell you no,
-        and name the cheaper thing that would beat it — which is the point. Load one of mine if you
+        and name the cheaper thing that would beat it, which is the point. Load one of mine if you
         would rather see the reasoning first.
       </p>
 
@@ -342,7 +342,7 @@ export function ChainTest() {
           {answered === GATES.length && verdict.tone !== 'chain' && (
             <p className="mt-3 px-1 text-[12px] leading-relaxed text-white/35">
               This is the answer for three of the four systems in this town too. It is not a
-              disappointing result — it is a cheaper, faster, more correctable system that keeps the
+              disappointing result. It is a cheaper, faster, more correctable system that keeps the
               one property you actually wanted.
             </p>
           )}

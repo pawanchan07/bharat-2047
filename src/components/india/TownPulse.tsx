@@ -3,7 +3,7 @@
 /**
  * The town reacting to what you did.
  *
- * When a case is filed or an attack is caught, a pulse appears over the place it happened —
+ * When a case is filed or an attack is caught, a pulse appears over the place it happened,
  * projected onto the world with the same transform the name plates use, so it sits on the
  * actual building rather than floating in a corner. It fades after a few seconds, because a
  * world covered in permanent badges stops being a world.

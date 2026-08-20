@@ -664,7 +664,7 @@ export function useEffectsSystems(
         // Coherent cotton-ball cluster: 1 large center, ring of medium, outer accents. Heavy overlap.
         // Center (dominant)
         puffs.push({ offsetX: jitter(0, 6), offsetY: jitter(0, 5), size: jitter(42, 10), opacity: 0.9, stretchX: undefined, stretchY: undefined });
-        // Inner ring (4–5 medium, tight cluster around center)
+        // Inner ring (4-5 medium, tight cluster around center)
         const innerCount = 4 + Math.floor(Math.random() * 2);
         for (let i = 0; i < innerCount; i++) {
           const angle = (i / innerCount) * Math.PI * 2 + 0.3;
@@ -676,7 +676,7 @@ export function useEffectsSystems(
             opacity: 0.75 + Math.random() * 0.2,
           });
         }
-        // Outer accents (2–3 smaller, extend the cluster naturally)
+        // Outer accents (2-3 smaller, extend the cluster naturally)
         const outerCount = 2 + Math.floor(Math.random() * 2);
         for (let i = 0; i < outerCount; i++) {
           const angle = (i / outerCount) * Math.PI * 2 + 0.7;
@@ -710,7 +710,7 @@ export function useEffectsSystems(
       }
 
       case 'cirrus': {
-        // Wispy line: 3–4 elongated puffs along a gentle curve (not scattered)
+        // Wispy line: 3-4 elongated puffs along a gentle curve (not scattered)
         const points = [[-40, 3], [-15, -1], [10, 2], [38, -2]]; // gentle S-curve
         const n = 2 + Math.floor(Math.random() * 2);
         for (let i = 0; i < n; i++) {
@@ -729,13 +729,13 @@ export function useEffectsSystems(
 
       case 'cumulonimbus': {
         // Vertical tower: base (dark) at bottom, middle transition, bright anvil on top
-        // Base row (2–3 large, portion: base)
+        // Base row (2-3 large, portion: base)
         puffs.push({ offsetX: jitter(-18, 6), offsetY: jitter(22, 5), size: jitter(38, 8), opacity: 0.85, portion: 'base' });
         puffs.push({ offsetX: jitter(12, 6), offsetY: jitter(18, 5), size: jitter(36, 8), opacity: 0.85, portion: 'base' });
         // Middle (2 medium, mix)
         puffs.push({ offsetX: jitter(-8, 5), offsetY: jitter(6, 4), size: jitter(32, 6), opacity: 0.8, portion: 'base' });
         puffs.push({ offsetX: jitter(10, 5), offsetY: jitter(2, 4), size: jitter(30, 6), opacity: 0.8, portion: 'top' });
-        // Anvil top (1–2 smaller, portion: top)
+        // Anvil top (1-2 smaller, portion: top)
         puffs.push({ offsetX: jitter(0, 8), offsetY: jitter(-12, 4), size: jitter(28, 6), opacity: 0.9, portion: 'top' });
         puffs.push({ offsetX: jitter(-15, 6), offsetY: jitter(-8, 4), size: jitter(24, 4), opacity: 0.85, portion: 'top' });
         break;
@@ -863,7 +863,7 @@ export function useEffectsSystems(
         // Wind is NE: offset backwards (SW) = negative in wind direction
         const windX = Math.cos(CLOUD_WIND_ANGLE);
         const windY = Math.sin(CLOUD_WIND_ANGLE);
-        const alongWind = -(55 + Math.random() * 35); // 55–90px upwind
+        const alongWind = -(55 + Math.random() * 35); // 55 to 90px upwind
         const perp = (Math.random() - 0.5) * 44;      // ±22px perpendicular
         const companionX = pos.x + windX * alongWind + (-windY) * perp;
         const companionY = pos.y + windY * alongWind + windX * perp;

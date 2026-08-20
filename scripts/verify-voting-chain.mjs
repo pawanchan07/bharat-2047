@@ -23,7 +23,7 @@ const {
 
 let failures = 0;
 const check = (label, ok, detail = '') => {
-  console.log(`${ok ? '  PASS' : '  FAIL'}  ${label}${detail ? ' — ' + detail : ''}`);
+  console.log(`${ok ? '  PASS' : '  FAIL'}  ${label}${detail ? ': ' + detail : ''}`);
   if (!ok) failures++;
 };
 
@@ -33,7 +33,7 @@ const CITIZENS = [
   { name: 'Meena Kumari', village: 'Basantpur' },
 ];
 
-console.log('Digital Voting Centre — chain properties\n');
+console.log('Digital Voting Centre: chain properties\n');
 
 // --- three citizens vote -----------------------------------------------------------
 let chain = [await createGenesisBlock()];

@@ -3,13 +3,13 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   metadataBase: new URL('https://iso-coaster.com'),
   title: {
-    default: 'ISOCOASTER — Theme Park Builder',
-    template: 'ISOCOASTER — %s',
-    absolute: 'ISOCOASTER — Theme Park Builder',
+    default: 'ISOCOASTER: Theme Park Builder',
+    template: 'ISOCOASTER: %s',
+    absolute: 'ISOCOASTER: Theme Park Builder',
   },
   description: 'Build the ultimate theme park with thrilling roller coasters, exciting rides, and happy guests!',
   openGraph: {
-    title: 'ISOCOASTER — Theme Park Builder',
+    title: 'ISOCOASTER: Theme Park Builder',
     description: 'Build the ultimate theme park with thrilling roller coasters, exciting rides, and happy guests!',
     type: 'website',
     siteName: 'IsoCoaster',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ISOCOASTER — Theme Park Builder',
+    title: 'ISOCOASTER: Theme Park Builder',
     description: 'Build the ultimate theme park with thrilling roller coasters, exciting rides, and happy guests!',
     images: ['/coaster/opengraph-image.png'],
   },

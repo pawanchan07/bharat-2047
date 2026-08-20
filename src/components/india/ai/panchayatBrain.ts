@@ -10,7 +10,7 @@
  *    what happens to the case, because the classifier is auditable, its training corpus is
  *    in the repo, and its accuracy is measured. When the two disagree the screen says so.
  * 2. **Saying the answer out loud.** Turning the engine's structured verdict into one
- *    natural sentence in the villager's own language — which a template cannot do across
+ *    natural sentence in the villager's own language, which a template cannot do across
  *    seven languages, and which is the whole point of a desk you can talk to.
  *
  * Every function here returns null rather than guessing when the model is asleep or its
@@ -25,7 +25,7 @@ type Ask = (messages: ChatMessage[], opts?: { maxTokens?: number; temperature?: 
 
 export interface SecondOpinion {
   intent: IntentId | null;
-  /** The model's own words for why — shown verbatim, not paraphrased. */
+  /** The model's own words for why, shown verbatim, not paraphrased. */
   because: string;
   /** True when the model named a case type that does not exist. Worth showing. */
   offList: boolean;
@@ -60,7 +60,7 @@ export async function secondOpinion(ask: Ask, text: string): Promise<SecondOpini
   const matched = INTENT_IDS.find((id) => id === caseLine) ?? null;
 
   // A model that answers with something not on the menu is a result worth showing, not an
-  // error to swallow — it is exactly the failure mode the engine exists to catch.
+  // error to swallow: it is exactly the failure mode the engine exists to catch.
   if (!matched && !whyLine) return null;
 
   return {
@@ -95,7 +95,7 @@ export function templateVerdict(f: VerdictFacts): string {
 
 /**
  * The same facts, said naturally in the villager's language. Falls back to the English
- * template whenever the model is asleep or its reply is unusable — and the caller shows the
+ * template whenever the model is asleep or its reply is unusable. The caller shows the
  * text on screen either way, so a missing voice never costs the visitor the answer.
  */
 export async function spokenVerdict(
@@ -115,7 +115,7 @@ export async function spokenVerdict(
         `You are the assistant at an Indian village panchayat desk. Speak warmly and simply, ` +
         `as if to an elderly villager who cannot read. Reply ONLY in ${lang.english} ` +
         `(${lang.native}), in 2 to 3 short sentences. Do not add facts. Do not translate the ` +
-        `case number — read it exactly as given. No preamble, no quotes, no English.`,
+        `case number, read it exactly as given. No preamble, no quotes, no English.`,
     },
     {
       role: 'user',

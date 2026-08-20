@@ -57,8 +57,8 @@ export function WorldLabels({
   return (
     <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
       {labels.map((l) => {
-        // Planned systems drop away first — pulled back, only the working ones are named,
-        // which is also the honest hierarchy: three of these you can actually walk into.
+        // Planned systems drop away first: pulled back, only the working ones are named,
+        // which is also the honest hierarchy: four of these you can actually walk into.
         const fadeIn = l.live ? 0.42 : 0.86;
         const opacity = clamp((zoom - fadeIn) / 0.22, 0, 1) * (l.live ? 1 : 0.5);
         if (opacity <= 0.02) return null;

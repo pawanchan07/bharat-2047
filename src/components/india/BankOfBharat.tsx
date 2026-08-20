@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Bank of Bharat — a confidential ledger a regulator can audit without reading it.
+ * Bank of Bharat: a confidential ledger a regulator can audit without reading it.
  *
  * Every number on these screens is computed live by bank.ts: real Pedersen commitments
  * over RFC 3526 Group 14, real homomorphic addition, real Schnorr proofs, a real Merkle
@@ -122,7 +122,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-2xl">🏦</span>
           <div className="min-w-0">
-            <div className="font-semibold tracking-wide truncate">Bank of Bharat — Rampur Branch, Ward 04</div>
+            <div className="font-semibold tracking-wide truncate">Bank of Bharat · Rampur Branch, Ward 04</div>
             <div className="text-xs text-white/50 truncate">
               {ledger.accounts.length} accounts · {ledger.transfers.length} transfers · sealed with 2048-bit Pedersen commitments in {ledger.buildMs.toFixed(0)} ms
             </div>
@@ -155,8 +155,8 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
               <h2 className="text-3xl font-bold mb-2">The book, sealed</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 Every balance below is committed as <span className="font-mono text-cyan-300">C = g<sup>v</sup> · h<sup>r</sup> mod p</span>
-                {' '}over a published 2048-bit prime. The commitment is <b>binding</b> — the bank can never change the balance it
-                sealed — and <b>hiding</b> — the number itself is not in there in any recoverable form. This is the entire public
+                {' '}over a published 2048-bit prime. The commitment is <b>binding</b>, so the bank can never change the balance it
+                sealed, and <b>hiding</b>, so the number itself is not in there in any recoverable form. This is the entire public
                 record. It is what an auditor, a regulator and you all get to see.
               </p>
 
@@ -242,7 +242,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                     </>
                   ) : (
                     <>
-                      <div className="font-semibold text-red-300 mb-1">🚨 Mismatch — the declared total is a lie.</div>
+                      <div className="font-semibold text-red-300 mb-1">🚨 Mismatch: the declared total is a lie.</div>
                       <p className="text-sm text-white/60">
                         The bank is claiming {formatRupees(solvency.declaredTotal)}, but the sealed accounts do not add up to
                         that. The discrepancy is {solvency.discrepancy > 0n ? 'an overstatement of ' : 'a shortfall of '}
@@ -261,8 +261,8 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                   a one-rupee lie fails exactly as loudly as a fifty-lakh one.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => cookTheBooks(5_000_000n, 'overstate', 'The books were overstated by ₹50 lakh — and it held', 'The product of the sealed account commitments stopped matching the declared total. Not one account had to be opened to find it.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Overstate by ₹50 L</button>
-                  <button onClick={() => cookTheBooks(-1n, 'hide-rupee', 'One rupee was hidden — and it held', 'A one-rupee lie failed exactly as loudly as a fifty-lakh one. There is no tolerance in the arithmetic to hide inside.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Hide ₹1</button>
+                  <button onClick={() => cookTheBooks(5_000_000n, 'overstate', 'The books were overstated by ₹50 lakh, and it held', 'The product of the sealed account commitments stopped matching the declared total. Not one account had to be opened to find it.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Overstate by ₹50 L</button>
+                  <button onClick={() => cookTheBooks(-1n, 'hide-rupee', 'One rupee was hidden, and it held', 'A one-rupee lie failed exactly as loudly as a fifty-lakh one. There is no tolerance in the arithmetic to hide inside.')} className="px-3 py-2 rounded-lg bg-white/10 hover:bg-red-500/30 text-xs">Hide ₹1</button>
                   <button onClick={() => setDeclaredDelta(0n)} className="px-3 py-2 rounded-lg bg-emerald-600/40 hover:bg-emerald-600/60 text-xs">Restore honest total</button>
                 </div>
               </div>
@@ -279,7 +279,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
               <h2 className="text-3xl font-bold mb-2">One depositor, one proof</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 A solvency proof is worthless to a customer if the bank simply left her out of the sum. So every account is a
-                leaf in a Merkle tree, and each customer can check her own leaf is inside the audited root — learning nothing
+                leaf in a Merkle tree, and each customer can check her own leaf is inside the audited root, learning nothing
                 about the {ledger.accounts.length - 1} others.
               </p>
 
@@ -317,7 +317,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                       </div>
                       <div className={`mt-2 p-2 rounded-lg text-xs ${schnorrOk ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-white/40 border border-white/10'}`}>
                         {schnorrOk === null ? 'proving…' : schnorrOk
-                          ? '✓ Schnorr proof: the bank can open this commitment — without opening it'
+                          ? '✓ Schnorr proof: the bank can open this commitment, without opening it'
                           : '✕ Schnorr proof failed'}
                       </div>
                     </>
@@ -339,7 +339,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
               <h2 className="text-3xl font-bold mb-2">Exposure, without the accounts</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 A supervisor does not actually want to know what Kamla has. The question that brings down banks is
-                &ldquo;how much of this book is one sector?&rdquo; — and that is an aggregate. So it is answered by opening an
+                &quot;how much of this book is one sector?&quot;, and that is an aggregate. So it is answered by opening an
                 aggregate: the sector commitments below are homomorphic sums of their members, and only the sums are opened.
                 Every individual account stays sealed.
               </p>
@@ -413,7 +413,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
               <div className="max-w-3xl p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="font-semibold mb-1 text-sm">These are leads, not verdicts</div>
                 <p className="text-xs text-white/50">
-                  A first cut of the layering detector raised <b className="text-white/80">121 flags across 26 accounts</b> — because
+                  A first cut of the layering detector raised <b className="text-white/80">121 flags across 26 accounts</b>, because
                   short cycles are everywhere in any real payment graph, and a detector that flags the whole bank has said nothing.
                   Adding one constraint, that the loop must close within days rather than months, took it to {flags.length}. Some of
                   those are still innocent. That is the honest cost of running detectors like this, and it is exactly why the next
@@ -428,7 +428,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
             <div className="bk-pop">
               <h2 className="text-3xl font-bold mb-2">Targeted transparency</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
-                The regulator found the pattern without seeing a rupee. Now, and only now, it compels openings — for these{' '}
+                The regulator found the pattern without seeing a rupee. Now, and only now, it compels openings, for these{' '}
                 {disclosures.length} transfers and nothing else. Each opened amount is checked against the commitment published
                 <i> before anyone was looking</i>, so the bank cannot invent a convenient number after the fact.
               </p>
@@ -473,7 +473,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                 </div>
                 <p className="text-sm text-white/60">
                   {selectedFlag.kind === 'structuring'
-                    ? `Every one lands just under the ₹${(Number(REPORTING_THRESHOLD) / 100000).toFixed(0)} lakh reporting threshold — which is precisely the point of structuring, and precisely what the metadata pattern predicted before anything was opened.`
+                    ? `Every one lands just under the ₹${(Number(REPORTING_THRESHOLD) / 100000).toFixed(0)} lakh reporting threshold, which is precisely the point of structuring, and precisely what the metadata pattern predicted before anything was opened.`
                     : 'The amounts confirm the pattern that the graph alone had already surfaced.'}
                 </p>
               </div>
@@ -500,7 +500,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
               <h2 className="text-3xl font-bold mb-2">Benford&apos;s law</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 The oldest trick in forensic accounting. Genuine financial figures span orders of magnitude, so their leading
-                digit is a 1 about 30% of the time and a 9 under 5% — following log₁₀(1 + 1/d). Invented numbers almost never do,
+                digit is a 1 about 30% of the time and a 9 under 5%, following log₁₀(1 + 1/d). Invented numbers almost never do,
                 because people making figures up spread them evenly without meaning to.
               </p>
 
@@ -528,7 +528,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
                 </div>
                 <p className="text-sm text-white/60">
                   {benfordResult.suspicious
-                    ? `Above the ${benfordResult.criticalValue05} critical value at p < 0.05. These figures do not look organically generated — grounds to look harder, not proof of anything.`
+                    ? `Above the ${benfordResult.criticalValue05} critical value at p < 0.05. These figures do not look organically generated: grounds to look harder, not proof of anything.`
                     : `Below the ${benfordResult.criticalValue05} critical value at p < 0.05. The distribution is consistent with genuine transaction data.`}
                 </p>
               </div>
@@ -558,7 +558,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The question this system asks</div>
             <p className="text-sm text-white/60">
-              Not &ldquo;can we put banking on a chain&rdquo; — the town already has two hash chains. The harder question is what a
+              Not &quot;can we put banking on a chain&quot;. The town already has two hash chains. The harder question is what a
               regulator can compute over a bank&apos;s books <i>without being shown anybody&apos;s account</i>. The answer turns out
               to be: solvency, concentration, and most financial crime.
             </p>
@@ -567,19 +567,19 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">What&apos;s real in this demo?</div>
             <ul className="text-sm text-white/60 space-y-2">
-              <li>🔐 <b className="text-white/80">The commitments</b> — Pedersen over RFC 3526 MODP Group 14, a published 2048-bit prime. {ledger.accounts.length + ledger.transfers.length} of them, sealed in {ledger.buildMs.toFixed(0)} ms.</li>
-              <li>➕ <b className="text-white/80">The homomorphism</b> — C(a)·C(b) = C(a+b) really holds; the solvency proof is that identity and nothing else.</li>
-              <li>🌳 <b className="text-white/80">The Merkle proofs</b> — genuine SHA-256, recomputed in your browser.</li>
-              <li>✍️ <b className="text-white/80">The Schnorr proofs</b> — a real sigma protocol, Fiat–Shamir over SHA-256.</li>
-              <li>🕸️ <b className="text-white/80">The detectors</b> — graph and timing analysis over sealed data.</li>
-              <li>🎲 <b className="text-white/80">Not real</b> — the customers and their transactions are synthetic, generated from a fixed seed so every visitor audits the same bank.</li>
+              <li>🔐 <b className="text-white/80">The commitments</b>: Pedersen over RFC 3526 MODP Group 14, a published 2048-bit prime. {ledger.accounts.length + ledger.transfers.length} of them, sealed in {ledger.buildMs.toFixed(0)} ms.</li>
+              <li>➕ <b className="text-white/80">The homomorphism</b>: C(a)·C(b) = C(a+b) really holds; the solvency proof is that identity and nothing else.</li>
+              <li>🌳 <b className="text-white/80">The Merkle proofs</b>: genuine SHA-256, recomputed in your browser.</li>
+              <li>✍️ <b className="text-white/80">The Schnorr proofs</b>: a real sigma protocol, Fiat-Shamir over SHA-256.</li>
+              <li>🕸️ <b className="text-white/80">The detectors</b>: graph and timing analysis over sealed data.</li>
+              <li>🎲 <b className="text-white/80">Not real</b>: the customers and their transactions are synthetic, generated from a fixed seed so every visitor audits the same bank.</li>
             </ul>
           </div>
 
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The tradeoff this design picks</div>
             <p className="text-sm text-white/60">
-              Amounts are hidden. The transaction <i>graph</i> is not — and every detector here runs on that graph. Hide the graph
+              Amounts are hidden. The transaction <i>graph</i> is not, and every detector here runs on that graph. Hide the graph
               too and the fraud analytics go blind; leave it visible and you have told the world who pays whom. There is no free
               position on that curve. This prototype picks one and says so out loud, which is more than most systems do.
             </p>
@@ -591,15 +591,15 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
             why={"There is no chain in this building at all. What a regulator needs is arithmetic over sealed values, and homomorphic commitments deliver that without a ledger, a network or a token."}
           />
           <WhatItCosts points={[
-          "Amounts are hidden but the transaction graph is not. Hide the graph too and every fraud detector goes blind — an unsolved tradeoff, not a solved one.",
-          "Benford’s law needs magnitudes, so it cannot run over sealed commitments. It runs on figures the bank publishes about itself.",
+          "Amounts are hidden but the transaction graph is not. Hide the graph too and every fraud detector goes blind: an unsolved tradeoff, not a solved one.",
+          "Benford's law needs magnitudes, so it cannot run over sealed commitments. It runs on figures the bank publishes about itself.",
           "Commitment arithmetic is far slower than reading a balance. Privacy is bought with compute on every audit.",
           "Solvency proved against a declared total is only as good as the list of accounts the bank admits to holding."
 ]} />
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <div className="font-semibold mb-1 text-amber-300">Honest caveat</div>
             <p className="text-xs text-white/50">
-              A real deployment needs range proofs so &ldquo;under the threshold&rdquo; is proved rather than asserted, elliptic curves
+              A real deployment needs range proofs so &quot;under the threshold&quot; is proved rather than asserted, elliptic curves
               instead of 2048-bit modular arithmetic for speed, a key-management story for who can open what, and an appeals path
               for the innocent accounts these detectors will flag. What this prototype demonstrates is the core claim: an auditor
               really can verify a bank without reading it.

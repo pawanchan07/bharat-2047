@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * The first thing anyone sees. It reports real progress — the bar is driven by sprite
- * sheets actually landing, not by a timer — because a prototype that claims to run real
+ * The first thing anyone sees. It reports real progress, with the bar driven by sprite
+ * sheets actually landing rather than a timer, because a prototype that claims to run real
  * cryptography should not fake its own loading bar.
  */
 

@@ -5,7 +5,7 @@
  *
  * Before this, the civic systems were separate demos wearing a shared skin: each had its
  * own list of citizens and forgot everything the moment you walked out. This is the thread
- * that makes it one place — the same six adults move between the voting centre, the panchayat
+ * that makes it one place: the same six adults move between the voting centre, the panchayat
  * and the bank (the school has its own graduating class), what they did in
  * one is visible in another, and the world outside changes when a case is resolved.
  *
@@ -75,21 +75,21 @@ export const ATTACKS: Attack[] = [
   },
   {
     id: 'overstate', system: 'bank',
-    title: 'Overstate the bank’s deposits',
-    how: 'Press “Overstate by ₹50 L” on the solvency screen.',
+    title: "Overstate the bank's deposits",
+    how: 'Press "Overstate by ₹50 L" on the solvency screen.',
     held: 'The product of the sealed account commitments no longer matches the declared total. No account had to be opened to catch it.',
   },
   {
     id: 'hide-rupee', system: 'bank',
     title: 'Hide a single rupee',
-    how: 'Press “Hide ₹1” on the same screen.',
+    how: 'Press "Hide ₹1" on the same screen.',
     held: 'A one-rupee lie fails exactly as loudly as a fifty-lakh one. The homomorphic check has no tolerance to hide inside.',
   },
   {
     id: 'forge-certificate', system: 'school',
     title: 'Change a mark on a degree',
     how: 'In the school, rewrite any field on an issued certificate.',
-    held: 'The edited field stops hashing into the root the school signed, so its Merkle proof fails — while the signature itself still verifies, because the forger never touched the root.',
+    held: 'The edited field stops hashing into the root the school signed, so its Merkle proof fails, while the signature itself still verifies, because the forger never touched the root.',
   },
   {
     id: 'confuse-desk', system: 'panchayat',

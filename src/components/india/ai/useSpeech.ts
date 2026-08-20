@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Speech in and speech out, from the browser itself — no key, no account, no service.
+ * Speech in and speech out, from the browser itself: no key, no account, no service.
  *
  * Two honest notes that the UI repeats to the visitor rather than hiding:
  *
@@ -40,7 +40,7 @@ const ERRORS: Record<RecognitionErrorKind, RecognitionError> = {
   'not-allowed': {
     kind: 'not-allowed',
     message: 'The microphone is blocked.',
-    hint: 'Allow microphone access for this site in your browser settings, then try again — or type instead.',
+    hint: 'Allow microphone access for this site in your browser settings, then try again, or type instead.',
   },
   'no-speech': {
     kind: 'no-speech',
@@ -55,12 +55,12 @@ const ERRORS: Record<RecognitionErrorKind, RecognitionError> = {
   network: {
     kind: 'network',
     message: 'Recognition needs the network right now.',
-    hint: 'This language has no on-device pack installed, so the browser sends audio to its speech service — and that needs a connection.',
+    hint: 'This language has no on-device pack installed, so the browser sends audio to its speech service, and that needs a connection.',
   },
   language: {
     kind: 'language',
-    message: 'This language is not supported by your browser’s recogniser.',
-    hint: 'Pick another language, or type your problem — the engine reads Devanagari, Hinglish and English the same way.',
+    message: "This language is not supported by your browser's recogniser.",
+    hint: 'Pick another language, or type your problem: the engine reads Devanagari, Hinglish and English the same way.',
   },
   unknown: {
     kind: 'unknown',
@@ -197,7 +197,7 @@ export function useListening(lang: string, onFinal?: (text: string) => void): Us
 
     rec.onerror = (e) => {
       const kind = (e.error as RecognitionErrorKind) in ERRORS ? (e.error as RecognitionErrorKind) : 'unknown';
-      // A pause is not a failure — keep listening rather than showing an error for it.
+      // A pause is not a failure: keep listening rather than showing an error for it.
       if (kind === 'no-speech' && wantedRef.current) return;
       wantedRef.current = false;
       setError(ERRORS[kind]);
@@ -235,7 +235,7 @@ export function useListening(lang: string, onFinal?: (text: string) => void): Us
 export interface UseSpeaking {
   supported: boolean;
   speaking: boolean;
-  /** Null when the device has no voice for the chosen language — subtitles carry it instead. */
+  /** Null when the device has no voice for the chosen language, so subtitles carry it instead. */
   voiceFor: (lang: string) => SpeechSynthesisVoice | null;
   speak: (text: string, lang: string) => void;
   cancel: () => void;

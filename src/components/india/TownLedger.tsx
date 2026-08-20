@@ -5,12 +5,12 @@
  *
  * Three things that only make sense together, so they live in one panel:
  *
- * - **What happened** — the consequence loop. Vote, file a grievance, catch the bank in a
+ * - **What happened**: the consequence loop. Vote, file a grievance, catch the bank in a
  *   lie, and the town outside registers it instead of forgetting the moment you close a
  *   screen. MIT CityScope is listed in VISION as an inspiration; this is it.
- * - **Try to break it** — every named attack in the town. The attacks already existed; making them
+ * - **Try to break it**: every named attack in the town. The attacks already existed; making them
  *   a checklist turns the security argument into the thing you play rather than read.
- * - **Your proof card** — a receipt of what you personally did here, drawn to a canvas you
+ * - **Your proof card**: a receipt of what you personally did here, drawn to a canvas you
  *   can save. A flagship project should leave with the visitor.
  */
 
@@ -96,7 +96,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
     if (recent.length === 0) {
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.font = '22px system-ui, sans-serif';
-      ctx.fillText('Nothing yet — walk into a building.', 64, 448);
+      ctx.fillText('Nothing yet. Walk into a building.', 64, 448);
     }
     recent.forEach((e, i) => {
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
@@ -154,8 +154,8 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
         {tab === 'log' && (
           town.events.length === 0 ? (
             <p className="text-sm text-white/45">
-              Nothing has happened yet. Walk into a building — cast a vote, bring a grievance,
-              try to cook the bank’s books — and the town will register it here rather than
+              Nothing has happened yet. Walk into a building, cast a vote, bring a grievance,
+              try to cook the bank&apos;s books, and the town will register it here rather than
               forgetting the moment you close the screen.
             </p>
           ) : (
@@ -210,7 +210,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
         {tab === 'break' && (
           <>
             <p className="mb-4 text-sm text-white/55">
-              {town.attacks.length} things this town invites you to try. None of them is a trick question — each
+              {town.attacks.length} things this town invites you to try. None of them is a trick question. Each
               one really works the way it says, and each one really holds. The point is not that
               you cannot break it; it is that you can watch exactly why not.
             </p>
@@ -255,7 +255,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
         {tab === 'card' && (
           <>
             <p className="mb-3 text-sm text-white/55">
-              A receipt for your visit — what you did, and how much of it held. Drawn here in
+              A receipt for your visit: what you did, and how much of it held. Drawn here in
               your browser, like everything else.
             </p>
             <canvas ref={canvasRef} className="hidden" />
@@ -285,7 +285,7 @@ export function TownLedger({ onClose }: { onClose: () => void }) {
             </div>
             {town.events.length === 0 && (
               <p className="mt-3 text-[11px] text-white/35">
-                It is mostly empty because nothing has happened yet. Go and do something first —
+                It is mostly empty because nothing has happened yet. Go and do something first;
                 the card is a record, not a poster.
               </p>
             )}

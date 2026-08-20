@@ -4,7 +4,7 @@
  *
  * `compress-images.mjs` handles the sprite sheets under public/assets. This handles the
  * rest: social cards and touch icons, which were being served at multi-megabyte sizes.
- * Re-running it is safe — each target is skipped once it is already under budget.
+ * Re-running it is safe: each target is skipped once it is already under budget.
  */
 
 import sharp from 'sharp';
@@ -34,9 +34,9 @@ async function shrink(relPath, { maxEdge, quality = 82 }) {
     .png({ quality, compressionLevel: 9, palette: true })
     .toBuffer();
 
-  if (out.length > before * 0.8) return console.log(`  ok     ${relPath} — ${kb(before)}`);
+  if (out.length > before * 0.8) return console.log(`  ok     ${relPath}: ${kb(before)}`);
   await writeFile(file, out);
-  console.log(`  shrank ${relPath} — ${kb(before)} → ${kb(out.length)}`);
+  console.log(`  shrank ${relPath}: ${kb(before)} → ${kb(out.length)}`);
 }
 
 /** The touch icon browsers fetch for a bookmark: the tricolour, at the size iOS wants. */
@@ -58,7 +58,7 @@ async function writeTouchIcon() {
   const file = path.join(ROOT, 'public', 'apple-touch-icon.png');
   await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toFile(file);
   const size = (await stat(file)).size;
-  console.log(`  wrote  public/apple-touch-icon.png — ${kb(size)}`);
+  console.log(`  wrote  public/apple-touch-icon.png: ${kb(size)}`);
 }
 
 console.log('Optimising static images…');

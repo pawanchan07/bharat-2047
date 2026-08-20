@@ -1,8 +1,8 @@
 /**
  * The languages a citizen of this town may speak to it in.
  *
- * One choice drives three separate systems — speech recognition, speech synthesis and the
- * language the model is asked to reply in — so it lives in one place rather than being
+ * One choice drives three separate systems: speech recognition, speech synthesis and the
+ * language the model is asked to reply in. So it lives in one place rather than being
  * re-derived in each of them.
  *
  * The list is deliberately short and honest. These are seven of India's most spoken

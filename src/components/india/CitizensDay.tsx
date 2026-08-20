@@ -4,7 +4,7 @@
  * A day in the life of one citizen.
  *
  * The town has three working systems and, until now, no reason to think of them as one
- * person's life. This walks Kamla Devi — or whoever you pick — from dawn to dusk through
+ * person's life. This walks Kamla Devi, or whoever you pick, from dawn to dusk through
  * all three: the desk in the morning, the bank at midday, the booth in the evening. The
  * light moves with her, because a day that never changes is not a day.
  *
@@ -38,41 +38,41 @@ const CHAPTERS: Chapter[] = [
     hour: 6, clock: '06:10', title: 'Before the queue forms',
     landmarkId: null, system: null,
     text: (name) =>
-      `${name} is already awake. In most versions of this story the day ends with her being told to come back on Thursday — and coming back on Thursday, and then again the Thursday after. Watch what a different set of decisions does to the same day.`,
+      `${name} is already awake. In most versions of this story the day ends with her being told to come back on Thursday, and coming back on Thursday, and then again the Thursday after. Watch what a different set of decisions does to the same day.`,
   },
   {
     hour: 10, clock: '10:00', title: 'The panchayat, first thing',
     landmarkId: 'panchayat', system: 'panchayat',
     enter: 'Walk in with her',
     text: (name) =>
-      `She cannot fill a form, so she says the problem out loud. The desk hears her in her own language, checks her actual record rather than asking her to prove it, and — because the finding is adverse — refuses to decide it alone. ${name} leaves with a case number instead of an instruction to come back.`,
+      `She cannot fill a form, so she says the problem out loud. The desk hears her in her own language, checks her actual record rather than asking her to prove it, and then refuses to decide it alone, because the finding is adverse. ${name} leaves with a case number instead of an instruction to come back.`,
   },
   {
     hour: 12, clock: '12:20', title: 'The school, for her granddaughter',
     landmarkId: 'school', system: 'school',
     enter: 'Check the degree with her',
     text: (name) =>
-      `Anjali's degree came through this year, and the job she is applying for wants it verified. Nobody telephones the college. The certificate carries its own proof, so the employer checks it in about two milliseconds — and sees her degree and her year without ever being shown a single mark. ${name} cannot read the certificate; she does not have to.`,
+      `Anjali's degree came through this year, and the job she is applying for wants it verified. Nobody telephones the college. The certificate carries its own proof, so the employer checks it in about two milliseconds, and sees her degree and her year without ever being shown a single mark. ${name} cannot read the certificate; she does not have to.`,
   },
   {
     hour: 14, clock: '14:00', title: 'The bank, after the heat',
     landmarkId: 'bank', system: 'bank',
     enter: 'Look at the books with her',
     text: (name, account) =>
-      `Her pension lands in ${account} at this bank — when it lands. Nobody here can read her balance, including the regulator auditing the place while she stands in it. That is not a courtesy; it is the arithmetic. Solvency, exposure and most of the fraud are provable without her account ever being opened.`,
+      `Her pension lands in ${account} at this bank. When it lands. Nobody here can read her balance, including the regulator auditing the place while she stands in it. That is not a courtesy; it is the arithmetic. Solvency, exposure and most of the fraud are provable without her account ever being opened.`,
   },
   {
     hour: 18, clock: '18:30', title: 'The booth, before it closes',
     landmarkId: 'voting', system: 'voting',
     enter: 'Vote with her',
     text: (name) =>
-      `Polling closes at seven. ${name} votes, and the record will know a valid citizen voted and never that it was her. If anybody rewrites it afterwards, every block built on top of the lie says so on its face — no auditor has to be trusted, and no one has to be literate to be counted.`,
+      `Polling closes at seven. ${name} votes, and the record will know a valid citizen voted and never that it was her. If anybody rewrites it afterwards, every block built on top of the lie says so on its face. No auditor has to be trusted, and no one has to be literate to be counted.`,
   },
   {
     hour: 21, clock: '21:00', title: 'The same day, differently',
     landmarkId: null, system: null,
     text: (name) =>
-      `Four systems, one day, and not one of them asked ${name} to read, to travel twice, or to trust an official's word. That is the whole argument of this town. Everything you just watched runs for real — go and take any of it apart.`,
+      `Four systems, one day, and not one of them asked ${name} to read, to travel twice, or to trust an official's word. That is the whole argument of this town. Everything you just watched runs for real, so go and take any of it apart.`,
   },
 ];
 

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * AI Panchayat Kendra — a working AI-assisted grievance desk.
+ * AI Panchayat Kendra: a working AI-assisted grievance desk.
  *
  * The classifier is trained in your browser when this screen opens, on the 80-line
  * corpus in panchayat.ts. Every confidence number, every eligibility check and every
@@ -9,7 +9,7 @@
  * pre-recorded and there is no API call.
  *
  * The product argument the screen is making: the interesting part of civic AI is not
- * the answer, it is the gate. Read the "Human review" step — the engine hands over
+ * the answer, it is the gate. Read the "Human review" step: the engine hands over
  * whenever it is unsure, out of vocabulary, missing evidence, or looking at a class of
  * case software has no business deciding.
  */
@@ -137,7 +137,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
     setVerdictSpeech(null);
     const text = utterance.trim();
 
-    // If the town's brain is awake, ask it to read the same sentence — in parallel, so its
+    // If the town's brain is awake, ask it to read the same sentence, in parallel, so its
     // answer is waiting by the time the classifier's working is on screen. It is a second
     // reading shown beside the engine, never a replacement for it.
     if (townAI.awake) {
@@ -286,7 +286,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-2xl">🏛️</span>
           <div className="min-w-0">
-            <div className="font-semibold tracking-wide truncate">AI Panchayat Kendra — Gram Panchayat Rampur, Ward 04</div>
+            <div className="font-semibold tracking-wide truncate">AI Panchayat Kendra · Gram Panchayat Rampur, Ward 04</div>
             <div className="text-xs text-white/50 truncate">
               {model
                 ? `Naive Bayes classifier trained in your browser · ${CORPUS.length} examples · ${model.vocab.length} vocabulary terms · ${model.trainMs.toFixed(1)} ms`
@@ -323,7 +323,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
               <h2 className="text-3xl font-bold mb-2">A villager walks into the panchayat</h2>
               <p className="text-white/60 mb-6 max-w-xl">
                 Today she would tell a clerk, be sent to a block office, and come back three times.
-                Here she says the problem once, in her own language, and the desk does the rest — up to
+                Here she says the problem once, in her own language, and the desk does the rest, up to
                 the point where a human must decide.
               </p>
 
@@ -359,7 +359,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                   <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-500/[0.05] p-4">
                     <div className="mb-1 font-semibold text-amber-200">You are the villager. Say it out loud.</div>
                     <p className="mb-3 text-sm text-white/55">
-                      Press the microphone and speak your problem in your own language — the way
+                      Press the microphone and speak your problem in your own language, the way
                       someone who cannot read or write a form would have to. Nothing is typed, and
                       nothing is lost.
                     </p>
@@ -376,13 +376,13 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                       <>
                         The classifier really re-runs on whatever ends up in that box, spoken or typed.
                         Try nonsense and watch the confidence collapse and the case get handed to a
-                        human — that is the behaviour worth demonstrating.
+                        human. That is the behaviour worth demonstrating.
                       </>
                     }
                   />
 
                   <div className="mt-5">
-                    <AwakenBrain reason="Optional. With it awake, the desk gives a second reading of your problem beside the classifier's — and says the final answer back to you in your own language." />
+                    <AwakenBrain reason="Optional. With it awake, the desk gives a second reading of your problem beside the classifier's, and says the final answer back to you in your own language." />
                   </div>
                 </div>
               </div>
@@ -394,7 +394,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             <div className="pk-pop">
               <h2 className="text-3xl font-bold mb-2">Step 1 · Listening</h2>
               <p className="text-white/60 mb-6 max-w-xl">
-                No form, no field, no English. She speaks; the desk transcribes. Script does not matter —
+                No form, no field, no English. She speaks; the desk transcribes. Script does not matter:
                 Devanagari and Hinglish are normalised into the same features before anything is understood.
               </p>
               <div className="max-w-xl p-5 rounded-2xl bg-white/5 border border-white/10">
@@ -415,14 +415,14 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
           {/* ---------------------------------------------------- UNDERSTAND */}
           {step === 'understand' && cls && entities && (
             <div className="pk-pop">
-              <h2 className="text-3xl font-bold mb-2">Step 2 · Understanding — and showing its working</h2>
+              <h2 className="text-3xl font-bold mb-2">Step 2 · Understanding, and showing its working</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 Ten possible case types. The classifier scores all ten, and the number it reports is
                 deliberately pessimistic: the raw probability is discounted by the share of words it has
                 never seen and by how little evidence it had.
               </p>
 
-              {/* The model's reading, shown beside the engine's — never instead of it. */}
+              {/* The model's reading, shown beside the engine's, never instead of it. */}
               {(opinionRunning || opinion) && (
                 <div className={`mb-5 max-w-3xl rounded-2xl border p-4 ${
                   opinion && opinion.intent && opinion.intent !== cls.intent
@@ -430,7 +430,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                     : 'border-white/12 bg-white/[0.03]'
                 }`}>
                   <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-white/85">
-                    <span aria-hidden>🧠</span> The town’s AI read it too
+                    <span aria-hidden>🧠</span> The town&apos;s AI read it too
                     <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-normal text-white/45">
                       second opinion · not the decision
                     </span>
@@ -449,20 +449,20 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                         <b className="text-white/90">
                           {opinion.intent ? `${INTENTS[opinion.intent].icon} ${INTENTS[opinion.intent].label}` : 'something not on the list'}
                         </b>
-                        {' — “'}<span className="italic text-white/55">{opinion.because}</span>{'”'}
+                        {': "'}<span className="italic text-white/55">{opinion.because}</span>{'"'}
                       </p>
                       {opinion.intent === cls.intent && (
                         <p className="mt-2 text-xs text-emerald-300/90">
                           ✓ Both readers agree. That is worth something, but the classifier is still what
-                          decides — it is the one whose corpus you can read and whose accuracy is measured.
+                          decides. It is the one whose corpus you can read and whose accuracy is measured.
                         </p>
                       )}
                       {opinion.intent && opinion.intent !== cls.intent && (
                         <p className="mt-2 text-xs text-amber-200/90">
-                          ⚠ The two disagree. The classifier’s call stands and the case is routed on it,
-                          because a 0.5-billion-parameter model’s opinion is not auditable and its accuracy
+                          ⚠ The two disagree. The classifier&apos;s call stands and the case is routed on it,
+                          because a 0.5-billion-parameter model&apos;s opinion is not auditable and its accuracy
                           on this corpus is not measured. You are seeing the disagreement rather than a
-                          quietly-picked winner — and if you think the AI is right, the human reviewer two
+                          quietly-picked winner, and if you think the AI is right, the human reviewer two
                           steps from here can reclassify it.
                         </p>
                       )}
@@ -494,7 +494,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                   </div>
                   <div className="text-[10px] text-white/35">
                     White line is the {Math.round(AUTO_THRESHOLD * 100)}% auto-route threshold.
-                    {confOk ? ' Above it — the engine may proceed on its own.' : ' Below it — a human must confirm.'}
+                    {confOk ? ' Above it, so the engine may proceed on its own.' : ' Below it, so a human must confirm.'}
                   </div>
 
                   <div className="mt-3 text-[11px] text-white/40 space-y-0.5">
@@ -529,7 +529,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
 
                 {/* why */}
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-white/40 mb-2">Words that decided it — log-odds against the runner-up</div>
+                  <div className="text-xs text-white/40 mb-2">Words that decided it, by log-odds against the runner-up</div>
                   {cls.evidence.length === 0 && <div className="text-white/40 text-sm">Nothing in the sentence is in the vocabulary.</div>}
                   {cls.evidence.map((e) => (
                     <div key={e.token} className="flex items-center gap-2 mb-1.5">
@@ -566,7 +566,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             <div className="pk-pop">
               <h2 className="text-3xl font-bold mb-2">Step 3 · Checking the record</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
-                Every rule below is really evaluated against her record. Three outcomes, not two —
+                Every rule below is really evaluated against her record. Three outcomes, not two,
                 and <b className="text-amber-300">unknown</b> is the honest one. A rule the data cannot answer is
                 not quietly assumed to pass; it becomes a reason to involve a person.
               </p>
@@ -593,7 +593,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
               <div className="text-sm font-semibold text-white/70 mb-2">Scheme eligibility</div>
               {verdicts.length === 0 && (
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm max-w-3xl">
-                  No scheme eligibility applies to this case type — it is a service complaint, not an entitlement claim.
+                  No scheme eligibility applies to this case type. It is a service complaint, not an entitlement claim.
                 </div>
               )}
               <div className="grid md:grid-cols-2 gap-4 max-w-3xl">
@@ -658,7 +658,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 <p className="text-sm text-white/80">{draft.spoken}</p>
                 <p className="text-[10px] text-white/35 mt-2">
                   This sentence is templated from the engine&apos;s output, not generated by a language model.
-                  In production this is the one layer that would call a real model — and the only one that could,
+                  In production this is the one layer that would call a real model, and the only one that could,
                   because it is the only layer where being wrong is not consequential.
                 </p>
               </div>
@@ -675,7 +675,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
               <h2 className="text-3xl font-bold mb-2">Step 5 · A human decides</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
                 This is the whole product. Everything before it was preparation; nothing leaves this building
-                until an elected person puts their name on it — or until the engine has cleared five gates that
+                until an elected person puts their name on it, or until the engine has cleared five gates that
                 say it does not need to.
               </p>
 
@@ -683,14 +683,14 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 routing.autoRoutable ? 'bg-emerald-500/10 border-emerald-500/35' : 'bg-amber-500/10 border-amber-500/35'}`}>
                 <div className="font-semibold mb-2">
                   {routing.autoRoutable
-                    ? '✓ All five gates cleared — the engine may route this without a signature'
-                    : `⚠️ ${routing.humanReasons.length} gate${routing.humanReasons.length === 1 ? '' : 's'} stopped the engine — a person must decide`}
+                    ? '✓ All five gates cleared, so the engine may route this without a signature'
+                    : `⚠️ ${routing.humanReasons.length} gate${routing.humanReasons.length === 1 ? '' : 's'} stopped the engine, so a person must decide`}
                 </div>
                 {routing.autoRoutable ? (
                   <p className="text-sm text-white/60">
                     Confident, in-vocabulary, no unresolved check bearing on the decision, nothing being refused,
                     and a case class software is allowed to handle. It still lands in the public register with the
-                    engine named as the decider — auto-routed is not the same as unaccountable.
+                    engine named as the decider. Auto-routed is not the same as unaccountable.
                   </p>
                 ) : (
                   <ul className="space-y-1.5">
@@ -721,11 +721,11 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                   <div className="font-semibold mb-1">👩🏽‍⚖️ {PANCHAYAT_MEMBER}</div>
                   <p className="text-xs text-white/50 mb-3">
                     She sees the recommendation, the confidence, and every reason the engine stopped.
-                    She is not asked to trust it — she is asked to decide, with the working shown.
+                    She is not asked to trust it. She is asked to decide, with the working shown.
                   </p>
                   <p className="text-[10px] text-white/35">
                     Whatever she picks is sealed into the public register under her name. An override is a first-class
-                    outcome here, not a failure state — a system nobody can overrule is not accountable, it is just automated.
+                    outcome here, not a failure state. A system nobody can overrule is not accountable, it is just automated.
                   </p>
                 </div>
               </div>
@@ -778,7 +778,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             <div className="pk-pop">
               <h2 className="text-3xl font-bold mb-2">Step 6 · Sealed into the public register</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
-                The decision — who decided, what they decided, and when — is hashed with SHA-256 together with
+                The decision, meaning who decided, what they decided, and when, is hashed with SHA-256 together with
                 the previous case&apos;s hash. Same tamper-evidence as the voting centre next door, pointed at the
                 thing that actually gets rewritten in a panchayat: the record of who was helped and who was sent away.
               </p>
@@ -806,7 +806,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                       <div className="flex justify-between gap-3"><dt>Routed to</dt><dd className="text-white/85 text-right">{lastCase.department}</dd></div>
                       <div className="flex justify-between gap-3"><dt>Decided by</dt><dd className="text-white/85 text-right">{lastCase.decidedBy}</dd></div>
                       <div className="flex justify-between gap-3"><dt>Resolve by</dt><dd className="text-white/85">{lastCase.slaDays} days from today</dd></div>
-                      {lastCase.note && <div className="pt-1 text-white/60 italic">“{lastCase.note}”</div>}
+                      {lastCase.note && <div className="pt-1 text-white/60 italic">&quot;{lastCase.note}&quot;</div>}
                     </dl>
                     <div className="mt-3 pt-3 border-t border-white/10 font-mono text-[10px] space-y-0.5">
                       <div className="text-white/30 truncate">prev {lastCase.prevHash.slice(0, 40)}…</div>
@@ -822,7 +822,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                       </span>
                       {verdictSpeech?.fromModel && (
                         <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
-                          phrased by the town’s AI
+                          phrased by the town&apos;s AI
                         </span>
                       )}
                     </div>
@@ -842,8 +842,8 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                         {verdictSpeech && !verdictSpeech.fromModel && townAI.language !== 'en-IN' && (
                           <span className="text-[11px] text-white/40">
                             {townAI.awake
-                              ? 'The model’s reply came back in the wrong script, so this is the desk’s own wording.'
-                              : 'Awaken the town’s AI on the first screen to hear this in your own language.'}
+                              ? "The model's reply came back in the wrong script, so this is the desk's own wording."
+                              : "Awaken the town's AI on the first screen to hear this in your own language."}
                           </span>
                         )}
                       </div>
@@ -859,7 +859,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 mb-6">
                     <b className="text-white/80">Escalation is automatic.</b> {INTENTS[lastCase.intent].label} carries a{' '}
                     {lastCase.slaDays}-day SLA. Unresolved past that, it escalates to the Block Development Officer and appears
-                    on the public overdue board — no one has to know to complain, and no one has to be literate to be counted.
+                    on the public overdue board. No one has to know to complain, and no one has to be literate to be counted.
                   </div>
                   <button onClick={() => setStep('register')} className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold">
                     Open the public register →
@@ -874,7 +874,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             <div className="pk-pop">
               <h2 className="text-3xl font-bold mb-2">The public register</h2>
               <p className="text-white/60 mb-6 max-w-2xl">
-                Every case, every decider, every deadline — in the open. The measure that matters is not how many
+                Every case, every decider, every deadline, in the open. The measure that matters is not how many
                 cases the AI closed. It is how many a human had to touch, and whether the ones it handled alone
                 were the ones it should have.
               </p>
@@ -883,7 +883,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                 {[
                   { k: 'Cases filed', v: String(cases.length) },
                   { k: 'Needed a human', v: `${humanTouched} of ${cases.length}` },
-                  { k: 'Median confidence', v: cases.length ? `${Math.round([...cases].sort((a, b) => a.confidence - b.confidence)[Math.floor(cases.length / 2)].confidence * 100)}%` : '—' },
+                  { k: 'Median confidence', v: cases.length ? `${Math.round([...cases].sort((a, b) => a.confidence - b.confidence)[Math.floor(cases.length / 2)].confidence * 100)}%` : 'n/a' },
                 ].map((s) => (
                   <div key={s.k} className="p-3 rounded-xl bg-white/5 border border-white/10">
                     <div className="text-2xl font-bold">{s.v}</div>
@@ -942,7 +942,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The problem being solved</div>
             <p className="text-sm text-white/60">
-              Most welfare in India is not denied. It is <i>lost</i> — in a form nobody could fill, an office
+              Most welfare in India is not denied. It is <i>lost</i>, in a form nobody could fill, an office
               nobody named, and a bank field nobody checked. The desk is not there to be clever. It is there
               to make sure a real claim never dies of paperwork.
             </p>
@@ -951,23 +951,23 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">What&apos;s real in this demo?</div>
             <ul className="text-sm text-white/60 space-y-2">
-              <li>🧠 <b className="text-white/80">The classifier</b> — multinomial Naive Bayes, trained in your browser on {CORPUS.length} labelled examples when this screen opened{model ? `, in ${model.trainMs.toFixed(1)} ms` : ''}.</li>
-              <li>🔤 <b className="text-white/80">The tokenizer</b> — Devanagari, Hinglish and English really do collapse into one feature space.</li>
-              <li>📐 <b className="text-white/80">The rules</b> — every eligibility check is evaluated against the citizen record, with <i>unknown</i> as a real third outcome.</li>
-              <li>🔒 <b className="text-white/80">The seal</b> — genuine SHA-256, chained case to case, shared with the voting centre.</li>
-              <li>🎙️ <b className="text-white/80">The microphone</b> — your browser&apos;s own speech recognition. No key, and nothing uploaded by us; the button says whether your device recognised the audio locally or sent it to the browser&apos;s own service.</li>
-              <li>💬 <b className="text-white/80">The spoken reply</b> — templated from the engine&apos;s output by default. Awaken the town&apos;s AI and an open-weights model rewrites that same verdict into your language, in your browser. It phrases the answer; it never reaches it.</li>
+              <li>🧠 <b className="text-white/80">The classifier</b>: multinomial Naive Bayes, trained in your browser on {CORPUS.length} labelled examples when this screen opened{model ? `, in ${model.trainMs.toFixed(1)} ms` : ''}.</li>
+              <li>🔤 <b className="text-white/80">The tokenizer</b>: Devanagari, Hinglish and English really do collapse into one feature space.</li>
+              <li>📐 <b className="text-white/80">The rules</b>: every eligibility check is evaluated against the citizen record, with <i>unknown</i> as a real third outcome.</li>
+              <li>🔒 <b className="text-white/80">The seal</b>: genuine SHA-256, chained case to case, shared with the voting centre.</li>
+              <li>🎙️ <b className="text-white/80">The microphone</b>: your browser&apos;s own speech recognition. No key, and nothing uploaded by us; the button says whether your device recognised the audio locally or sent it to the browser&apos;s own service.</li>
+              <li>💬 <b className="text-white/80">The spoken reply</b>: templated from the engine&apos;s output by default. Awaken the town&apos;s AI and an open-weights model rewrites that same verdict into your language, in your browser. It phrases the answer; it never reaches it.</li>
             </ul>
           </div>
 
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The five gates</div>
             <ul className="text-sm text-white/60 space-y-1.5">
-              <li><b className="text-white/80">Confidence</b> — below {Math.round(AUTO_THRESHOLD * 100)}%, hand over.</li>
-              <li><b className="text-white/80">Vocabulary</b> — too many unseen words, hand over.</li>
-              <li><b className="text-white/80">Evidence</b> — an unresolved check that bears on the decision, hand over. An unknown the receiving officer is being sent to answer does not count, or the gate becomes a rubber stamp.</li>
-              <li><b className="text-white/80">Adverse finding</b> — software may carry a claim forward; it may never be the thing that records a refusal.</li>
-              <li><b className="text-white/80">Policy</b> — disputes never auto-decide, however confident.</li>
+              <li><b className="text-white/80">Confidence</b>: below {Math.round(AUTO_THRESHOLD * 100)}%, hand over.</li>
+              <li><b className="text-white/80">Vocabulary</b>: too many unseen words, hand over.</li>
+              <li><b className="text-white/80">Evidence</b>: an unresolved check that bears on the decision, hand over. An unknown the receiving officer is being sent to answer does not count, or the gate becomes a rubber stamp.</li>
+              <li><b className="text-white/80">Adverse finding</b>: software may carry a claim forward; it may never be the thing that records a refusal.</li>
+              <li><b className="text-white/80">Policy</b>: disputes never auto-decide, however confident.</li>
             </ul>
           </div>
 
@@ -989,7 +989,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                   </div>
                   <div className="text-[11px] text-white/50 mt-1">
                     {loo.missesCaughtByGate === loo.misses.length
-                      ? 'Every misclassification was one the engine refused to act on alone. That number matters more than the accuracy — a model that is wrong and knows it is a different product from one that is wrong and confident.'
+                      ? 'Every misclassification was one the engine refused to act on alone. That number matters more than the accuracy: a model that is wrong and knows it is a different product from one that is wrong and confident.'
                       : `${loo.misses.length - loo.missesCaughtByGate} would have auto-routed while wrong. That is the number to design against.`}
                   </div>
                 </div>
@@ -999,7 +999,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
                     <ul className="mt-2 space-y-1.5">
                       {loo.misses.map((m, i) => (
                         <li key={i}>
-                          <span className="text-white/60">“{m.text}”</span><br />
+                          <span className="text-white/60">&quot;{m.text}&quot;</span><br />
                           <span className="text-red-300">{INTENTS[m.got].label}</span>
                           <span className="text-white/30"> instead of </span>
                           <span className="text-emerald-300">{INTENTS[m.want].label}</span>
@@ -1027,7 +1027,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
           <WhatItUses
             uses={"SHA-256 case decisions, each chained to the previous"}
             needsChain={false}
-            why={"A tamper-evident log, not a blockchain. One office writes to it, so there is nothing for a consensus protocol to do — the hash chain alone gives every property this desk needs."}
+            why={"A tamper-evident log, not a blockchain. One office writes to it, so there is nothing for a consensus protocol to do, and the hash chain alone gives every property this desk needs."}
           />
           <WhatItCosts points={[
           "A sealed decision log means a wrong routing is permanent and public. You append a correction; you never remove the error.",
@@ -1040,7 +1040,7 @@ export function PanchayatKendra({ onClose, onShowIntent }: { onClose: () => void
             <p className="text-xs text-white/50">
               A real deployment needs speech in twenty-plus languages, a UI that works for someone who cannot read,
               an appeals path that does not run through the same office, and a live connection to NREGASoft, PFMS and
-              the state land record — none of which is here. What this prototype argues is narrower and, I think,
+              the state land record, none of which is here. What this prototype argues is narrower and, I think,
               the part most civic-AI demos skip: where the machine must stop.
             </p>
           </div>

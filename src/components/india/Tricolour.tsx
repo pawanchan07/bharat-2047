@@ -4,7 +4,7 @@
  * The tricolour, drawn rather than typed.
  *
  * The 🇮🇳 emoji is a regional-indicator pair, which Windows renders as the bare letters
- * "IN" — the wrong first impression for a project about India. This SVG is identical on
+ * "IN", the wrong first impression for a project about India. This SVG is identical on
  * every platform, chakra and all.
  */
 

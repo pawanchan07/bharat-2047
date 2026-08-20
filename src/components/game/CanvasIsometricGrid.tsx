@@ -122,15 +122,15 @@ export interface CanvasIsometricGridProps {
   onViewportChange?: (viewport: { offset: { x: number; y: number }; zoom: number; canvasSize: { width: number; height: number } }) => void;
   onBargeDelivery?: (cargoValue: number, cargoType: number) => void;
   /**
-   * Suppress the city builder's own chrome — the tile inspector, incident tooltips and
+   * Suppress the city builder's own chrome: the tile inspector, incident tooltips and
    * discovery dialogs. Showcases built on this engine (Bharat 2047) present their own
-   * panels, and the builder's "Tile (13,13) — Museum" card must never appear beside them.
+   * panels, and the builder's own "Tile (13,13)" inspector card must never appear beside them.
    */
   hideEngineUI?: boolean;
   /**
    * Sprite sheets to load before reporting ready, by key. Everything else is deferred to
    * idle time instead of competing with first paint. Undefined loads every sheet eagerly,
-   * which is what the city builder needs — it can place any building at any moment.
+   * which is what the city builder needs: it can place any building at any moment.
    */
   eagerSheets?: SpriteSheetKey[];
   /** Fires as the eager sheets land, so a host can draw a real progress bar. */

@@ -3,7 +3,7 @@
 /**
  * The microphone a villager actually speaks into.
  *
- * Tap to start, tap to stop — not press-and-hold, which fights scrolling on a phone, times
+ * Tap to start, tap to stop, not press-and-hold, which fights scrolling on a phone, times
  * out on a long sentence, and is hostile to anyone with a motor impairment.
  *
  * The transcript is shown as it is heard, because watching the words appear is what makes
@@ -66,7 +66,7 @@ export function VoiceInput({
           )}
           <span className="relative text-lg" aria-hidden>{listening.listening ? '⏹' : '🎙️'}</span>
           <span className="relative">
-            {listening.listening ? 'Listening — tap to stop' : `Speak in ${lang.native}`}
+            {listening.listening ? 'Listening, tap to stop' : `Speak in ${lang.native}`}
           </span>
         </button>
 
@@ -83,12 +83,12 @@ export function VoiceInput({
                 : 'No on-device pack for this language, so the browser sends the audio to its own speech service to transcribe it.'
             }
           >
-            {listening.onDevice ? '🔒 recognised on your device' : '☁️ recognised by your browser’s service'}
+            {listening.onDevice ? '🔒 recognised on your device' : "☁️ recognised by your browser's service"}
           </span>
         )}
       </div>
 
-      {/* Live waveform, only while actually listening — a fake one would be a lie. */}
+      {/* Live waveform, only while actually listening. A fake one would be a lie. */}
       {listening.listening && (
         <div className="mb-2 flex h-6 items-end gap-1" aria-hidden>
           {Array.from({ length: 28 }).map((_, i) => (
@@ -107,8 +107,8 @@ export function VoiceInput({
 
       <label className="mb-1 block text-xs text-white/40">
         {listening.listening
-          ? 'Heard so far — keep talking'
-          : <>What the desk heard — <span className="text-amber-300">you can edit this freely</span></>}
+          ? 'Heard so far, keep talking'
+          : <>What the desk heard: <span className="text-amber-300">you can edit this freely</span></>}
       </label>
       <textarea
         value={listening.listening ? live : value}
@@ -121,7 +121,7 @@ export function VoiceInput({
 
       {!listening.supported && (
         <p className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5 text-xs text-white/50">
-          This browser cannot listen — speech recognition needs Chrome, Edge or Safari. Type the
+          This browser cannot listen: speech recognition needs Chrome, Edge or Safari. Type the
           problem instead; the engine reads it exactly the same way.
         </p>
       )}
@@ -175,7 +175,7 @@ export function SpeakButton({
   if (!voice) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] text-white/45">
-        No {lang.english} voice installed on this device — the text above is the whole answer.
+        No {lang.english} voice installed on this device, so the text above is the whole answer.
       </span>
     );
   }

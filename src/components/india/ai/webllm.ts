@@ -8,7 +8,7 @@
  * of /india may not get slower for a feature most visitors will never turn on.
  *
  * Licence matters as much as quality here. This repo has to stay forkable and runnable by
- * anyone, so a model under a bespoke community licence is out however good it is — which
+ * anyone, so a model under a bespoke community licence is out however good it is, which
  * rules out Llama 3.2 and Gemma. Qwen2.5 is Apache-2.0 and is the only sub-2B family that
  * is also meaningfully multilingual.
  */
@@ -31,7 +31,7 @@ export const MODELS: TownModel[] = [
     label: 'Light',
     downloadMB: 275,
     vramMB: 945,
-    blurb: 'Quick to download and runs on modest hardware. Good enough to rephrase the desk’s verdict in your language; thinner on open questions.',
+    blurb: "Quick to download and runs on modest hardware. Good enough to rephrase the desk's verdict in your language; thinner on open questions.",
   },
   {
     id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
@@ -123,7 +123,7 @@ export async function isCached(modelId: string): Promise<boolean> {
  *
  * WebLLM has no abort signal of its own, so cancellation is cooperative: we stop reporting,
  * and unload the engine the moment it finishes arriving. The bytes already in flight still
- * land in the cache, which is the right outcome anyway — a resumed download starts from
+ * land in the cache, which is the right outcome anyway: a resumed download starts from
  * where the last one stopped.
  */
 export async function loadEngine(

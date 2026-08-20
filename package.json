@@ -12,7 +12,8 @@
     "compress-images": "node scripts/compress-images.mjs",
     "optimize-static-images": "node scripts/optimize-static-images.mjs",
     "verify-voting": "node --no-warnings scripts/verify-voting-chain.mjs",
-    "verify-school": "node --no-warnings scripts/verify-school-credentials.mjs"
+    "verify-school": "node --no-warnings scripts/verify-school-credentials.mjs",
+    "verify-typography": "node --no-warnings scripts/scan-typography.mjs"
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.84",

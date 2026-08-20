@@ -1,13 +1,13 @@
 'use client';
 
 /**
- * National Digital School — a certificate that proves itself.
+ * National Digital School: a certificate that proves itself.
  *
  * Every hash, every signature and every proof on these screens is computed live by school.ts
  * using Web Crypto: real ECDSA over P-256, a real IPFS CIDv1, a real Merkle tree. There is no
  * server, no key to configure, and nothing pre-recorded.
  *
- * The argument the screen is making is not "records should be digital" — everyone agrees with
+ * The argument the screen is making is not "records should be digital". Everyone agrees with
  * that and it changes nothing. It is that verification today means telephoning a university
  * that may not answer, and that the employer who only needs "did she graduate" ends up
  * holding every mark she ever got. Both of those are choices, and both can be unmade.
@@ -44,7 +44,7 @@ const SCHOOL_NAME = 'National Digital School, Rampur';
  *
  * Its whole purpose is that it is not the school. A register where the issuer can amend its
  * own records alone is an editable database wearing a hash chain, so the threshold is the
- * actual security property here — not the signature, which the school had all along.
+ * actual security property here, not the signature, which the school had all along.
  */
 const BOARD_NAME = 'State Board of Higher Education';
 
@@ -80,7 +80,7 @@ const CORRECTIONS: Record<CorrectionReason, {
 /** The fields a graduate would normally be asked for, versus everything on the certificate. */
 /**
  * The fields a forger would actually want to improve, with what they would change them to.
- * A field already at its target is left out — offering "Passed with distinction → Passed
+ * A field already at its target is left out, because offering "Passed with distinction → Passed
  * with distinction" is not a forgery, it is a typo.
  */
 const FORGEABLE = (cert: Certificate) =>
@@ -182,7 +182,7 @@ export function NationalDigitalSchool({
     town.record({
       kind: 'case', system: 'school',
       label: `${rec.name}'s degree was issued and sealed`,
-      detail: `${c.fields.length} fields hashed into a Merkle tree, the root signed with the school's ECDSA key, and the certificate given a real IPFS address — ${c.cid.slice(0, 18)}…`,
+      detail: `${c.fields.length} fields hashed into a Merkle tree, the root signed with the school's ECDSA key, and the certificate given a real IPFS address, ${c.cid.slice(0, 18)}…`,
       at: { x: 6, y: 6 },
     });
     return c;
@@ -227,7 +227,7 @@ export function NationalDigitalSchool({
       town.recordAttack('forge-certificate');
       town.record({
         kind: 'attack', system: 'school',
-        label: 'A marksheet was altered — and it held',
+        label: 'A marksheet was altered, and it held',
         detail: 'One field was edited. Its Merkle proof stopped reaching the signed root, so the certificate stopped verifying without anyone telephoning the school.',
         at: { x: 6, y: 6 },
       });
@@ -273,7 +273,7 @@ export function NationalDigitalSchool({
     setVerifyMs(out.ms);
   }, [school, cert, shown]);
 
-  // Tick only while a correction is contestable — an idle register costs nothing. The
+  // Tick only while a correction is contestable, because an idle register costs nothing. The
   // re-verification rides along, because the fourth check's meaning changes when the window
   // closes and a stale "9s left" would be a lie on screen.
   useEffect(() => {
@@ -298,7 +298,7 @@ export function NationalDigitalSchool({
    * Correct a certificate without editing one.
    *
    * A new certificate is issued with the field put right, and the register records that the
-   * old one is superseded by it — signed by the school *and* the board, with a reason from
+   * old one is superseded by it, signed by the school *and* the board, with a reason from
    * the closed list. The old certificate keeps its signature and stays on the record; it
    * simply stops being the current version once the window closes.
    */
@@ -334,7 +334,7 @@ export function NationalDigitalSchool({
     town.record({
       kind: 'resolved', system: 'school',
       label: 'A mistake on a degree was corrected without editing one',
-      detail: `${spec.story} A replacement was issued and the register recorded the supersession — signed by the school and the board, with ${Math.round(CHALLENGE_WINDOW_MS / 1000)}s for the graduate to contest it.`,
+      detail: `${spec.story} A replacement was issued and the register recorded the supersession, signed by the school and the board, with ${Math.round(CHALLENGE_WINDOW_MS / 1000)}s for the graduate to contest it.`,
       at: { x: 6, y: 6 },
     });
   }, [school, board, cert, student, revocations, town, reverify]);
@@ -369,7 +369,7 @@ export function NationalDigitalSchool({
     town.record({
       kind: 'attack', system: 'school',
       label: 'A graduate refused a correction, and it stuck',
-      detail: 'She signed a contest entry inside the challenge window. The supersession never took effect — and both her refusal and the attempt stay on the register forever.',
+      detail: 'She signed a contest entry inside the challenge window. The supersession never took effect, and both her refusal and the attempt stay on the register forever.',
       at: { x: 6, y: 6 },
     });
   }, [cert, revocations, town, reverify]);
@@ -385,7 +385,7 @@ export function NationalDigitalSchool({
     town.record({
       kind: 'attack', system: 'school',
       label: 'A degree was cancelled, and stayed cancelled',
-      detail: 'The signature on it still verifies — signatures do not expire. The chained revocation register is what stops it being presented.',
+      detail: 'The signature on it still verifies, because signatures do not expire. The chained revocation register is what stops it being presented.',
       at: { x: 6, y: 6 },
     });
   }, [school, cert, revocations, shown, town]);
@@ -406,7 +406,7 @@ export function NationalDigitalSchool({
       <div className="fixed inset-0 z-50 grid place-items-center bg-[#0b1020] text-white">
         <div className="text-center">
           <div className="mb-3 text-5xl">🏫</div>
-          <div className="text-sm tracking-widest text-white/50">GENERATING THE SCHOOL’S KEYS…</div>
+          <div className="text-sm tracking-widest text-white/50">GENERATING THE SCHOOL&apos;S KEYS…</div>
           <div className="mt-2 text-xs text-white/30">ECDSA P-256, in your browser</div>
         </div>
       </div>
@@ -461,7 +461,7 @@ export function NationalDigitalSchool({
                 Anjali has finished her degree. In most versions of this story the paper she is
                 handed is the weakest object in her life: a photocopy an employer cannot check
                 without telephoning a university that may not answer, and which she must show in
-                full — every mark, every subject — to prove a single fact.
+                full, every mark and every subject, to prove a single fact.
               </p>
 
               <div className="mb-6">
@@ -502,7 +502,7 @@ export function NationalDigitalSchool({
                     <div className="mb-1 font-semibold text-amber-200">What has to become true</div>
                     <ul className="space-y-1.5 text-sm text-white/60">
                       <li>· An employer can check it in seconds, offline, without calling anybody.</li>
-                      <li>· Changing one mark has to break it — not be hard, <i>impossible</i>.</li>
+                      <li>· Changing one mark has to break it. Not merely hard: <i>impossible</i>.</li>
                       <li>· She can prove she has the degree <b className="text-white/80">without showing her marks</b>.</li>
                       <li>· A degree cancelled later has to stop verifying, even though signatures never expire.</li>
                     </ul>
@@ -535,7 +535,7 @@ export function NationalDigitalSchool({
               <h2 className="mb-2 text-3xl font-bold">Issued, and sealed</h2>
               <p className="mb-6 max-w-2xl text-white/60">
                 Each field is salted and hashed on its own, the hashes are folded into a Merkle
-                tree, and the school signs <i>the root</i> — not the document. Signing the root
+                tree, and the school signs <i>the root</i>, not the document. Signing the root
                 is what makes the fourth promise possible: she can later prove one field belongs
                 to this certificate without revealing the other ten.
               </p>
@@ -575,8 +575,8 @@ export function NationalDigitalSchool({
                   </div>
 
                   <p className="mb-4 text-xs text-white/40">
-                    The salt is not decoration. Without it, “CGPA 8.9” is one of a hundred guesses,
-                    and anyone holding a leaf hash could brute-force the value it hides — which
+                    The salt is not decoration. Without it, &quot;CGPA 8.9&quot; is one of a hundred guesses,
+                    and anyone holding a leaf hash could brute-force the value it hides, which
                     would make the selective disclosure two screens from here a lie.
                   </p>
 
@@ -595,7 +595,7 @@ export function NationalDigitalSchool({
                   </div>
 
                   <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
-                    <div className="mb-1 text-[10px] uppercase tracking-widest text-white/40">School’s signature over the root</div>
+                    <div className="mb-1 text-[10px] uppercase tracking-widest text-white/40">School&apos;s signature over the root</div>
                     <div className="break-all font-mono text-[11px] text-amber-300/80">{cert.signature}</div>
                   </div>
 
@@ -619,10 +619,10 @@ export function NationalDigitalSchool({
                         : 'Cancelling a degree that was already signed'}
               </h2>
               <p className="mb-6 max-w-2xl text-white/60">
-                {step === 'verify' && 'Four checks, each ruling out a different fraud. All an employer needs is the certificate she hands them and the public key the school publishes — no call, no portal, no login.'}
+                {step === 'verify' && 'Four checks, each ruling out a different fraud. All an employer needs is the certificate she hands them and the public key the school publishes: no call, no portal, no login.'}
                 {step === 'forge' && 'You are the forger. Edit any field on the certificate; the signature and the proofs stay exactly as the school issued them, because those are the parts you cannot produce.'}
-                {step === 'disclose' && 'She is applying for a job that needs to know she has the degree. Choose what the employer sees. Everything you leave off is genuinely not in what they receive — they hold a hash, not a hidden value.'}
-                {step === 'correct' && 'Records have typos, and names legally change. An append-only register cannot edit one — so it supersedes it, under rules that stop a supersession being an edit in disguise.'}
+                {step === 'disclose' && 'She is applying for a job that needs to know she has the degree. Choose what the employer sees. Everything you leave off is genuinely not in what they receive: they hold a hash, not a hidden value.'}
+                {step === 'correct' && 'Records have typos, and names legally change. An append-only register cannot edit one, so it supersedes it, under rules that stop a supersession being an edit in disguise.'}
                 {step === 'revoke' && 'A signature does not stop being valid because a degree was cancelled. That is the awkward part of signed credentials, and it needs its own answer.'}
               </p>
 
@@ -695,7 +695,7 @@ export function NationalDigitalSchool({
                   {forgedField && (
                     <p className="mb-4 text-sm text-white/60">
                       Notice which check failed. The school&apos;s <b className="text-white/85">signature still
-                      verifies</b> — the forger never touched the root, and could not have produced a
+                      verifies</b>, because the forger never touched the root, and could not have produced a
                       new one. What catches this is the Merkle proof: the edited field no longer hashes
                       into the root the school signed.
                     </p>
@@ -807,7 +807,7 @@ export function NationalDigitalSchool({
                         </button>
                         {refusal && (
                           <p className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
-                            Refused — {refusal}
+                            Refused: {refusal}
                           </p>
                         )}
                       </div>
@@ -846,7 +846,7 @@ export function NationalDigitalSchool({
                         </div>
                         <p className="mt-3 text-xs leading-relaxed text-white/45">
                           Nothing was removed. The original keeps its signature and its place on the
-                          record forever — you get a corrected certificate, never a clean history.
+                          record forever. You get a corrected certificate, never a clean history.
                           That is the price of a register that cannot be edited, and it is the right
                           price to pay.
                         </p>
@@ -882,16 +882,16 @@ export function NationalDigitalSchool({
                         <p className="mb-4 rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/60">
                           She refused it inside the window, so the correction never took effect and the
                           original is still current. Both the attempt and her refusal stay on the
-                          register — a right to contest that leaves no trace is one nobody can later
+                          register. A right to contest that leaves no trace is one nobody can later
                           prove they exercised.
                         </p>
                       )}
 
                       {liveStatus?.state === 'superseded' && (
                         <p className="mb-4 rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/60">
-                          The window closed. Look at which check moved: the original&rsquo;s signature
+                          The window closed. Look at which check moved: the original&apos;s signature
                           still verifies, because the school really did sign it and the past did not
-                          change. It is simply no longer the current version — and the replacement
+                          change. It is simply no longer the current version, and the replacement
                           verifies on all four, because it was issued, not edited.
                         </p>
                       )}
@@ -943,7 +943,7 @@ export function NationalDigitalSchool({
                     </div>
                     {revocations.length === 0 ? (
                       <p className="text-sm text-white/45">
-                        Empty. A certificate is valid until this register says otherwise — and the
+                        Empty. A certificate is valid until this register says otherwise, and the
                         register has to be as tamper-evident as the certificates, or it just becomes
                         the new place to lie.
                       </p>
@@ -967,7 +967,7 @@ export function NationalDigitalSchool({
                   <p className="mb-4 text-sm text-white/60">
                     Watch what happens to the checks: the signature keeps verifying, because a
                     signature is a statement about the past and the past did not change. Only the
-                    fourth check moves. That is the honest shape of the problem — revocation is a
+                    fourth check moves. That is the honest shape of the problem: revocation is a
                     liveness question, and it cannot be answered by cryptography alone.
                   </p>
 
@@ -995,7 +995,7 @@ export function NationalDigitalSchool({
             <div className="mb-2 font-semibold">The problem being solved</div>
             <p className="text-sm text-white/60">
               Verifying an Indian certificate today means telephoning an institution that may not
-              answer, so most employers simply do not — which is precisely why forged degrees
+              answer, so most employers simply do not, which is precisely why forged degrees
               work. The other half is quieter: to prove one fact you hand over everything, forever.
             </p>
           </div>
@@ -1003,18 +1003,18 @@ export function NationalDigitalSchool({
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
             <div className="mb-2 font-semibold">What&apos;s real in this demo?</div>
             <ul className="space-y-2 text-sm text-white/60">
-              <li>🔑 <b className="text-white/80">The signatures</b> — ECDSA P-256 through Web Crypto. The keypair is generated in your browser when this screen opens.</li>
-              <li>🌳 <b className="text-white/80">The Merkle tree</b> — genuine SHA-256, one salted leaf per field, and real inclusion proofs.</li>
-              <li>📦 <b className="text-white/80">The address</b> — a real IPFS CIDv1: base32 over raw codec plus a sha2-256 multihash. Any IPFS tool would agree.</li>
-              <li>⛓ <b className="text-white/80">The revocation register</b> — SHA-256 chained, the same way the voting centre chains blocks.</li>
-              <li>🎓 <b className="text-white/80">Not real</b> — the students and their marks are invented, and the school&apos;s key lives for as long as this tab does.</li>
+              <li>🔑 <b className="text-white/80">The signatures</b>: ECDSA P-256 through Web Crypto. The keypair is generated in your browser when this screen opens.</li>
+              <li>🌳 <b className="text-white/80">The Merkle tree</b>: genuine SHA-256, one salted leaf per field, and real inclusion proofs.</li>
+              <li>📦 <b className="text-white/80">The address</b>: a real IPFS CIDv1, base32 over raw codec plus a sha2-256 multihash. Any IPFS tool would agree.</li>
+              <li>⛓ <b className="text-white/80">The revocation register</b>: SHA-256 chained, the same way the voting centre chains blocks.</li>
+              <li>🎓 <b className="text-white/80">Not real</b>: the students and their marks are invented, and the school&apos;s key lives for as long as this tab does.</li>
             </ul>
           </div>
 
           <WhatItUses
             uses={"Merkle tree · ECDSA P-256 · hash-chained revocation register"}
             needsChain={false}
-            why={"No consensus, no network, no peers, no chain. A degree verifies offline against a published key, which is the entire product — and is why it works in a village with no signal."}
+            why={"No consensus, no network, no peers, no chain. A degree verifies offline against a published key, which is the entire product, and is why it works in a village with no signal."}
           />
           <WhatItCosts points={[
           "A signed record cannot be edited. A misspelled name is corrected by superseding the certificate, and the error stays visible in its lineage forever.",
@@ -1026,7 +1026,7 @@ export function NationalDigitalSchool({
             <div className="mb-1 font-semibold text-amber-300">Honest caveat</div>
             <p className="text-xs leading-relaxed text-white/50">
               This proves a certificate is authentic and unaltered. It cannot prove the school was
-              honest when it issued one — a corrupt institution signing a real key still produces a
+              honest when it issued one. A corrupt institution signing a real key still produces a
               perfectly valid degree. That is a governance problem, and no amount of cryptography
               moves it. What this does remove is the several million forgeries that are just
               photocopies with a number changed.
@@ -1036,8 +1036,8 @@ export function NationalDigitalSchool({
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
             <div className="mb-1 font-semibold">Verify it yourself</div>
             <p className="text-xs leading-relaxed text-white/50">
-              Every property on this screen is asserted by a script in the repo —
-              <span className="font-mono text-white/70"> npm run verify-school</span> — which runs
+              Every property on this screen is asserted by a script in the repo,
+              <span className="font-mono text-white/70"> npm run verify-school</span>, which runs
               against this exact module: forgery, key substitution, field-moving, salt guessing,
               selective disclosure, revocation, and every rule that makes a correction a
               correction rather than an edit.

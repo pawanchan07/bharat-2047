@@ -68,7 +68,7 @@ export function TopBar() {
       {/* Park name and date - fixed width to prevent layout jitter */}
       <div className="flex flex-col min-w-[180px]">
         <span className="text-white font-medium text-sm truncate">{settings.name}</span>
-        <span className="text-white/50 text-xs tabular-nums">{monthName} {day}, Year {year} — {timeString}</span>
+        <span className="text-white/50 text-xs tabular-nums">{monthName} {day}, Year {year} · {timeString}</span>
       </div>
       
       {/* Separator */}

@@ -148,7 +148,7 @@ export function filterBackgroundColor(img: HTMLImageElement, threshold: number =
       const data = imageData.data;
 
       // PERF: compare squared distances. This runs over ~4 million pixels per sheet, and
-      // sqrt() on every one of them buys nothing — x <= t is the same test as x² <= t².
+      // sqrt() on every one of them buys nothing: x <= t is the same test as x² <= t².
       const thresholdSq = threshold * threshold;
       const { r: bgR, g: bgG, b: bgB } = BACKGROUND_COLOR;
 

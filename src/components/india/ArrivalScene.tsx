@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * The scene that opens a citizen's journey — shared by the voting centre and the panchayat.
+ * The scene that opens a citizen's journey, shared by the voting centre and the panchayat.
  *
  * A citizen has to be *seen* walking to the door, otherwise the first screen of a system
- * reads as a placeholder. Everything here is drawn — SVG figures and buildings, CSS gait —
+ * reads as a placeholder. Everything here is drawn (SVG figures and buildings, CSS gait)
  * rather than typed as emoji, so it renders identically on every machine and can actually
  * be animated.
  */
@@ -44,7 +44,7 @@ function CitizenFigure({ walking, palette }: { walking: boolean; palette: { clot
           <circle cx="15" cy="48" r="3.2" fill="#c98a63" />
         </g>
 
-        {/* body — kurta and dupatta */}
+        {/* body: kurta and dupatta */}
         <path d="M13 28 q9 -5 18 0 l4 24 q-11 5 -26 0 z" fill={palette.cloth} />
         <path d="M15 30 q9 6 15 1 l1.6 6 q-8 5 -17 -1 z" fill={palette.trim} opacity="0.9" />
         {/* neck + head */}
@@ -77,7 +77,7 @@ function Citizen({ walking, palette }: { walking: boolean; palette: { cloth: str
   );
 }
 
-/** A villager already in the queue — same construction, standing still, pushed back in the haze. */
+/** A villager already in the queue: same construction, standing still, pushed back in the haze. */
 function QueueFigure({ left, cloth, trim, hair, scale }: { left: string; cloth: string; trim: string; hair: string; scale: number }) {
   return (
     <div
@@ -123,7 +123,7 @@ function PollingStation({ lit }: { lit: boolean }) {
       <rect x="82" y="80" width="18" height="22" rx="2" fill="#2b3f63" opacity="0.75" />
       <rect x="120" y="80" width="18" height="22" rx="2" fill="#2b3f63" opacity="0.75" />
 
-      {/* doorway — glows once the citizen reaches it */}
+      {/* doorway, glows once the citizen reaches it */}
       <rect x="90" y="104" width="40" height="48" rx="3" fill={lit ? '#f8d99a' : '#243354'} className={lit ? 'vs-door-lit' : ''} />
       <rect x="90" y="104" width="40" height="48" rx="3" fill="none" stroke="#a98d63" strokeWidth="2" />
       <circle cx="122" cy="130" r="1.8" fill="#6b5433" />
@@ -341,7 +341,7 @@ export function ArrivalScene({
 
       {/* sky */}
       <div className="absolute inset-0" style={{ background: sky.air }} />
-      {/* the sun — low on the horizon at dusk, high overhead at midday */}
+      {/* the sun: low on the horizon at dusk, high overhead at midday */}
       <div className={`absolute h-14 w-14 rounded-full ${sky.sun}`} style={{ background: 'radial-gradient(circle, rgba(255,196,120,.95) 0%, rgba(255,160,80,.35) 45%, rgba(255,150,70,0) 70%)' }} />
 
       {/* distant treeline */}

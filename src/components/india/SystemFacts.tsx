@@ -18,7 +18,7 @@
 import React from 'react';
 
 export interface SystemFactsProps {
-  /** The primitives, named honestly — "Merkle tree · ECDSA P-256", not "blockchain". */
+  /** The primitives, named honestly: "Merkle tree · ECDSA P-256", not "blockchain". */
   uses: string;
   /** True only when the system genuinely passes the seven-question test in VISION.md. */
   needsChain: boolean;
@@ -26,7 +26,7 @@ export interface SystemFactsProps {
   why: string;
 }
 
-/** What this system actually runs on — and whether it needed a chain to do it. */
+/** What this system actually runs on, and whether it needed a chain to do it. */
 export function WhatItUses({ uses, needsChain, why }: SystemFactsProps) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-4">
@@ -57,9 +57,9 @@ export function WhatItCosts({ points }: { points: string[] }) {
       <ul className="space-y-1.5">
         {points.map((p) => (
           <li key={p} className="flex gap-2 text-xs leading-relaxed text-white/50">
-            <span className="shrink-0 text-white/25" aria-hidden>
-              —
-            </span>
+            {/* The bullet is a drawn rule rather than a typed dash, so the glyph is a
+                design decision and not a character sitting in the copy. */}
+            <span className="mt-[0.8em] h-px w-2.5 shrink-0 bg-white/25" aria-hidden />
             {p}
           </li>
         ))}
