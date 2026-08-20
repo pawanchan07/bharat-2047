@@ -42,7 +42,7 @@ const nextConfig = {
    */
 
   /*
-   * Vercel fingerprints /_next/static, but files under public/ are served with a
+   * Cloudflare fingerprints /_next/static, but files under public/ are served with a
    * revalidate-every-time default, so a returning visitor pays a round trip per sprite
    * sheet before it can draw anything. These are stable art files, so cache them properly.
    *

@@ -236,17 +236,35 @@ key cannot be swapped after the fact, the original still verifies inside the cha
 and stops being current after it, a contested supersession never takes effect, and editing a
 contest entry is detected like any other tamper.
 
-## Putting it on your website
+## How this is deployed
 
-Two good options:
+Cloudflare Workers, as a static export. There is no server: `next build` writes
+`out/` and Cloudflare serves those files from the edge.
 
-**Option A — subdomain / separate deployment (recommended).**
-Deploy this folder to Vercel, Netlify or any Node host and point a subdomain
-at it (e.g. `future.yoursite.com`), or link to `/india` from your site.
-On Vercel: import the folder as a project, no config needed.
+One repo, two Workers, because one export serves two domains:
 
-**Option B — iframe embed.**
-Deploy it anywhere as above, then embed on any page of your site:
+| Worker | Config | Domain | Bare domain shows |
+| --- | --- | --- | --- |
+| `bharat-2047` | `wrangler.jsonc` | bharat.pawanchander.com | `/india`, the town |
+| `iso-coaster` | `wrangler.coaster.jsonc` | iso-coaster.com | `/coaster`, the park |
+
+Each Worker is a few lines in `worker/` that rewrite the root and hand everything
+else to the assets. That replaced `src/proxy.ts`, which did the same host check as
+middleware and could not survive static export.
+
+Push to `main` and Cloudflare builds and deploys. To do it by hand:
+
+```bash
+npm run build
+npx wrangler deploy                                # bharat.pawanchander.com
+npx wrangler deploy --config wrangler.coaster.jsonc # iso-coaster.com
+```
+
+Two things static export drops silently, so they live elsewhere now: the cache
+headers are in `public/_headers`, and the root rewrites are in the Workers rather
+than `next.config.js`.
+
+**Embedding it elsewhere.** Deploy as above, then put it on any page:
 
 ```html
 <iframe src="https://future.yoursite.com/india"
