@@ -57,6 +57,10 @@ they would all accept; someone must check it later who was not there; a quiet ed
 would be catastrophic; the throughput and irreversibility are survivable; no personal
 data sits on the record itself.
 
+You can run that test against your own case inside the town — open **Why this exists** and
+answer the seven questions. It will usually tell you no, and name the cheaper architecture
+that would beat a chain. Five of the six worked examples it ships with come back *no*.
+
 Every system in the town now carries a **what this actually uses** card and a **what
 this costs you** card next to what it can do, so the price is as visible as the
 capability. The full reasoning — the trade-offs, how each one is answered, what
@@ -194,7 +198,15 @@ Then open the **National Digital School**:
 21. **Show less** — hand an employer 4 fields out of 11. What is left off is genuinely
     not in what they receive; they hold a hash, not a hidden value, which is why the
     per-field salt is not decoration.
-22. **Revoke** — cancel the degree. Only the fourth check moves, because a signature
+22. **Correct it** — the school got a roll number wrong, or she legally changed her name.
+    You cannot edit a signed record, so it is *superseded*: a replacement is issued and the
+    register records the supersession, signed by the school **and** an independent board,
+    with a reason from a closed list. Try filing one with the school signing twice and watch
+    it refused. Then watch the challenge window run down — twelve seconds here, weeks in
+    anything real — and press contest before it closes to see the correction annulled with
+    the graduate's own key. Nothing is ever removed: the attempt, the refusal and the
+    original certificate all stay on the record.
+23. **Revoke** — cancel the degree. Only the fourth check moves, because a signature
     is a statement about the past and the past did not change. Revocation is a
     liveness question and cryptography alone cannot answer it.
 
@@ -216,9 +228,13 @@ and how a lost signing key is rotated, is governance, and no amount of cryptogra
 moves it. What this does remove is the several million forgeries that are just
 photocopies with a number changed.
 
-Everything asserted above is checked by `npm run verify-school`, which runs 19 tests
-against the same module the screen uses: forgery, key substitution, field-moving, salt
-guessing, selective disclosure and revocation.
+Everything asserted above is checked by `npm run verify-school`, which runs 34 tests against
+the same module the screen uses: forgery, key substitution, field-moving, salt guessing,
+selective disclosure, revocation, and every rule that separates a correction from an edit —
+a reason outside the closed list is refused, one signer signing twice is refused, the board's
+key cannot be swapped after the fact, the original still verifies inside the challenge window
+and stops being current after it, a contested supersession never takes effect, and editing a
+contest entry is detected like any other tamper.
 
 ## Putting it on your website
 

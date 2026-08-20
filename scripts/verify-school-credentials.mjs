@@ -3,7 +3,9 @@
  * Asserts what the National Digital School screen claims, against the shipped module:
  * a certificate that proves itself, a forgery that cannot survive, selective disclosure
  * that really hides what it says it hides, and a revocation register that is itself
- * tamper-evident.
+ * tamper-evident — plus governed supersession: a certificate that cannot be edited, only
+ * replaced, and only when the rules that stop a supersession being an edit in disguise are
+ * actually met.
  *
  * Run with:  npm run verify-school
  */
@@ -16,8 +18,9 @@ if (!globalThis.crypto) globalThis.crypto = webcrypto
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const {
-  STUDENTS, appendRevocation, cidV1, createSchool, fieldsFor, issue, leafHash,
-  merkleProof, present, revocationChainValid, rootFromProof, verify, verifySignature,
+  CHALLENGE_WINDOW_MS, STUDENTS, appendContest, appendRevocation, appendSupersession, cidV1,
+  createSchool, createSigner, fieldsFor, issue, leafHash, merkleProof, present, registerValid,
+  revocationChainValid, rootFromProof, statusOf, supersessionValid, verify, verifySignature,
 } = await import(pathToFileURL(path.join(ROOT, 'src/components/india/school.ts')).href)
 
 let failures = 0
@@ -120,6 +123,83 @@ const tampered = revocations.map((r) => ({ ...r }))
 tampered[1].reason = 'Nothing to see here'
 check('editing the revocation register is itself detected',
   !(await revocationChainValid(tampered)))
+
+// --- governed supersession -------------------------------------------------------------
+// A correction is the dangerous verb: get its rules wrong and an append-only register is an
+// editable one with extra steps. Every rule is asserted here by trying to break it.
+const board = await createSigner('State Board of Higher Education')
+const fixedRec = { ...STUDENTS[0], rollNo: 'RMP/2047/0421' }
+const replacement = await issue(school, fixedRec, 8100)
+
+check('a corrected certificate is a real re-issue, not an edit',
+  replacement.cid !== cert.cid && replacement.root !== cert.root,
+  'new root, new address, its own signature')
+check('the replacement verifies on its own',
+  (await verify(await present(replacement, replacement.fields.map((f) => f.key), school.publicKeyId), school, [])).ok)
+
+let reg = []
+const t0 = 1_000_000
+reg = await appendSupersession(reg, {
+  oldCid: cert.cid, newCid: replacement.cid, reasonCode: 'transcription',
+  issuer: school, board, at: t0,
+})
+check('the register chains after a supersession', await registerValid(reg), reg.length + ' entry')
+check('both authorities really signed it', await supersessionValid(reg[0], school, board))
+check('the lineage runs both ways',
+  reg[0].cid === cert.cid && reg[0].replacedBy === replacement.cid)
+
+let refused = null
+try {
+  await appendSupersession(reg, {
+    oldCid: cert.cid, newCid: replacement.cid, reasonCode: 'because-we-felt-like-it',
+    issuer: school, board, at: t0,
+  })
+} catch (e) { refused = e.message }
+check('a reason outside the closed list is refused', refused !== null, refused ?? '')
+
+refused = null
+try {
+  await appendSupersession(reg, {
+    oldCid: cert.cid, newCid: replacement.cid, reasonCode: 'transcription',
+    issuer: school, board: school, at: t0,
+  })
+} catch (e) { refused = e.message }
+check('one signer signing twice is not a threshold', refused !== null, refused ?? '')
+
+check('the board cannot be swapped for another key after the fact',
+  !(await supersessionValid(reg[0], school, await createSigner('Some Other Board'))))
+
+// The challenge window: the original is still the one that counts until it closes.
+check('inside the window the original still verifies',
+  (await verify(minimal, school, reg, t0 + 1000)).ok,
+  statusOf(cert.cid, reg, t0 + 1000).state)
+check('after the window it is superseded',
+  !(await verify(minimal, school, reg, t0 + CHALLENGE_WINDOW_MS + 1)).ok,
+  statusOf(cert.cid, reg, t0 + CHALLENGE_WINDOW_MS + 1).state)
+
+out = await verify(minimal, school, reg, t0 + CHALLENGE_WINDOW_MS + 1)
+check('a superseded certificate still has a valid signature',
+  out.checks.filter((c) => !c.ok).length === 1 && out.checks.find((c) => c.id === 'signature').ok,
+  'only the fourth check moves')
+
+// The holder can refuse, and refusing is itself append-only.
+const contested = await appendContest(reg, 0, cert.holder, t0 + 2000)
+check('the holder can contest inside the window', await registerValid(contested),
+  contested.length + ' entries, nothing removed')
+check('a contested supersession never takes effect',
+  statusOf(cert.cid, contested, t0 + CHALLENGE_WINDOW_MS + 5000).state === 'contested')
+check('the original is current again after a contest',
+  (await verify(minimal, school, contested, t0 + CHALLENGE_WINDOW_MS + 5000)).ok)
+
+refused = null
+try { await appendContest(reg, 0, cert.holder, t0 + CHALLENGE_WINDOW_MS + 1) }
+catch (e) { refused = e.message }
+check('contesting after the window has closed is refused', refused !== null, refused ?? '')
+
+const forgedContest = contested.map((r) => ({ ...r }))
+forgedContest[1].reason = 'She agreed to it, actually'
+check('editing a contest entry is detected like any other',
+  !(await registerValid(forgedContest)))
 
 console.log(`\n${failures === 0 ? 'All checks passed.' : failures + ' CHECK(S) FAILED.'}`)
 process.exit(failures === 0 ? 0 : 1)

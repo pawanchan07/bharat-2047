@@ -9,6 +9,7 @@
  * carries a short version that opens it.
  */
 
+import { ChainTest } from './ChainTest';
 import React from 'react';
 
 export const REPO_URL = 'https://github.com/pawanchan07/bharat-2047';
@@ -300,6 +301,10 @@ export function Intent({ onClose }: { onClose: () => void }) {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-6">
+            <ChainTest />
           </div>
         </section>
 

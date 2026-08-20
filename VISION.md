@@ -347,6 +347,26 @@ status is derived from an append-only register with three verbs: `issue`,
 in the lineage forever. And who the second authority is remains governance, not
 cryptography.
 
+**Built, 2026-08-20.** All five rules are enforced in `school.ts` rather than described:
+`appendSupersession` refuses a reason outside the closed list and refuses one signer
+signing twice, the register carries both signatures over a payload binding the two
+content addresses, and `statusOf` reads the lineage without ever rewriting it. The
+challenge window is real and runs in front of you — twelve seconds on screen, weeks in
+anything deployed — and the graduate holds a keypair bound to her certificate at issue,
+so `appendContest` is a signature the register recognises rather than a button. Contesting
+is itself append-only: the attempt and the refusal both stay on the record, because a right
+to contest that leaves no trace is one nobody can later prove they exercised.
+
+**Built, 2026-08-20.** All five rules are enforced in `school.ts` rather than described:
+`appendSupersession` refuses a reason outside the closed list and refuses one signer
+signing twice, the register carries both signatures over a payload binding the two
+content addresses, and `statusOf` reads the lineage without ever rewriting it. The
+challenge window is real and runs in front of you — twelve seconds on screen, weeks in
+anything deployed — and the graduate holds a keypair bound to her certificate at issue,
+so `appendContest` is a signature the register recognises rather than a button. Contesting
+is itself append-only: the attempt and the refusal both stay on the record, because a right
+to contest that leaves no trace is one nobody can later prove they exercised.
+
 **Key loss is identity loss.** "Not your keys, not your coins" is a catastrophic
 default for a welfare state: shared handsets, elderly citizens, people who cannot
 read. Social recovery and guardian schemes fix it and reintroduce trusted parties —
@@ -543,7 +563,11 @@ Education system rides in a lazy chunk fetched when you walk through the door.
 
 Open work, in order:
 
-1. The rest of the roadmap: systems 5 through 10 — AI Safety Command, Smart Waste
+1. The "does this need a blockchain?" tool is live inside the intent screen: the seven
+   questions, answerable against the visitor's own case, with six loadable examples and a
+   verdict that names the cheaper architecture that would beat a chain. It answers *no* for
+   five of the six, which is the point of shipping it.
+2. The rest of the roadmap: systems 5 through 10 — AI Safety Command, Smart Waste
    Network, Smart Mobility Hub, Smart Health Centre with insurance, digital rights
    and policy transparency — one at a time, each built to the bar the voting centre,
    the panchayat, the bank and the school set.

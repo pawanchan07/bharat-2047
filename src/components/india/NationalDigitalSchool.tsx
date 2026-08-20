@@ -15,15 +15,17 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Certificate, Check, Presentation, RevocationEntry, School, STUDENTS, StudentRecord,
-  appendRevocation, createSchool, issue, present, timedVerify,
+  CHALLENGE_WINDOW_MS, CORRECTION_REASONS, Certificate, Check, CorrectionReason, Presentation,
+  RegisterEntry, School, STUDENTS, Signer, StudentRecord,
+  appendContest, appendRevocation, appendSupersession, createSigner, createSchool, issue,
+  present, statusOf, timedVerify,
 } from './school';
 import { IntentCard } from './Intent';
 import { ArrivalScene } from './ArrivalScene';
 import { useTownState } from './TownState';
 import { WhatItUses, WhatItCosts } from './SystemFacts';
 
-type Step = 'arrive' | 'issue' | 'verify' | 'forge' | 'disclose' | 'revoke';
+type Step = 'arrive' | 'issue' | 'verify' | 'forge' | 'disclose' | 'correct' | 'revoke';
 
 const STEPS: { key: Step; label: string }[] = [
   { key: 'arrive', label: 'Results day' },
@@ -31,10 +33,49 @@ const STEPS: { key: Step; label: string }[] = [
   { key: 'verify', label: 'Verify' },
   { key: 'forge', label: 'Forge it' },
   { key: 'disclose', label: 'Show less' },
+  { key: 'correct', label: 'Correct it' },
   { key: 'revoke', label: 'Revoke' },
 ];
 
 const SCHOOL_NAME = 'National Digital School, Rampur';
+
+/**
+ * The independent authority that has to co-sign any correction.
+ *
+ * Its whole purpose is that it is not the school. A register where the issuer can amend its
+ * own records alone is an editable database wearing a hash chain, so the threshold is the
+ * actual security property here — not the signature, which the school had all along.
+ */
+const BOARD_NAME = 'State Board of Higher Education';
+
+/**
+ * What each permitted reason actually changes, so the correction is a real re-issue rather
+ * than a label. Each is a class of error that genuinely happens to Indian certificates: a
+ * transposed roll number, a name that legally changed after the degree, and a mark that
+ * moved on appeal.
+ */
+const CORRECTIONS: Record<CorrectionReason, {
+  field: string; from: (r: StudentRecord) => string; to: string; story: string;
+}> = {
+  transcription: {
+    field: 'roll',
+    from: (r) => r.rollNo,
+    to: 'RMP/2047/0421',
+    story: 'Two digits transposed at the registry desk. The register says 0421; the certificate went out as 0412.',
+  },
+  'legal-name': {
+    field: 'name',
+    from: (r) => r.name,
+    to: 'Anjali Kumari Sharma',
+    story: 'She changed her name after the degree was awarded, and has the gazette notification to evidence it.',
+  },
+  grievance: {
+    field: 'mark:Physics',
+    from: (r) => String(r.marks.find((m) => m.subject === 'Physics')?.score ?? ''),
+    to: '82',
+    story: 'A re-evaluation was upheld on appeal. Physics moves from 78 to 82, which changes the certificate and nothing else.',
+  },
+};
 
 /** The fields a graduate would normally be asked for, versus everything on the certificate. */
 /**
@@ -92,7 +133,18 @@ export function NationalDigitalSchool({
   const [shown, setShown] = useState<string[]>(MINIMAL_KEYS);
   const [forgedField, setForgedField] = useState<string | null>(null);
   const [forgedValue, setForgedValue] = useState('99');
-  const [revocations, setRevocations] = useState<RevocationEntry[]>([]);
+  const [revocations, setRevocations] = useState<RegisterEntry[]>([]);
+
+  /* The correction story: a second authority, a replacement certificate, and a window. */
+  const [board, setBoard] = useState<Signer | null>(null);
+  const [corrected, setCorrected] = useState<Certificate | null>(null);
+  const [viewing, setViewing] = useState<'old' | 'new'>('old');
+  const [refusal, setRefusal] = useState<string | null>(null);
+  /**
+   * Read once per tick rather than during render, so the component stays pure while the
+   * challenge window visibly runs down. Only ticks while something is actually pending.
+   */
+  const [now, setNow] = useState(() => Date.now());
 
   const student: StudentRecord = STUDENTS[studentIdx % STUDENTS.length];
 
@@ -104,12 +156,20 @@ export function NationalDigitalSchool({
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); }, [step]);
 
-  // One keypair per visit, generated here. There is nowhere else for it to live.
+  // One keypair per visit, generated here. There is nowhere else for it to live. The board
+  // gets its own, because a threshold signed by one party twice is not a threshold.
   useEffect(() => {
     let cancelled = false;
     createSchool(SCHOOL_NAME).then((s) => { if (!cancelled) setSchool(s); });
+    createSigner(BOARD_NAME).then((b) => { if (!cancelled) setBoard(b); });
     return () => { cancelled = true; };
   }, []);
+
+  /** The status of whichever certificate is on screen, recomputed as the window closes. */
+  const liveStatus = useMemo(
+    () => (cert ? statusOf(cert.cid, revocations, now) : null),
+    [cert, revocations, now],
+  );
 
   const issueFor = useCallback(async (rec: StudentRecord) => {
     if (!school) return;
@@ -195,6 +255,125 @@ export function NationalDigitalSchool({
     await runDisclosure(MINIMAL_KEYS);
   }, [runDisclosure]);
 
+  /**
+   * Re-verify whichever certificate is on screen against a given register.
+   *
+   * The register is a parameter rather than read from state, because every caller has just
+   * appended to it and would otherwise verify against the version from before their own
+   * change.
+   */
+  const reverify = useCallback(async (
+    which: Certificate, register: RegisterEntry[], at = Date.now(),
+  ) => {
+    if (!school) return;
+    const keys = which === cert ? (shown.length ? shown : MINIMAL_KEYS) : which.fields.map((f) => f.key);
+    const p = await present(which, keys, school.publicKeyId);
+    const out = await timedVerify(p, school, register, at);
+    setChecks(out.checks);
+    setVerifyMs(out.ms);
+  }, [school, cert, shown]);
+
+  // Tick only while a correction is contestable — an idle register costs nothing. The
+  // re-verification rides along, because the fourth check's meaning changes when the window
+  // closes and a stale "9s left" would be a lie on screen.
+  useEffect(() => {
+    if (liveStatus?.state !== 'pending') return;
+    const id = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      const which = viewing === 'new' ? corrected : cert;
+      if (which) void reverify(which, revocations, t);
+    }, 250);
+    return () => clearInterval(id);
+  }, [liveStatus?.state, viewing, corrected, cert, revocations, reverify]);
+
+  const goCorrect = useCallback(async () => {
+    setStep('correct');
+    setViewing('old');
+    setRefusal(null);
+    if (cert) await reverify(cert, revocations);
+  }, [cert, revocations, reverify]);
+
+  /**
+   * Correct a certificate without editing one.
+   *
+   * A new certificate is issued with the field put right, and the register records that the
+   * old one is superseded by it — signed by the school *and* the board, with a reason from
+   * the closed list. The old certificate keeps its signature and stays on the record; it
+   * simply stops being the current version once the window closes.
+   */
+  const doCorrect = useCallback(async (reasonCode: CorrectionReason) => {
+    if (!school || !board || !cert) return;
+    setRefusal(null);
+    const spec = CORRECTIONS[reasonCode];
+
+    // Re-issue from a corrected record, so the new certificate is genuinely signed rather
+    // than the old one with a value swapped underneath its signature.
+    const subject = spec.field.startsWith('mark:') ? spec.field.slice(5) : null;
+    const fixed: StudentRecord = {
+      ...student,
+      name: spec.field === 'name' ? spec.to : student.name,
+      rollNo: spec.field === 'roll' ? spec.to : student.rollNo,
+      marks: subject
+        ? student.marks.map((m) => (m.subject === subject ? { ...m, score: Number(spec.to) } : m))
+        : student.marks,
+    };
+    const replacement = await issue(school, fixed, 8100 + reasonCode.length);
+    setCorrected(replacement);
+
+    const at = Date.now();
+    const next = await appendSupersession(revocations, {
+      oldCid: cert.cid, newCid: replacement.cid, reasonCode,
+      issuer: school, board, at,
+    });
+    setRevocations(next);
+    setNow(at);
+    setViewing('old');
+    await reverify(cert, next, at);
+
+    town.record({
+      kind: 'resolved', system: 'school',
+      label: 'A mistake on a degree was corrected without editing one',
+      detail: `${spec.story} A replacement was issued and the register recorded the supersession — signed by the school and the board, with ${Math.round(CHALLENGE_WINDOW_MS / 1000)}s for the graduate to contest it.`,
+      at: { x: 6, y: 6 },
+    });
+  }, [school, board, cert, student, revocations, town, reverify]);
+
+  /**
+   * The rejected path, run for real rather than described: the same signer twice is not a
+   * threshold, and the register refuses it instead of trusting the caller.
+   */
+  const trySingleSigner = useCallback(async () => {
+    if (!school || !cert) return;
+    try {
+      await appendSupersession(revocations, {
+        oldCid: cert.cid, newCid: 'bafkreiwouldnotmatter', reasonCode: 'transcription',
+        issuer: school, board: school,
+      });
+      setRefusal('It went through, which would be a bug.');
+    } catch (e) {
+      setRefusal(e instanceof Error ? e.message : String(e));
+    }
+  }, [school, cert, revocations]);
+
+  /** The graduate refusing a correction made about her, inside the window. */
+  const doContest = useCallback(async () => {
+    if (!cert) return;
+    const pending = revocations.find((e) => e.kind === 'supersede' && e.cid === cert.cid);
+    if (!pending) return;
+    const next = await appendContest(revocations, pending.index, cert.holder);
+    setRevocations(next);
+    const at = Date.now();
+    setNow(at);
+    await reverify(cert, next, at);
+    town.record({
+      kind: 'attack', system: 'school',
+      label: 'A graduate refused a correction, and it stuck',
+      detail: 'She signed a contest entry inside the challenge window. The supersession never took effect — and both her refusal and the attempt stay on the register forever.',
+      at: { x: 6, y: 6 },
+    });
+  }, [cert, revocations, town, reverify]);
+
   const doRevoke = useCallback(async () => {
     if (!school || !cert) return;
     const next = await appendRevocation(revocations, cert.cid, 'Awarded on forged prerequisites');
@@ -212,7 +391,10 @@ export function NationalDigitalSchool({
   }, [school, cert, revocations, shown, town]);
 
   /** The two screens that show a chosen subset rather than the whole certificate. */
-  const DISCLOSING = step === 'disclose' || step === 'revoke';
+  const DISCLOSING = step === 'disclose' || step === 'revoke'
+    || (step === 'correct' && viewing === 'old');
+  /** On the correction screen the strip shows whichever certificate you are looking at. */
+  const onScreen = step === 'correct' && viewing === 'new' && corrected ? corrected : cert;
   const stepIdx = STEPS.findIndex((s) => s.key === step);
   const sensitiveShown = useMemo(
     () => (cert ? cert.fields.filter((f) => shown.includes(f.key) && f.sensitive).length : 0),
@@ -427,18 +609,20 @@ export function NationalDigitalSchool({
           )}
 
           {/* ----------------------------------------------------------- VERIFY */}
-          {(step === 'verify' || step === 'forge' || step === 'disclose' || step === 'revoke') && cert && (
+          {(step === 'verify' || step === 'forge' || step === 'disclose' || step === 'correct' || step === 'revoke') && cert && (
             <div className="sc-pop">
               <h2 className="mb-2 text-3xl font-bold">
                 {step === 'verify' ? 'Checked in milliseconds, by anyone'
                   : step === 'forge' ? 'Try to change a mark'
                     : step === 'disclose' ? 'Prove the degree, show nothing else'
-                      : 'Cancelling a degree that was already signed'}
+                      : step === 'correct' ? 'Correcting a certificate you cannot edit'
+                        : 'Cancelling a degree that was already signed'}
               </h2>
               <p className="mb-6 max-w-2xl text-white/60">
                 {step === 'verify' && 'Four checks, each ruling out a different fraud. All an employer needs is the certificate she hands them and the public key the school publishes — no call, no portal, no login.'}
                 {step === 'forge' && 'You are the forger. Edit any field on the certificate; the signature and the proofs stay exactly as the school issued them, because those are the parts you cannot produce.'}
                 {step === 'disclose' && 'She is applying for a job that needs to know she has the degree. Choose what the employer sees. Everything you leave off is genuinely not in what they receive — they hold a hash, not a hidden value.'}
+                {step === 'correct' && 'Records have typos, and names legally change. An append-only register cannot edit one — so it supersedes it, under rules that stop a supersession being an edit in disguise.'}
                 {step === 'revoke' && 'A signature does not stop being valid because a degree was cancelled. That is the awkward part of signed credentials, and it needs its own answer.'}
               </p>
 
@@ -447,11 +631,11 @@ export function NationalDigitalSchool({
                 <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-sm font-semibold text-white/85">What the employer receives</span>
                   <span className="font-mono text-[11px] text-white/40">
-                    {`${DISCLOSING ? shown.length : cert.fields.length} of ${cert.fields.length} fields`}
+                    {`${DISCLOSING ? shown.length : (onScreen ?? cert).fields.length} of ${(onScreen ?? cert).fields.length} fields`}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {cert.fields.map((f) => {
+                  {(onScreen ?? cert).fields.map((f) => {
                     const visible = DISCLOSING ? shown.includes(f.key) : true;
                     const isForged = forgedField === f.key;
                     return (
@@ -564,10 +748,190 @@ export function NationalDigitalSchool({
                     graduated also learns what you got in Physics.
                   </p>
 
-                  <button onClick={() => setStep('revoke')}
+                  <button onClick={goCorrect}
                     className="rounded-xl bg-amber-500 px-6 py-3 font-semibold text-black hover:bg-amber-400">
-                    And if the degree is later cancelled? →
+                    And if the school got something wrong? →
                   </button>
+                </div>
+              )}
+
+              {step === 'correct' && cert && (
+                <div className="max-w-3xl">
+                  {!corrected ? (
+                    <>
+                      <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div className="mb-3 text-sm font-semibold text-white/85">
+                          Why is it being corrected?
+                        </div>
+                        <p className="mb-3 text-xs leading-relaxed text-white/45">
+                          A closed list, not a text box. An open reason field is how an append-only
+                          register quietly becomes editable: with free text, a motivated official can
+                          rewrite anything and call it an amendment.
+                        </p>
+                        <div className="space-y-2">
+                          {CORRECTION_REASONS.map((r) => (
+                            <button
+                              key={r.code}
+                              onClick={() => doCorrect(r.code)}
+                              disabled={!board}
+                              className="w-full rounded-xl border border-white/12 bg-white/[0.03] p-3 text-left transition-colors hover:border-amber-400/50 hover:bg-amber-500/[0.07] disabled:opacity-40"
+                            >
+                              <div className="text-sm font-medium text-white/85">{r.label}</div>
+                              <p className="mt-0.5 text-xs leading-relaxed text-white/45">
+                                {CORRECTIONS[r.code].story}
+                              </p>
+                              <div className="mt-1.5 font-mono text-[10px] text-cyan-300/60">
+                                {CORRECTIONS[r.code].field} : {CORRECTIONS[r.code].from(student)} → {CORRECTIONS[r.code].to}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div className="mb-2 text-sm font-semibold text-white/85">
+                          Two signatures, not one
+                        </div>
+                        <p className="mb-3 text-xs leading-relaxed text-white/45">
+                          The school issued the certificate, so letting it amend its own records alone
+                          would make the register an editable database wearing a hash chain. Every
+                          correction needs the school <b className="text-white/70">and</b> the board.
+                        </p>
+                        <div className="mb-3 space-y-1 font-mono text-[10px] text-white/40">
+                          <div>school &nbsp;{school.publicKeyId.slice(0, 24)}…</div>
+                          <div>board &nbsp;&nbsp;{board ? `${board.publicKeyId.slice(0, 24)}…` : 'generating…'}</div>
+                        </div>
+                        <button onClick={trySingleSigner}
+                          className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/60 hover:border-red-400/50 hover:text-white">
+                          Try it with the school signing twice
+                        </button>
+                        {refusal && (
+                          <p className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
+                            Refused — {refusal}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {([['old', 'The original'], ['new', 'The replacement']] as const).map(([k, label]) => (
+                          <button key={k} onClick={() => {
+                            setViewing(k);
+                            const which = k === 'new' ? corrected : cert;
+                            if (which) void reverify(which, revocations);
+                          }}
+                            className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+                              viewing === k ? 'border-amber-400/60 bg-amber-500/15 text-amber-100'
+                                : 'border-white/12 bg-white/5 text-white/55 hover:text-white'}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div className="mb-3 text-sm font-semibold text-white/85">
+                          The lineage, which runs both ways
+                        </div>
+                        <div className="space-y-2 text-[11px]">
+                          <div className="border-l-2 border-white/20 pl-3">
+                            <div className="text-white/60">superseded</div>
+                            <div className="break-all font-mono text-white/35">{cert.cid}</div>
+                          </div>
+                          <div className="pl-3 text-white/25">↓ replaced by</div>
+                          <div className="border-l-2 border-emerald-400/50 pl-3">
+                            <div className="text-emerald-300/80">current</div>
+                            <div className="break-all font-mono text-white/35">{corrected.cid}</div>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs leading-relaxed text-white/45">
+                          Nothing was removed. The original keeps its signature and its place on the
+                          record forever — you get a corrected certificate, never a clean history.
+                          That is the price of a register that cannot be edited, and it is the right
+                          price to pay.
+                        </p>
+                      </div>
+
+                      {liveStatus?.state === 'pending' && (
+                        <div className="mb-4 rounded-2xl border border-amber-400/40 bg-amber-500/[0.09] p-4">
+                          <div className="mb-1 flex items-center justify-between gap-3">
+                            <div className="text-sm font-semibold text-amber-200">
+                              {cert.studentName} has been notified
+                            </div>
+                            <div className="font-mono text-sm text-amber-200">
+                              {Math.ceil((liveStatus.msLeft ?? 0) / 1000)}s
+                            </div>
+                          </div>
+                          <div className="mb-3 h-1 overflow-hidden rounded-full bg-white/10">
+                            <div className="h-full rounded-full bg-amber-400 transition-[width] duration-200"
+                              style={{ width: `${Math.max(0, ((liveStatus.msLeft ?? 0) / CHALLENGE_WINDOW_MS) * 100)}%` }} />
+                          </div>
+                          <p className="mb-3 text-xs leading-relaxed text-white/55">
+                            Until this closes the original is still the version that counts. A window
+                            she cannot act inside is decoration, so she holds a key of her own and the
+                            register will take her signature. Twelve seconds here; weeks in anything real.
+                          </p>
+                          <button onClick={doContest}
+                            className="rounded-lg bg-white/15 px-4 py-2 text-xs font-semibold text-white hover:bg-white/25">
+                            {cert.studentName.split(' ')[0]} contests it
+                          </button>
+                        </div>
+                      )}
+
+                      {liveStatus?.state === 'contested' && (
+                        <p className="mb-4 rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/60">
+                          She refused it inside the window, so the correction never took effect and the
+                          original is still current. Both the attempt and her refusal stay on the
+                          register — a right to contest that leaves no trace is one nobody can later
+                          prove they exercised.
+                        </p>
+                      )}
+
+                      {liveStatus?.state === 'superseded' && (
+                        <p className="mb-4 rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/60">
+                          The window closed. Look at which check moved: the original&rsquo;s signature
+                          still verifies, because the school really did sign it and the past did not
+                          change. It is simply no longer the current version — and the replacement
+                          verifies on all four, because it was issued, not edited.
+                        </p>
+                      )}
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div className="mb-2 text-sm font-semibold text-white/85">
+                          The register · {revocations.length} entr{revocations.length === 1 ? 'y' : 'ies'}
+                        </div>
+                        <ol className="space-y-2">
+                          {revocations.map((r) => (
+                            <li key={r.hash} className={`border-l-2 pl-3 ${
+                              r.kind === 'contest' ? 'border-white/30'
+                                : r.kind === 'supersede' ? 'border-amber-400/50' : 'border-red-500/40'}`}>
+                              <div className="text-sm text-white/80">
+                                #{r.index} · <span className="uppercase text-[10px] tracking-wider text-white/40">{r.kind}</span> · {r.reason}
+                              </div>
+                              {r.issuerSig && (
+                                <div className="font-mono text-[10px] text-emerald-300/50">
+                                  school {r.issuerSig.slice(0, 16)}… · board {r.boardSig?.slice(0, 16)}…
+                                </div>
+                              )}
+                              {r.holderSig && (
+                                <div className="font-mono text-[10px] text-emerald-300/50">
+                                  holder {r.holderSig.slice(0, 16)}…
+                                </div>
+                              )}
+                              <div className="break-all font-mono text-[10px] text-cyan-300/50">hash {r.hash.slice(0, 32)}…</div>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button onClick={() => setStep('revoke')}
+                      className="rounded-xl bg-amber-500 px-6 py-3 font-semibold text-black hover:bg-amber-400">
+                      And if it is cancelled outright? →
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -575,7 +939,7 @@ export function NationalDigitalSchool({
                 <div className="max-w-3xl">
                   <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                     <div className="mb-2 text-sm font-semibold text-white/85">
-                      The revocation register · {revocations.length} entr{revocations.length === 1 ? 'y' : 'ies'}
+                      The public register · {revocations.length} entr{revocations.length === 1 ? 'y' : 'ies'}
                     </div>
                     {revocations.length === 0 ? (
                       <p className="text-sm text-white/45">
@@ -586,8 +950,12 @@ export function NationalDigitalSchool({
                     ) : (
                       <ol className="space-y-2">
                         {revocations.map((r) => (
-                          <li key={r.hash} className="border-l-2 border-red-500/40 pl-3">
-                            <div className="text-sm text-white/80">#{r.index} · {r.reason}</div>
+                          <li key={r.hash} className={`border-l-2 pl-3 ${
+                            r.kind === 'contest' ? 'border-white/30'
+                              : r.kind === 'supersede' ? 'border-amber-400/50' : 'border-red-500/40'}`}>
+                            <div className="text-sm text-white/80">
+                              #{r.index} · <span className="text-[10px] uppercase tracking-wider text-white/40">{r.kind}</span> · {r.reason}
+                            </div>
                             <div className="break-all font-mono text-[10px] text-white/35">{r.cid}</div>
                             <div className="break-all font-mono text-[10px] text-cyan-300/60">hash {r.hash.slice(0, 32)}…</div>
                           </li>
@@ -604,7 +972,7 @@ export function NationalDigitalSchool({
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={doRevoke} disabled={revocations.length > 0}
+                    <button onClick={doRevoke} disabled={liveStatus?.state === 'revoked'}
                       className="rounded-xl bg-red-500/80 px-5 py-3 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-40">
                       Revoke this degree
                     </button>
@@ -671,7 +1039,8 @@ export function NationalDigitalSchool({
               Every property on this screen is asserted by a script in the repo —
               <span className="font-mono text-white/70"> npm run verify-school</span> — which runs
               against this exact module: forgery, key substitution, field-moving, salt guessing,
-              selective disclosure and revocation.
+              selective disclosure, revocation, and every rule that makes a correction a
+              correction rather than an edit.
             </p>
           </div>
         </aside>
