@@ -90,6 +90,16 @@ component importing from a client module gets a reference proxy, not the value.
 the migration. Verify with `1.1.1.1` or `8.8.8.8`, or on mobile data, before believing a site
 is down.
 
+**A dropped dependency needs the lockfile regenerated.** The portfolio removed
+`@vercel/analytics` from `package.json` and left `pnpm-lock.yaml` alone. Cloudflare installs
+with `--frozen-lockfile`, which refuses the mismatch outright, so the build failed and the
+site quietly kept serving the previous commit for a day. Run the package manager after any
+dependency change and commit the lockfile with it.
+
+**No em dashes, en dashes or curly quotes.** Both repos enforce it:
+`npm run verify-typography`. Removing one is prose work, not find and replace. VISION.md is
+exempt.
+
 ---
 
 ## Open, in priority order
