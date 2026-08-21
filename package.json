@@ -13,7 +13,8 @@
     "optimize-static-images": "node scripts/optimize-static-images.mjs",
     "verify-voting": "node --no-warnings scripts/verify-voting-chain.mjs",
     "verify-school": "node --no-warnings scripts/verify-school-credentials.mjs",
-    "verify-typography": "node --no-warnings scripts/scan-typography.mjs"
+    "verify-typography": "node --no-warnings scripts/scan-typography.mjs",
+    "verify-safety": "node --no-warnings scripts/verify-safety.mjs"
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.84",
