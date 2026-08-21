@@ -4,7 +4,7 @@
  * The two cards every system in this town has to be able to fill in.
  *
  * The town reads as "the blockchain project", and a visitor could reasonably walk out of it
- * believing the argument is that a chain fixes civic systems. It is not. Three of the four
+ * believing the argument is that a chain fixes civic systems. It is not. Three of the five
  * built systems here do not use a blockchain at all; they use tamper-evidence, which costs a
  * hash function instead of a network.
  *

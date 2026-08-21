@@ -43,6 +43,10 @@ const NationalDigitalSchool = dynamic(
   () => import('./NationalDigitalSchool').then((m) => m.NationalDigitalSchool),
   { ssr: false, loading: SystemLoading },
 );
+const AiSafetyCommand = dynamic(
+  () => import('./AiSafetyCommand').then((m) => m.AiSafetyCommand),
+  { ssr: false, loading: SystemLoading },
+);
 const Intent = dynamic(() => import('./Intent').then((m) => m.Intent), {
   ssr: false, loading: SystemLoading,
 });
@@ -110,9 +114,10 @@ const LANDMARKS: Landmark[] = [
   },
   {
     id: 'police', name: 'AI Safety Command', icon: '🚓',
-    x: 6, y: 21, w: 1, h: 1, status: 'planned',
-    tagline: 'AI CCTV that spots incidents in seconds, with privacy safeguards.',
-    description: 'Planned: camera network detects accidents & crimes, dispatches the nearest responder, and logs every access to footage on an audit chain.',
+    x: 6, y: 21, w: 2, h: 2, status: 'live',
+    tagline: 'Cameras that cannot recognise a face, and a record of everyone who looked.',
+    description: 'Every other version of this technology shows you how well it sees. This one shows you the watcher. The pole computes movement locally and transmits eight numbers, never a frame, so the network cannot do face recognition even if it is ordered to. Footage opens only when two of three parties combine their shares of the key, and every attempt to open it, refusals included, is on a chain nobody can quietly edit.',
+    cta: 'Step inside and try to open the footage',
   },
   {
     id: 'mobility', name: 'Smart Mobility Hub', icon: '🚌',
@@ -148,6 +153,7 @@ export function FutureIndia({
   const [showPanchayat, setShowPanchayat] = useState(false);
   const [showBank, setShowBank] = useState(false);
   const [showSchool, setShowSchool] = useState(false);
+  const [showSafety, setShowSafety] = useState(false);
 
   /**
    * Which door each landmark opens. A map rather than an if/else chain, because the chain
@@ -159,6 +165,7 @@ export function FutureIndia({
     panchayat: () => setShowPanchayat(true),
     bank: () => setShowBank(true),
     school: () => setShowSchool(true),
+    police: () => setShowSafety(true),
   }), []);
   const [navigationTarget, setNavigationTarget] = useState<{ x: number; y: number } | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
@@ -239,7 +246,7 @@ export function FutureIndia({
     setNavigationTarget({ x: l.x, y: l.y });
   }, []);
 
-  const systemOpen = showVoting || showPanchayat || showBank || showSchool;
+  const systemOpen = showVoting || showPanchayat || showBank || showSchool || showSafety;
 
   return (
     <div className="w-full h-screen overflow-hidden bg-[#0b1020] relative">
@@ -353,8 +360,8 @@ export function FutureIndia({
           <div className="max-w-lg text-center text-white">
             <Tricolour className="w-20 h-auto mx-auto mb-5 drop-shadow-lg" />
             <h1 className="text-4xl font-bold mb-5"><span className="text-amber-400">Bharat</span> 2047</h1>
-            <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047: voting, panchayats, banking, schools. And I would rather show you than tell you.</p>
-            <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, the panchayat trains a real classifier in your browser while you watch, the bank is audited without anyone being allowed to read it, and the school signs a degree you can check yourself.</p>
+            <p className="text-white/70 mb-2">This is how I want to see India&apos;s civic systems work in 2047: voting, panchayats, banking, schools, and the cameras on the street. And I would rather show you than tell you.</p>
+            <p className="text-white/50 text-sm mb-6">So none of it is a mockup. The town lives, traffic flows, the voting centre runs genuine cryptography, the panchayat trains a real classifier in your browser while you watch, the bank is audited without anyone being allowed to read it, the school signs a degree you can check yourself, and the camera network cannot recognise a face even if it is told to.</p>
             <button onClick={() => setShowWelcome(false)}
               className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xl shadow-xl shadow-amber-500/30">
               Explore the town →
@@ -383,6 +390,7 @@ export function FutureIndia({
 
       {/* A certificate that carries its own proof */}
       {showSchool && <NationalDigitalSchool onClose={() => setShowSchool(false)} onShowIntent={() => setShowIntent(true)} />}
+      {showSafety && <AiSafetyCommand onClose={() => setShowSafety(false)} onShowIntent={() => setShowIntent(true)} />}
 
       {booted && showDay && !systemOpen && !showWelcome && (
         <CitizensDay

@@ -55,10 +55,16 @@ export const TOUR: TourStop[] = [
       'A degree here proves itself. The school signs it with a real key, the certificate gets a real content address, and every field hangs off a Merkle tree, so a graduate can prove she has the degree while showing you three fields and hiding the rest. Change one mark and it stops verifying, in front of you.',
   },
   {
+    landmarkId: 'police',
+    title: 'The AI Safety Command',
+    narration:
+      'This one is pointed the other way round. Instead of showing you how well the cameras see, it shows you the watcher. The pole sends eight numbers about movement and never a picture, so the network cannot recognise a face even if it is told to. The footage opens only when two of three people combine their shares of the key, and every attempt to open it, refusals included, goes on a chain nobody can quietly edit.',
+  },
+  {
     landmarkId: null,
     title: 'The buildings still greyed out',
     narration:
-      'Six more systems are planned, and they are deliberately not pretended at. Cameras whose every viewing is itself logged, waste bins that call for themselves, transport a family can plan a day around, and claims that cannot quietly vanish. One at a time, each built to the standard of the four that work.',
+      'Five more systems are planned, and they are deliberately not pretended at. Waste bins that call for themselves, transport a family can plan a day around, health claims that cannot quietly vanish, digital rights, and a budget a citizen can follow. One at a time, each built to the standard of the five that work.',
   },
   {
     landmarkId: null,

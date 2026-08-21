@@ -558,7 +558,7 @@ export function BankOfBharat({ onClose, onShowIntent }: { onClose: () => void; o
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="font-semibold mb-2">The question this system asks</div>
             <p className="text-sm text-white/60">
-              Not &quot;can we put banking on a chain&quot;. The town already has two hash chains. The harder question is what a
+              Not &quot;can we put banking on a chain&quot;. The town already has four hash chains. The harder question is what a
               regulator can compute over a bank&apos;s books <i>without being shown anybody&apos;s account</i>. The answer turns out
               to be: solvency, concentration, and most financial crime.
             </p>

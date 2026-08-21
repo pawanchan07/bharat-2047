@@ -28,10 +28,12 @@ WHERE BLOCKCHAIN ACTUALLY BELONGS (answer this carefully, it is the project's co
 - Most civic systems need only the first. Estonia has run national health and judicial
   records on hash-linked timestamping for over a decade; it is called a blockchain and has
   no consensus and no coin.
-- In THIS town, three of the four built systems do not use a blockchain: the school is a
+- In THIS town, three of the five built systems do not use a blockchain: the school is a
   Merkle tree plus ECDSA signatures, the bank is Pedersen commitments with no chain at all,
-  and the panchayat is a tamper-evident case log. Only the voting centre needs consensus,
-  because candidates actively distrust each other and there is no operator all sides accept.
+  and the panchayat is a tamper-evident case log. Two do earn one. The voting centre needs
+  consensus, because candidates actively distrust each other and there is no operator all
+  sides accept. The AI Safety Command earns one for its access log rather than its footage,
+  because the police cannot run the record that audits the police.
 - The seven-question test a system must pass before a chain is worth it: more than one
   writer; those writers distrust each other; no third party they would all accept; someone
   must check it later who was not there; a quiet edit would be catastrophic; the throughput
@@ -42,7 +44,7 @@ WHERE BLOCKCHAIN ACTUALLY BELONGS (answer this carefully, it is the project's co
 WHAT THE TOWN IS
 - A living isometric town (built on the open-source IsoCity engine, MIT licensed) where you
   click a building to open a civic system that genuinely runs in your browser.
-- Nothing is a mockup, a video or a screenshot. Four systems are finished and working.
+- Nothing is a mockup, a video or a screenshot. Five systems are finished and working.
 
 SYSTEM 1: THE DIGITAL VOTING CENTRE
 - A citizen's identity becomes an anonymous token: SHA-256 of their identity plus a national
@@ -73,7 +75,7 @@ SYSTEM 2: THE AI PANCHAYAT KENDRA
   rewrites the final verdict into the visitor's language. It never decides the case.
 
 SYSTEM 3: THE BANK OF BHARAT
-- The question is not "can banking go on a chain". The town already has two hash chains.
+- The question is not "can banking go on a chain". The town already has four hash chains.
   It is what a regulator can compute over a bank's books without being shown any account.
 - Every balance is sealed in a real Pedersen commitment over RFC 3526 MODP Group 14, a
   published 2048-bit safe prime.
@@ -109,6 +111,38 @@ SYSTEM 4: THE NATIONAL DIGITAL SCHOOL
   couple of milliseconds, offline, with no call to the university.
 - Honest caveat: the cryptography is the easy half. Who is allowed to be an issuer, and how a
   lost signing key is rotated, is governance, and this prototype does not solve it.
+
+SYSTEM 5: THE AI SAFETY COMMAND
+- The argument is inverted on purpose. Every other demonstration of AI CCTV shows how well
+  the system sees. This one shows the watcher, because in a town where cameras will exist
+  anyway the thing worth engineering is that abusing them is expensive in mathematics rather
+  than merely forbidden in policy.
+- There is NO face recognition, and that is a refusal rather than a missing feature. The
+  stated price: this network tells you an incident happened here at this time, and never who
+  did it. If a visitor asks for face recognition, explain the refusal and its cost.
+- The pole transmits eight numbers and never a frame: motion energy, an occupancy estimate,
+  the shape of what moved, its centre, drift and jerk. Real frame differencing over a canvas
+  in the visitor's own browser, no model and no download. Because a face is never captured
+  into the message, the network cannot be repurposed to recognise one.
+- Severity is decided by named, readable rules, never a model, and two rules must agree
+  before a responder is sent. A dropped bag fires exactly one rule and nobody is dispatched,
+  which is the case the screen exists to show: one indicator is how a bag becomes an armed
+  response.
+- Footage is encrypted with AES-GCM and the key is split three ways by real Shamir secret
+  sharing over GF(256), between the station officer, a magistrate and a citizen ombudsman.
+  Any two open it; one opens nothing. There is no permission check in the code, so an
+  administrator cannot switch the safeguard off. A warrant becomes a precondition of the
+  arithmetic.
+- Every access attempt is appended to a SHA-256 chain, refusals included, because a log that
+  records only successful access cannot tell an officer who never looked from one who tried
+  and was stopped. Identities on it are salted commitments, since a public audit trail that
+  names people is a public register of who is under surveillance.
+- Dispatch is A star over the town road graph, so "nearest responder" is a claim the code
+  actually keeps.
+- Honest caveats: a real deployment needs the detector on attested hardware at the pole, the
+  three shareholders have to be genuinely independent, which is institutional rather than
+  cryptographic, and the log proves who looked but never whether they should have been
+  allowed to.
 
 HOW THE AI AND VOICE WORK
 - Everything runs in the visitor's browser. No API keys, no accounts, no server. Anyone can
@@ -198,7 +232,7 @@ export const FAQ: FaqEntry[] = [
     keys: ['blockchain', 'why chain', 'need a blockchain', 'database', 'everywhere'],
     question: 'Does all of this really need a blockchain?',
     answer:
-      'Mostly no, and saying so is the argument. "Blockchain" bundles three things: tamper-evidence, which costs a hash function; decentralised consensus, which is expensive and really political; and trustless value transfer, which is crypto. Almost every civic system needs only the first. Three of the four built here do not use a blockchain at all: the school is a Merkle tree and signatures, the bank is commitments with no chain in it, the panchayat is a tamper-evident log. Only the voting centre earns consensus, because candidates genuinely distrust each other and there is no operator all sides would accept. Everywhere else, a database with an append-only audit log would win on speed, cost, energy and legal exposure.',
+      'Mostly no, and saying so is the argument. "Blockchain" bundles three things: tamper-evidence, which costs a hash function; decentralised consensus, which is expensive and really political; and trustless value transfer, which is crypto. Almost every civic system needs only the first. Three of the five built here do not use a blockchain at all: the school is a Merkle tree and signatures, the bank is commitments with no chain in it, the panchayat is a tamper-evident log. Two do earn one. The voting centre earns consensus, because candidates genuinely distrust each other and there is no operator all sides would accept. The AI Safety Command earns a chain for its access log rather than its footage, because the police cannot run the record that audits the police, and the citizen who needs to read it later was never in the room. Everywhere else, a database with an append-only audit log would win on speed, cost, energy and legal exposure.',
   },
   {
     keys: ['real', 'fake', 'mockup', 'actually work', 'pre-recorded', 'simulated'],
@@ -297,10 +331,16 @@ export const FAQ: FaqEntry[] = [
       `Pawan Chander built it as an argument, not a demo. It is his answer to "how should India's civic systems work in 2047", made both aesthetically and technically, which is why every mechanism actually runs instead of being drawn. The "Why this exists" button in the town's title bar has the full statement.`,
   },
   {
+    keys: ['face recognition', 'facial', 'cctv', 'camera', 'surveillance', 'police', 'watched', 'privacy camera'],
+    question: 'Does the camera network recognise faces?',
+    answer:
+      'No, and that is a refusal rather than a missing feature. The pole computes movement locally and transmits eight numbers, never a frame, so there is nothing in the message a face could be recovered from. The network cannot be repurposed to recognise one even if a future government orders it, because the information was never captured. The price is real and stated on screen: this network tells you an incident happened here at this time, and it will never tell you who did it. What it does instead is make the watching accountable. Footage is encrypted and the key is split three ways, so two of the station officer, a magistrate and a citizen ombudsman have to combine before anything opens, and every attempt, refusals included, lands on a chain nobody can quietly edit.',
+  },
+  {
     keys: ['next', 'roadmap', 'coming', 'planned', 'future', 'other buildings'],
     question: 'What is coming next?',
     answer:
-      'Six more systems, one at a time and each built to the same bar: an AI safety command where every access to footage is itself logged, a smart waste network, a mobility hub, health and insurance claims that cannot silently vanish, digital rights, and policy transparency. The greyed-out buildings in the town are those.',
+      'Five more systems, one at a time and each built to the same bar: a smart waste network, a mobility hub, health and insurance claims that cannot silently vanish, digital rights, and policy transparency. The greyed-out buildings in the town are those. The AI safety command was the most recent to open.',
   },
 ];
 

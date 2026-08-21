@@ -580,7 +580,7 @@ export function VotingCentre({ onClose, onShowIntent }: { onClose: () => void; o
           <WhatItUses
             uses={"Hash chain · proof-of-work · public verification"}
             needsChain={true}
-            why={"The one system here that earns a chain. Candidates actively distrust each other and there is no operator all sides would accept, which is exactly the case consensus was invented for."}
+            why={"One of the two systems here that earn a chain, and the only one that earns consensus. Candidates actively distrust each other and there is no operator all sides would accept, which is exactly the case consensus was invented for. The safety command earns its access log for a related reason and does not need mining to do it."}
           />
           <WhatItCosts points={[
           "Irreversibility. A vote sealed in error stays sealed: there is no chargeback, and correcting a genuine mistake means appending, never editing.",

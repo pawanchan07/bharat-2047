@@ -15,15 +15,17 @@
  */
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { PEOPLE, useTownState } from './TownState';
+import { PEOPLE, TownEvent, useTownState } from './TownState';
 
 type Tab = 'log' | 'break' | 'card';
 
-const SYSTEM_META: Record<'voting' | 'panchayat' | 'bank' | 'school', { icon: string; name: string }> = {
+// Keyed off the event type itself, so adding a system to TownState cannot leave this behind.
+const SYSTEM_META: Record<TownEvent['system'], { icon: string; name: string }> = {
   voting: { icon: '🗳️', name: 'Digital Voting Centre' },
   panchayat: { icon: '🏛️', name: 'AI Panchayat Kendra' },
   bank: { icon: '🏦', name: 'Bank of Bharat' },
   school: { icon: '🏫', name: 'National Digital School' },
+  safety: { icon: '🚓', name: 'AI Safety Command' },
 };
 
 export function TownLedger({ onClose }: { onClose: () => void }) {

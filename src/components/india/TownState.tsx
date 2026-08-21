@@ -38,7 +38,7 @@ export interface TownEvent {
   /** Who it happened to, when it happened to somebody. */
   personId?: string;
   /** Which system it came from. */
-  system: 'voting' | 'panchayat' | 'bank' | 'school';
+  system: 'voting' | 'panchayat' | 'bank' | 'school' | 'safety';
   label: string;
   detail: string;
   /** Grid tile the world should mark, when the event has a place. */
@@ -52,7 +52,7 @@ export interface TownEvent {
  */
 export interface Attack {
   id: string;
-  system: 'voting' | 'panchayat' | 'bank' | 'school';
+  system: 'voting' | 'panchayat' | 'bank' | 'school' | 'safety';
   title: string;
   /** What you actually do. */
   how: string;

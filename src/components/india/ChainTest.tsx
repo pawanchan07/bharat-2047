@@ -341,7 +341,7 @@ export function ChainTest() {
 
           {answered === GATES.length && verdict.tone !== 'chain' && (
             <p className="mt-3 px-1 text-[12px] leading-relaxed text-white/35">
-              This is the answer for three of the four systems in this town too. It is not a
+              This is the answer for three of the five systems in this town too. It is not a
               disappointing result. It is a cheaper, faster, more correctable system that keeps the
               one property you actually wanted.
             </p>

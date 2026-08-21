@@ -256,7 +256,7 @@ export function Intent({ onClose }: { onClose: () => void }) {
           </div>
 
           <p className="mb-8 max-w-2xl text-white/50">
-            Three of the four civic systems in a town people read as &quot;the blockchain project&quot; do not use
+            Three of the five civic systems in a town people read as &quot;the blockchain project&quot; do not use
             a blockchain. That is not a shortcut I am confessing to. It is the argument. Saying so is more
             credible than any feature I could add on top.
           </p>
@@ -323,7 +323,7 @@ export function Intent({ onClose }: { onClose: () => void }) {
             <div className="p-5 rounded-2xl bg-red-500/[0.07] border border-red-500/20">
               <div className="font-semibold mb-2 text-red-300">Not a claim that everything needs a blockchain</div>
               <p className="text-sm text-white/55 leading-relaxed">
-                Most things do not, including three of the four systems here. A chain proves nobody edited the
+                Most things do not, including three of the five systems here. A chain proves nobody edited the
                 record after it was written. It says nothing about whether the record was true when written. A
                 corrupt institution signing with a real key still produces a perfectly valid degree, and no amount
                 of cryptography moves that. It is fine to say blockchain. It is not fine to say it alone.

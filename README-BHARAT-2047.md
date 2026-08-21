@@ -18,7 +18,11 @@ could work. Four of them are fully built and running for real in the browser:
 - a **National Digital School**, a degree that proves itself: a real ECDSA P-256
   signature over a Merkle root, a real IPFS content address, and selective
   disclosure that lets a graduate prove she holds the degree while showing three
-  fields out of eleven.
+  fields out of eleven;
+- an **AI Safety Command**, a camera network that cannot recognise a face: the pole
+  computes movement locally and transmits eight numbers rather than a frame, footage
+  opens only when two of three parties combine their shares of a real AES-GCM key,
+  and every attempt to open it, refusals included, is appended to a hash chain.
 
 No API keys, no network calls, nothing pre-recorded.
 
@@ -45,9 +49,10 @@ called a blockchain, and it has no consensus and no coin.
 | Bank of Bharat | Pedersen commitments, Merkle root, Schnorr proofs | **No**, there is no chain in it at all |
 | AI Panchayat Kendra | SHA-256 case decisions chained to the previous case | **No**, a tamper-evident log |
 | Digital Voting Centre | Hash chain, proof-of-work, public verification | **Yes** |
+| AI Safety Command | Frame differencing, Shamir over GF(256), AES-GCM, hash-chained access log | **Yes**, for the access log; the footage needs none |
 
-The voting centre is the one case that earns it: candidates actively distrust each
-other and there is no operator all sides would accept, which is precisely what
+Two of the five earn it. The voting centre is the clearest: candidates actively distrust
+each other and there is no operator all sides would accept, which is precisely what
 consensus was invented for. Everywhere else a database with an append-only audit log
 wins on speed, cost, energy, correctability and legal exposure.
 
@@ -236,6 +241,34 @@ key cannot be swapped after the fact, the original still verifies inside the cha
 and stops being current after it, a contested supersession never takes effect, and editing a
 contest entry is detected like any other tamper.
 
+### What is real in the AI Safety Command, and what is not
+
+**Real.** The detection is frame differencing over the canvas the page draws, computed on the
+actual pixels in your browser: no model, no download, no training. The eight numbers it
+produces are the entire payload a camera in this town transmits, and `FrameFeatures` has no
+field capable of carrying an image, a crop or an embedding, which is why the network cannot
+be repurposed to recognise a face. The key split is genuine Shamir secret sharing over
+GF(256) against a real AES-GCM key: presenting one share does not fail a permission check,
+it reconstructs a different key and the cipher rejects the tag. The access log is SHA-256
+chained the way the voting centre chains blocks, and the identities on it are salted
+commitments rather than names. Dispatch is A star over the town road graph.
+
+**Not real.** The street is drawn rather than filmed, and a drawn street is kinder to a
+detector than a monsoon night would be. The clip behind the encryption is a written
+description of footage, not video. The keys live for as long as the tab does.
+
+**Deliberately absent.** Face recognition. The cost of that refusal is stated on the screen
+rather than hidden: this network will tell you an incident happened here at this time, and it
+will never tell you who did it.
+
+Everything asserted above is checked by `npm run verify-safety`, which runs 36 tests against
+the same module the screen uses: that one share reconstructs nothing and the same share twice
+is still one share, that a forged share fails in the cryptography rather than a permission
+check, that a dropped bag fires exactly one rule and dispatches nobody, that editing a refusal
+into a grant breaks the chain and orphans every entry after it, that deleting an entry is
+caught too, that no name appears anywhere on the log, and that the route it calls nearest
+really is the shortest, checked against brute force over every simple path.
+
 ## How this is deployed
 
 Cloudflare Workers, as a static export. There is no server: `next build` writes
@@ -349,7 +382,7 @@ WebGPU you get a designed explanation and a page that still works completely.
   compiled from `VISION.md`. Every answer says which one wrote it.
 - **Take the tour**: six stops, the camera flying between landmarks while the town explains
   itself. Subtitles are the fallback rung, so they are always on screen.
-- **A citizen's day**: follow one person from 06:10 to 21:00 through all four systems, with
+- **A citizen's day**: follow one person from 06:10 to 21:00 through the town's systems, with
   the light moving with her. The same six adults appear in the voting centre, the panchayat and the bank. The school has
   its own graduating class, one of them Kamla Devi's granddaughter, and what they did
   in one is visible in the others.
@@ -383,5 +416,6 @@ Time to a fully painted town on the live site: **~3.2 s**, TTFB 40 ms.
 - ✅ AI Panchayat Kendra · LIVE
 - ✅ Bank of Bharat · LIVE
 - ✅ National Digital School · LIVE
-- 🗓️ AI safety command, smart waste, mobility hub, health and insurance,
-  digital rights, policy transparency
+- ✅ AI Safety Command · LIVE
+- 🗓️ Smart waste, mobility hub, health and insurance, digital rights,
+  policy transparency

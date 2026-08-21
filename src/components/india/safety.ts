@@ -66,9 +66,10 @@ export interface FrameFeatures {
   /** Distinct moving regions across the frame, from a column projection of the motion mask. */
   occupancy: number;
   /**
-   * Width over height of the box containing all motion. A standing person is well below 1,
-   * a person on the ground is well above it. This is the whole of the fall signal, and it is
-   * a heuristic about shape rather than any recognition of a body.
+   * Width over height of the box containing the pixels that got brighter, which is where
+   * something now is. A standing person is well below 1, a person on the ground is well above
+   * it. This is the whole of the fall signal, and it is a heuristic about shape rather than
+   * any recognition of a body.
    */
   aspect: number;
   /** Centre of mass of the motion, as a fraction of frame width and height. */
@@ -753,5 +754,5 @@ export const CHAIN_VERDICT = {
   answer: 'yes' as const,
   headline: 'The access log earns a chain. The footage does not.',
   detail:
-    'This is the second system in the town to answer yes, alongside the voting centre, and four of six still answer no. The footage needs encryption and a split key, which is a different problem with a different tool.',
+    'This is the second system in the town to answer yes, alongside the voting centre, and three of the five still answer no. The footage needs encryption and a split key, which is a different problem with a different tool.',
 };

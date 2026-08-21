@@ -103,6 +103,12 @@ check('an empty street dispatches nobody', !quiet.dispatch && quiet.severity ===
 const bag = assess(seq([blank(), withBox(20, 20, 6, 6), withBox(20, 20, 6, 6), withBox(20, 20, 6, 6)]))
 check('something dropped and left behind does NOT send an armed response',
   !bag.dispatch && bag.severity <= 1, `${bag.kind}, severity ${bag.severity}`)
+// The screen promises that one indicator fires and nobody is sent. Both halves are asserted,
+// because a version where nothing fires at all would still pass the check above while making
+// the copy beside it untrue.
+check('exactly one indicator fires, and it is the unattended-object rule',
+  bag.kind === 'unattended' && bag.fired.length === 1 && bag.fired[0].id === 'STATIC_PRESENCE',
+  bag.fired.map((f) => f.id).join(' + ') || 'nothing fired')
 check('and the reason it did not is stated', bag.basis.length > 0, bag.basis)
 
 // A crowd surge is the other severity-3 path, and it must not be reachable by one person
