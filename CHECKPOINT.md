@@ -44,13 +44,13 @@ until the zone reads `Active`, then delete it.
 
 ## Bharat 2047 roadmap
 
-**Four of ten systems built.** The school was the most recent.
+**Five of ten systems built.** The AI Safety Command was the most recent.
 
 1. ✅ Digital Voting Centre
 2. ✅ AI Panchayat Kendra
 3. ✅ Bank of Bharat
 4. ✅ National Digital School
-5. 🗓️ AI Safety Command
+5. ✅ AI Safety Command
 6. 🗓️ Smart Waste Network
 7. 🗓️ Smart Mobility Hub
 8. 🗓️ Smart Health Centre with insurance
@@ -61,8 +61,8 @@ One at a time, each to the bar the first four set. VISION's process applies: rea
 writing, wait for approval on anything extra, then build, test the whole `/india` flow,
 commit, push, report.
 
-Both verifier scripts pass and should keep passing: `npm run verify-school` (34 assertions),
-`npm run verify-voting`.
+All four checks pass and should keep passing: `npm run verify-safety` (36 assertions),
+`npm run verify-school` (34), `npm run verify-voting`, and `npm run verify-typography`.
 
 ---
 
@@ -111,7 +111,8 @@ exempt.
    `192.0.2.1` placeholder A record, because the token at the time could not create a Custom
    Domain. Works fine; converting is tidier. Add the Custom Domain first, then remove the
    route, to avoid a gap.
-4. **System 5.** Pawan picks which.
+4. **System 6.** Pawan picks which. Waste, mobility, health and insurance, digital rights
+   and policy transparency are what remain.
 
 ## Known cosmetic issues, deliberately not fixed
 
